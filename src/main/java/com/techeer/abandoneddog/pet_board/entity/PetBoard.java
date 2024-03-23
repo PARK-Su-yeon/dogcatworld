@@ -1,5 +1,6 @@
 package com.techeer.abandoneddog.pet_board.entity;
 
+import com.techeer.abandoneddog.pet_board.dto.PetBoardRequestDto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -50,6 +51,15 @@ public class PetBoard {
         this.description = description;
         this.location = location;
         this.status = status;
+    }
+
+    public void update(PetBoardRequestDto requestDto) {
+//        this.petId = requestDto.getPetId();
+//        this.memberId = requestDto.getMemberId();
+        this.title = requestDto.getTitle();
+        this.description = requestDto.getDescription();
+        this.location = requestDto.getLocation();
+        this.status = requestDto.getStatus();
     }
 
 }

@@ -13,8 +13,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class PetBoardRequestDto {
-    private Long petId;
-    private Long memberId;
+//    private Long petId;
+//    private Long memberId;
     private String title;
     private String description;
     private String location;
