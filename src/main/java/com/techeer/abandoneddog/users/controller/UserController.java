@@ -1,8 +1,11 @@
 package com.techeer.abandoneddog.users.controller;
 
+import com.techeer.abandoneddog.users.dto.LoginRequestDto;
 import com.techeer.abandoneddog.users.dto.UserDto;
 import com.techeer.abandoneddog.users.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -12,12 +15,23 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("/register")
-    public String register(@RequestBody UserDto userDto) {
-        System.out.println(userDto);
-        if(userService.signup(userDto)){
-            return "redirect:/login";
-        }else{
-            return "회원가입 실패";
+    public ResponseEntity<?> register(@RequestBody UserDto userDto) {
+        if (userService.signup(userDto)) {
+            return ResponseEntity.ok().body("회원가입 성공");
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("회원가입에 실패했습니다.");
         }
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginRequestDto loginRequestDto) {
+        try {
+            if (userService.login(loginRequestDto) != null) {
+                return ResponseEntity.ok().body("로그인 성공");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("로그인에 실패했습니다.");
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("로그인에 실패했습니다.");
     }
 }
