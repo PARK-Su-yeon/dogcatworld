@@ -2,7 +2,6 @@ package com.techeer.abandoneddog.users.service;
 
 import com.techeer.abandoneddog.users.dto.LoginRequestDto;
 import com.techeer.abandoneddog.users.dto.RegisterRequestDto;
-import com.techeer.abandoneddog.users.dto.UserDto;
 import com.techeer.abandoneddog.users.entity.Users;
 import com.techeer.abandoneddog.users.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,18 +20,15 @@ public class UserService {
     private final BCryptPasswordEncoder encoder;
 
     public boolean signup(RegisterRequestDto requestDto) {
-        Users users = new Users();
-        users.setUsername(requestDto.getUsername());
-        users.setPassword(encoder.encode(requestDto.getPassword()));
-        users.setEmail(requestDto.getEmail());
-        users.setPhoneNum(requestDto.getPhoneNum());
+        //TODO Exception 처리
+        if (userRepository.existsByEmail(requestDto.getEmail())) {
+            return false;
+        }
+
+        Users user = requestDto.toEntity(encoder);
 
         try {
-            if (!userRepository.existsByEmail(requestDto.getEmail())) {
-                userRepository.save(users);
-            } else {
-                return false;
-            }
+            userRepository.save(user);
             return true;
         } catch (Exception e) {
             return false;
