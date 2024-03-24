@@ -1,6 +1,7 @@
 package com.techeer.abandoneddog.users.controller;
 
 import com.techeer.abandoneddog.users.dto.LoginRequestDto;
+import com.techeer.abandoneddog.users.dto.RegisterRequestDto;
 import com.techeer.abandoneddog.users.dto.UserDto;
 import com.techeer.abandoneddog.users.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +16,8 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody UserDto userDto) {
-        if (userService.signup(userDto)) {
+    public ResponseEntity<?> register(@RequestBody RegisterRequestDto registerRequestDto) {
+        if (userService.signup(registerRequestDto)) {
             return ResponseEntity.ok().body("회원가입 성공");
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("회원가입에 실패했습니다.");
