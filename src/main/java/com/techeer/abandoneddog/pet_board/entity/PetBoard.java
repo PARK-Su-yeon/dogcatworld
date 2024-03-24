@@ -1,5 +1,6 @@
 package com.techeer.abandoneddog.pet_board.entity;
 
+import com.techeer.abandoneddog.global.entity.BaseEntity;
 import com.techeer.abandoneddog.pet_board.dto.PetBoardRequestDto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -18,7 +19,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "pet_board")
-public class PetBoard {
+public class PetBoard extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long petBoardId;
