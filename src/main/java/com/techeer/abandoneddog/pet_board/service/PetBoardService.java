@@ -41,4 +41,11 @@ public class PetBoardService {
         Page<PetBoard> petBoardPage = petBoardRepository.findAll(pageable);
         return petBoardPage.map(PetBoardResponseDto::fromEntity);
     }
+
+    @Transactional
+    public void deletePetBoard(Long petBoardId) {
+        PetBoard petBoard = petBoardRepository.findById(petBoardId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 게시글을 찾을 수 없습니다. id=" + petBoardId));
+        petBoardRepository.delete(petBoard);
+    }
 }

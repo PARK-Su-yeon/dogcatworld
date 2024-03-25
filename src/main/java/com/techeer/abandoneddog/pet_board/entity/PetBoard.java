@@ -14,14 +14,19 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SQLDelete(sql = "UPDATE pet_board SET deleted = true WHERE pet_board_id = ?")
+@Where(clause = "deleted = false")
 @Table(name = "pet_board")
 public class PetBoard extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "pet_board_id", updatable = false)
     private Long petBoardId;
 
 //    @Column(name = "pet_id", nullable = false)

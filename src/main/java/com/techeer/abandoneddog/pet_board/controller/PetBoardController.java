@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -76,4 +77,15 @@ public class PetBoardController {
         }
     }
 
+    @DeleteMapping("/{petBoardId}")
+    public ResponseEntity<?> deletePetBoard(@PathVariable Long petBoardId) {
+        try {
+            petBoardService.deletePetBoard(petBoardId);
+            return ResponseEntity.ok().body("게시물 삭제에 성공하였습니다.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("게시물 삭제에 실패하였습니다.");
+        }
+    }
 }
