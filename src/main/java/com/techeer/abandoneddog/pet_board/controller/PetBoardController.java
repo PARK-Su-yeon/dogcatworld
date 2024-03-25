@@ -3,7 +3,6 @@ package com.techeer.abandoneddog.pet_board.controller;
 import com.techeer.abandoneddog.pet_board.dto.PetBoardRequestDto;
 import com.techeer.abandoneddog.pet_board.dto.PetBoardResponseDto;
 import com.techeer.abandoneddog.pet_board.service.PetBoardService;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
