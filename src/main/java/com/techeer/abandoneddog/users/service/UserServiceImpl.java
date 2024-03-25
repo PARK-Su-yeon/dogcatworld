@@ -4,6 +4,7 @@ import com.techeer.abandoneddog.global.exception.user.EmailAlreadyExistsExceptio
 import com.techeer.abandoneddog.global.exception.user.InvalidPasswordException;
 import com.techeer.abandoneddog.global.exception.user.UserNotFoundException;
 import com.techeer.abandoneddog.users.dto.LoginRequestDto;
+import com.techeer.abandoneddog.users.dto.LoginResponseDto;
 import com.techeer.abandoneddog.users.dto.RegisterRequestDto;
 import com.techeer.abandoneddog.users.entity.Users;
 import com.techeer.abandoneddog.users.repository.UserRepository;
@@ -31,7 +32,7 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
     }
 
-    public Long login(LoginRequestDto loginRequestDto) {
+    public LoginResponseDto login(LoginRequestDto loginRequestDto) {
         Users user = loginRequestDto.toEntity();
         Optional<Users> loginuser = userRepository.findUserByEmail(loginRequestDto.getEmail());
 
@@ -43,7 +44,10 @@ public class UserServiceImpl implements UserService {
             throw new InvalidPasswordException();
         }
 
-        return user.getId();
+        return LoginResponseDto.builder()
+                .userId(loginuser.get().getId())
+                .email(loginuser.get().getEmail())
+                .build();
     }
 }
 

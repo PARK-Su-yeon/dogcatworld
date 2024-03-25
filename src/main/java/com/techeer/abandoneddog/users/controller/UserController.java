@@ -1,9 +1,12 @@
 package com.techeer.abandoneddog.users.controller;
 
 import com.techeer.abandoneddog.users.dto.LoginRequestDto;
+import com.techeer.abandoneddog.users.dto.LoginResponseDto;
 import com.techeer.abandoneddog.users.dto.RegisterRequestDto;
+import com.techeer.abandoneddog.users.dto.ResultDto;
 import com.techeer.abandoneddog.users.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,12 +22,12 @@ public class UserController {
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequestDto registerRequestDto) {
         userService.signUp(registerRequestDto);
-        return ResponseEntity.ok().body("회원가입 성공");
+        return ResponseEntity.ok(ResultDto.res(HttpStatus.OK, "회원가입 성공"));
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequestDto loginRequestDto) {
-        Long uid = userService.login(loginRequestDto);
-        return ResponseEntity.ok().body("로그인 성공");
+        LoginResponseDto user = userService.login(loginRequestDto);
+        return ResponseEntity.ok(ResultDto.res(HttpStatus.OK, "로그인 성공", user));
     }
 }

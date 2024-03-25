@@ -13,13 +13,13 @@ public enum ErrorCode {
     INVALID_PASSWORD(HttpStatus.BAD_REQUEST, "U003", "유효하지 않은 비밀번호입니다.");
 
     private HttpStatus status;
-    private String message;
     private String code;
+    private String message;
 
-    ErrorCode(HttpStatus status, String message, String code) {
+    ErrorCode(HttpStatus status, String code, String message) {
         this.status = status;
-        this.message = message;
         this.code = code;
+        this.message = message;
     }
 
 }
