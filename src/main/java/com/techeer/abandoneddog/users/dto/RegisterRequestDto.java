@@ -12,6 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Getter
 @Setter
 public class RegisterRequestDto {
+
     @NotBlank(message = "유저이름을 입력하세요.")
     private String username;
 
