@@ -1,6 +1,7 @@
 package com.techeer.abandoneddog.users.entity;
 
 import com.techeer.abandoneddog.global.entity.BaseEntity;
+import com.techeer.abandoneddog.users.dto.UserRequestDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Entity
 @Getter
@@ -36,4 +38,11 @@ public class Users extends BaseEntity {
     @Column(name = "phone_num", nullable = false)
     private String phoneNum;
 
+    public void update(UserRequestDto dto, PasswordEncoder passwordEncoder) {
+        this.username = dto.getUsername();
+        this.password = passwordEncoder.encode(dto.getPassword());
+        this.email = dto.getEmail();
+        this.phoneNum = dto.getPhoneNum();
+    }
 }
+
