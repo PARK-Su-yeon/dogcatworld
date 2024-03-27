@@ -57,8 +57,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public Users getUser(Long userId) {
-        return userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException());
+    public UserResponseDto getUser(Long userId) {
+        Users user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException());
+        return UserResponseDto.fromEntity(user);
     }
 
     @Override
@@ -70,7 +71,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public Object updateUser(UserRequestDto dto, Long userId) {
+    public UserResponseDto updateUser(Long userId, UserRequestDto dto) {
         Users user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException());
         user.update(dto, encoder);
         return UserResponseDto.fromEntity(user);
