@@ -5,6 +5,10 @@ spring:
     username: ${MYSQL_ROOT_USER}
     password: ${MYSQL_ROOT_PASSWORD}
 
+  jackson:
+    serialization:
+      fail-on-empty-beans: false
+
   jpa:
     open-in-view: true
     hibernate:
