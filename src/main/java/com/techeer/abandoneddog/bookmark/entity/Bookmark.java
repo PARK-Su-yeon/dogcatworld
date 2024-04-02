@@ -1,6 +1,6 @@
 package com.techeer.abandoneddog.bookmark.entity;
 
-import com.techeer.abandoneddog.bookmark.dto.BookmarkRequestDto;
+import com.techeer.abandoneddog.bookmark.dto.BookmarkDto;
 import com.techeer.abandoneddog.global.entity.BaseEntity;
 import com.techeer.abandoneddog.pet_board.entity.PetBoard;
 import com.techeer.abandoneddog.users.entity.Users;
@@ -26,7 +26,7 @@ public class Bookmark extends BaseEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     private Users user;
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -41,6 +41,6 @@ public class Bookmark extends BaseEntity {
         this.petBoard = petboard;
     }
 
-    public void update(BookmarkRequestDto bookmarkRequestDto) {
+    public void update(BookmarkDto bookmarkDto) {
     }
 }
