@@ -4,7 +4,6 @@ import com.techeer.abandoneddog.bookmark.dto.BookmarkRequestDto;
 import com.techeer.abandoneddog.bookmark.dto.BookmarkResponseDto;
 import com.techeer.abandoneddog.bookmark.service.BookmarkService;
 import com.techeer.abandoneddog.users.dto.ResultDto;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -16,8 +15,8 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/bookmark")
-@Tag(name = "Bookmark", description = "북마크")
-public class BookmarkController {
+public class BookmarkController implements BookmarkControllerDocs {
+
     @Autowired
     private final BookmarkService bookmarkService;
 
