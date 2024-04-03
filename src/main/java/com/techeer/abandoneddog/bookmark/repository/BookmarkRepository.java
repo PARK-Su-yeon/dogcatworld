@@ -11,4 +11,6 @@ public interface BookmarkRepository extends JpaRepository<Bookmark, Long> {
     Page<Bookmark> findBookmarksByUserId(Pageable pageable, Long userId);
 
     boolean existsByPetBoardAndUser(PetBoard petBoard, Users user);
+
+    Bookmark findByPetBoardAndUser(PetBoard petBoard, Users users);
 }

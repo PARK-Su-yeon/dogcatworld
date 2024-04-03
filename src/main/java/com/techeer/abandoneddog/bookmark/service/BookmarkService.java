@@ -29,53 +29,6 @@ public class BookmarkService {
     private final PetBoardRepository petBoardRepository;
 
     @Transactional
-    public void createBookmark(Long userId, Long petBoardId) {
-        Users user = userRepository.findUserById(userId).orElseThrow(() -> new IllegalArgumentException("해당 유저를 찾을 수 없습니다."));
-        PetBoard petBoard = petBoardRepository.findById(petBoardId).orElseThrow(() -> new IllegalArgumentException("해당 게시글을 찾을 수 없습니다."));
-        BookmarkDto bookmark = new BookmarkDto();
-        bookmark.setUser(user);
-        bookmark.setPetBoard(petBoard);
-        bookmarkRepository.save(bookmark.toEntity());
-    }
-
-    @Transactional
-    public BookmarkResponseDto updateBookmark(Long id, BookmarkDto bookmarkDto) {
-        Bookmark bookmark = bookmarkRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("해당 북마크를 찾을 수 없습니다."));
-        bookmark.update(bookmarkDto);
-        return BookmarkResponseDto.fromEntity(bookmark);
-    }
-
-    @Transactional
-    public BookmarkResponseDto getBookmark(Long id) {
-        Bookmark bookmark = bookmarkRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("해당 북마크를 찾을 수 없습니다."));
-        return BookmarkResponseDto.fromEntity(bookmark);
-    }
-
-    @Transactional
-    public Page<BookmarkResponseDto> getBookmarks(Pageable pageable) {
-        Page<Bookmark> bookmarkPage = bookmarkRepository.findAll(pageable);
-        return bookmarkPage.map(BookmarkResponseDto::fromEntity);
-    }
-
-    @Transactional
-    public void deleteBookmark(Long id) {
-        Bookmark bookmark = bookmarkRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("해당 북마크를 찾을 수 없습니다."));
-        bookmarkRepository.delete(bookmark);
-
-    }
-
-    @Transactional
-    public void BookmarkBoard(Long petBoardId, Long userId) {
-        Users user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
-        PetBoard petBoard = petBoardRepository.findById(petBoardId).orElseThrow();
-
-        BookmarkDto bookmarkDto = new BookmarkDto();
-        bookmarkDto.setUser(user);
-        bookmarkDto.setPetBoard(petBoard);
-        bookmarkRepository.save(bookmarkDto.toEntity());
-    }
-
-    @Transactional
     public void addBookmark(BookmarkRequestDto requestDto) {
         Users user = userRepository.findById(requestDto.getUserId()).orElseThrow(UserNotFoundException::new);
         PetBoard petBoard = petBoardRepository.findById(requestDto.getPetBoardId()).orElseThrow(PetBoardNotFoundException::new);
@@ -86,7 +39,6 @@ public class BookmarkService {
             bookmarkDto.setPetBoard(petBoard);
             bookmarkRepository.save(bookmarkDto.toEntity());
         } else {
-            System.out.println("error");
             throw new InvalidPetBoardRequestException();
         }
     }
@@ -95,5 +47,18 @@ public class BookmarkService {
     public Page<BookmarkResponseDto> getUserBookmarks(Pageable pageable, Long userId) {
         Page<Bookmark> bookmarkPage = bookmarkRepository.findBookmarksByUserId(pageable, userId);
         return bookmarkPage.map(BookmarkResponseDto::fromEntity);
+    }
+
+    @Transactional
+    public void cancelBookmark(BookmarkRequestDto requestDto) {
+        Users user = userRepository.findById(requestDto.getUserId()).orElseThrow(UserNotFoundException::new);
+        PetBoard petBoard = petBoardRepository.findById(requestDto.getPetBoardId()).orElseThrow(PetBoardNotFoundException::new);
+
+        if (!bookmarkRepository.existsByPetBoardAndUser(petBoard, user)) {
+            throw new InvalidPetBoardRequestException();
+        }
+
+        Bookmark bookmark = bookmarkRepository.findByPetBoardAndUser(petBoard, user);
+        bookmarkRepository.delete(bookmark);
     }
 }
