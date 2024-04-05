@@ -39,13 +39,15 @@ public class BookmarkService {
             bookmarkDto.setPetBoard(petBoard);
             bookmarkRepository.save(bookmarkDto.toEntity());
         } else {
-            throw new InvalidPetBoardRequestException();
+            Bookmark bookmark = bookmarkRepository.findByPetBoardAndUser(petBoard, user);
+            bookmarkRepository.resave(bookmark.getId());
+//            throw new InvalidPetBoardRequestException();
         }
     }
 
     @Transactional
     public Page<BookmarkResponseDto> getUserBookmarks(Pageable pageable, Long userId) {
-        Page<Bookmark> bookmarkPage = bookmarkRepository.findBookmarksByUserId(pageable, userId);
+        Page<Bookmark> bookmarkPage = bookmarkRepository.findBookmarksByUserIdAndIsDeletedFalse(pageable, userId);
         return bookmarkPage.map(BookmarkResponseDto::fromEntity);
     }
 
