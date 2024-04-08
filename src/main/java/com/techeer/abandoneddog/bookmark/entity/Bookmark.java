@@ -22,11 +22,11 @@ public class Bookmark extends BaseEntity {
     @Column(name = "bookmark_id", updatable = false)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private Users user;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "petBoard_id")
     private PetBoard petBoard;
 
