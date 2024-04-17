@@ -1,4 +1,4 @@
-package com.techeer.abandoneddog.pet_info_openapi.service;
+package com.techeer.abandoneddog.animal.service;
 
 import com.techeer.abandoneddog.animal.repository.PetInfoRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -39,6 +39,7 @@ public class PetInfoService {
             urlBuilder.append("&" + URLEncoder.encode("numOfRows", "UTF-8") + "=" + URLEncoder.encode(String.valueOf(numOfRows), "UTF-8")); /*한 페이지 결과 수(1,000 이하)*/
             urlBuilder.append("&" + URLEncoder.encode("pageNo", "UTF-8") + "=" + URLEncoder.encode(String.valueOf(pageNo), "UTF-8")); /*페이지 번호*/
             urlBuilder.append("&" + URLEncoder.encode("upkind", "UTF-8") + "=417000"); /*강아지*/
+            //urlBuilder.append("&" + URLEncoder.encode("upkind", "UTF-8") + "=422400"); /*강아지*/
 
             urlBuilder.append("&" + URLEncoder.encode("_type", "UTF-8") + "=" + URLEncoder.encode("json", "UTF-8")); /*xml(기본값) 또는 json*/
 
@@ -88,48 +89,69 @@ public class PetInfoService {
         JSONObject body = jsonObject.getJSONObject("response").getJSONObject("body");
         return body.getInt("totalCount");
     }
+    private void savePetInfoFromApiResponse(String apiResponse) {
+        try {
+            JSONObject jsonObject = new JSONObject(apiResponse);
+            JSONObject body = jsonObject.getJSONObject("response").getJSONObject("body");
+            JSONArray itemArray = body.getJSONObject("items").getJSONArray("item");
 
-    private void savePetInfoFromApiResponse(String apiResponse) throws JSONException {
-        JSONObject jsonObject = new JSONObject(apiResponse);
-        JSONObject body = jsonObject.getJSONObject("response").getJSONObject("body");
-        JSONArray itemArray = body.getJSONObject("items").getJSONArray("item");
+            List<PetInfo> petInfoList = new ArrayList<>();
+            for (int i = 0; i < itemArray.length(); i++) {
+                JSONObject item = itemArray.getJSONObject(i);
+                try {
+                    PetInfo petInfo = PetInfo.builder()
+                            .desertionNo(Long.valueOf(item.getString("desertionNo")))
+                            .filename(item.getString("filename"))
+                            .happenDt(item.getString("happenDt"))
+                            .happenPlace(item.getString("happenPlace"))
+                            .kindCd(item.getString("kindCd"))
+                            .colorCd(item.getString("colorCd"))
+                            .age(item.getString("age"))
+                            .weight(item.getString("weight"))
+                            .noticeNo(item.getString("noticeNo"))
+                            .noticeSdt(item.getString("noticeSdt"))
+                            .noticeEdt(item.getString("noticeEdt"))
+                            .popfile(item.getString("popfile"))
+                            .processState(item.getString("processState"))
+                            .sexCd(item.getString("sexCd"))
+                            .neuterYn(item.getString("neuterYn"))
+                            .specialMark(item.getString("specialMark"))
+                            .careNm(item.getString("careNm"))
+                            .careTel(item.getString("careTel"))
+                            .careAddr(item.getString("careAddr"))
+                            .orgNm(item.getString("orgNm"))
+                            .chargeNm(item.getString("chargeNm"))
+                            .officetel(item.getString("officetel"))
+                            .build();
 
-        List<PetInfo> petInfoList = new ArrayList<>();
-        for (int i = 0; i < itemArray.length(); i++) {
-            JSONObject item = itemArray.getJSONObject(i);
+                    if (!item.isNull("noticeComment")) {
+                        petInfo.setNoticeComment(item.getString("noticeComment"));
+                        log.info("Saved " + petInfo.getNoticeComment());
+                    }
+                    else {
+                        log.info("Saved null notice comment");
+                    }
 
-            PetInfo petInfo = PetInfo.builder()
-                    .desertionNo(Long.valueOf(item.getString("desertionNo")))
-                .filename(item.getString("filename"))
-                .happenDt(item.getString("happenDt"))
-                .happenPlace(item.getString("happenPlace"))
-                .kindCd(item.getString("kindCd"))
-                .colorCd(item.getString("colorCd"))
-                .age(item.getString("age"))
-                .weight(item.getString("weight"))
-                .noticeNo(item.getString("noticeNo"))
-                .noticeSdt(item.getString("noticeSdt"))
-                .noticeEdt(item.getString("noticeEdt"))
-                .popfile(item.getString("popfile"))
-                .processState(item.getString("processState"))
-                .sexCd(item.getString("sexCd"))
-                .neuterYn(item.getString("neuterYn"))
-                .specialMark(item.getString("specialMark"))
-                .careNm(item.getString("careNm"))
-                .careTel(item.getString("careTel"))
-                .careAddr(item.getString("careAddr"))
-                .orgNm(item.getString("orgNm"))
-                .chargeNm(item.getString("chargeNm"))
-                .officetel(item.getString("officetel"))
-                .noticeComment(item.getString("noticeComment"))
-                    .build();
+                    // noticeComment는 null 값이 아닌 것으로 가정
 
-            petInfoList.add(petInfo);
+
+                    petInfoList.add(petInfo);
+                    log.info("Saved " + petInfoList.size());
+
+                } catch (JSONException e) {
+                    log.error("Error creating PetInfo object: " + e.getMessage());
+                }
+            }
+            petInfoRepository.saveAll(petInfoList);
+     ;
+
+            log.info("Saved " + petInfoList.size() + " pet information to the database.");
+        } catch (JSONException e) {
+            log.error("Error parsing JSON response: " + e.getMessage());
         }
-
-        petInfoRepository.saveAll(petInfoList);
-        log.info("Saved " + petInfoList.size() + " pet information to the database.");
     }
+
+
     public PetInfo getPetInfo(Long id) {
         return petInfoRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("not found"));
     }

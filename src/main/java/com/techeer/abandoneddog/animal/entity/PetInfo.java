@@ -62,6 +62,7 @@ public class PetInfo {
         if (other.officetel != null) this.officetel = other.officetel;
         if (other.noticeComment != null) this.noticeComment = other.noticeComment;
     }
+
 }
 
 

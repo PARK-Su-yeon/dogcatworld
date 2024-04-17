@@ -1,6 +1,6 @@
 package com.techeer.abandoneddog.animal.Controller;
 
-import com.techeer.abandoneddog.pet_info_openapi.service.PetInfoService;
+import com.techeer.abandoneddog.animal.service.PetInfoService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
