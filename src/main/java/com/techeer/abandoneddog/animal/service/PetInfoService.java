@@ -2,10 +2,16 @@ package com.techeer.abandoneddog.animal.service;
 
 import com.techeer.abandoneddog.animal.repository.PetInfoRepository;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.beans.factory.annotation.Value;
+
 import lombok.extern.slf4j.Slf4j;
 import org.json.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import com.techeer.abandoneddog.animal.entity.PetInfo;
 import java.io.BufferedReader;
@@ -27,7 +33,14 @@ public class PetInfoService {
         this.petInfoRepository = petInfoRepository;
     }
 
-    public void getAllAndSaveInfo() throws IOException, JSONException {
+    @Value("${OPEN_API_SECRETKEY}")
+    private String secretKey;
+
+    public void deleteAllPetInfo() {
+        petInfoRepository.deleteAll();
+    }
+
+    public void getAllAndSaveInfo(String upkind) throws IOException, JSONException {
         int numOfRows = 1000; // 한 번에 가져올 결과 수, 최대 1000
         int pageNo = 1; // 시작 페이지 번호
         int totalCount = 0; // 전체 결과 수
@@ -35,11 +48,12 @@ public class PetInfoService {
         // 첫 번째 페이지부터 마지막 페이지까지 반복하여 데이터를 가져옴
         while (true) {
             StringBuilder urlBuilder = new StringBuilder("http://apis.data.go.kr/1543061/abandonmentPublicSrvc/abandonmentPublic"); /*URL*/
-            urlBuilder.append("?" + URLEncoder.encode("serviceKey", "UTF-8") + "=dxWfTIaGba1Ly%2F9PBbG1r5Avm5PoIBe5QhFR2OQyQ2jWKheEoyawSM3ClbhiMZI02HHROKLQsWlR3ALnIICpVg%3D%3D"); /*Service Key*/
+            urlBuilder.append("?" + URLEncoder.encode("serviceKey", "UTF-8") +secretKey ); /*Service Key*/
             urlBuilder.append("&" + URLEncoder.encode("numOfRows", "UTF-8") + "=" + URLEncoder.encode(String.valueOf(numOfRows), "UTF-8")); /*한 페이지 결과 수(1,000 이하)*/
             urlBuilder.append("&" + URLEncoder.encode("pageNo", "UTF-8") + "=" + URLEncoder.encode(String.valueOf(pageNo), "UTF-8")); /*페이지 번호*/
-            urlBuilder.append("&" + URLEncoder.encode("upkind", "UTF-8") + "=417000"); /*강아지*/
+            urlBuilder.append("&" + URLEncoder.encode("upkind", "UTF-8") + "=" + upkind); /*강아지*/
             //urlBuilder.append("&" + URLEncoder.encode("upkind", "UTF-8") + "=422400"); /*강아지*/
+            log.info("upking code: " + upkind);
 
             urlBuilder.append("&" + URLEncoder.encode("_type", "UTF-8") + "=" + URLEncoder.encode("json", "UTF-8")); /*xml(기본값) 또는 json*/
 
@@ -150,6 +164,20 @@ public class PetInfoService {
             log.error("Error parsing JSON response: " + e.getMessage());
         }
     }
+    @Scheduled(cron = "0 0 0 * * ?") // 매일 자정에 실행
+    //@Scheduled(fixedRate = 180000)
+    public void updatePetInfoDaily() {
+        try {
+            deleteAllPetInfo();
+            log.info("delete update schedluder");
+
+            getAllAndSaveInfo("417000");
+            getAllAndSaveInfo("422400");
+            log.info("Saved update schedluder");
+        } catch (Exception e) {
+            log.error( e.getMessage());
+        }
+    }
 
 
     public PetInfo getPetInfo(Long id) {
@@ -160,5 +188,8 @@ public class PetInfoService {
         PetInfo entity = petInfoRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("not found"));
         petInfoRepository.delete(entity);
     }
-
+    public Page<PetInfo> getAllPetInfos(int page, int size) {
+        PageRequest pageRequest = PageRequest.of(page, size);
+        return petInfoRepository.findAll(pageRequest);
+    }
 }
