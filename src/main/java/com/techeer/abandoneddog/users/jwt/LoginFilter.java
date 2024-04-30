@@ -47,15 +47,15 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         //UserDetailsS
         CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
 
-        String username = customUserDetails.getUsername();
+        String email = customUserDetails.getUsername();
 
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
         GrantedAuthority auth = iterator.next();
+        // TODO 이메일만 검증하여 토큰을 발급하도록 수정
+        String email2 = auth.getAuthority();
 
-        String email = auth.getAuthority();
-
-        String token = jwtUtil.createJwt(username, email, 60*60*10L);
+        String token = jwtUtil.createJwt(email, 60*60*10L);
 
         response.addHeader("Authorization", "Bearer " + token);
     }
