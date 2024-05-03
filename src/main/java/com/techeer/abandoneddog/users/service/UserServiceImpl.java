@@ -27,19 +27,26 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void signUp(RegisterRequestDto requestDto) {
 
-        if (userRepository.existsByEmail(requestDto.getEmail())) {
-            throw new EmailAlreadyExistsException();
-        }
+        Optional<Users> existingUser = userRepository.findByEmail(requestDto.getEmail());
+        if (existingUser.isPresent()) {
+            Users user = existingUser.get();
+            if (!user.getIsDeleted()) {
 
-        Users user = requestDto.toEntity(encoder);
-        userRepository.save(user);
+                throw new EmailAlreadyExistsException();
+            }
+            userRepository.reactivateUser(user.getId());
+        } else {
+            Users user = requestDto.toEntity(encoder);
+            userRepository.save(user);
+        }
     }
+
 
     @Override
     @Transactional
     public LoginResponseDto login(LoginRequestDto loginRequestDto) {
         Users user = loginRequestDto.toEntity();
-        Optional<Users> loginuser = userRepository.findUserByEmail(loginRequestDto.getEmail());
+        Optional<Users> loginuser = userRepository.findByEmail(loginRequestDto.getEmail());
 
         if (loginuser.isEmpty()) {
             throw new UserNotFoundException();
@@ -58,14 +65,14 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public UserResponseDto getUser(Long userId) {
-        Users user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException());
+        Users user = userRepository.findByIdAndIsDeletedFalse(userId).orElseThrow(() -> new UserNotFoundException());
         return UserResponseDto.fromEntity(user);
     }
 
     @Override
     @Transactional
     public Page<UserResponseDto> getUsers(Pageable pageable) {
-        Page<Users> usersPage = userRepository.findAll(pageable);
+        Page<Users> usersPage = userRepository.findAllActiveUsers(pageable);
         return usersPage.map(UserResponseDto::fromEntity);
     }
 
@@ -81,6 +88,9 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void deleteUser(Long userId) {
         Users user = userRepository.findUserById(userId).get();
+        if (user.getIsDeleted()) {
+            throw new UserNotFoundException();
+        }
         userRepository.deleteById(user.getId());
     }
 }

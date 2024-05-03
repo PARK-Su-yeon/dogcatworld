@@ -1,7 +1,12 @@
 package com.techeer.abandoneddog.users.repository;
 
 import com.techeer.abandoneddog.users.entity.Users;
+import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -11,12 +16,15 @@ public interface UserRepository extends JpaRepository<Users, Long> {
 
     Optional<Users> findUserById(Long userId);
 
-    Users findByEmail(String email);
+    Optional<Users> findByEmail(String email);
 
-    Users findByUsername(String username);
+    Optional<Users> findByIdAndIsDeletedFalse(Long id);
 
-    Optional<Users> findUserByEmail(String email);
+    @Query("SELECT u FROM Users u WHERE u.isDeleted = false")
+    Page<Users> findAllActiveUsers(Pageable pageable);
 
-    boolean existsByEmail(String email);
-
+    @Modifying
+    @Transactional
+    @Query("UPDATE Users u SET u.isDeleted = false WHERE u.id = :userId")
+    void reactivateUser(Long userId);
 }
