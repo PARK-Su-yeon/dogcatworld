@@ -1,6 +1,6 @@
 package com.techeer.abandoneddog.users.repository;
 
-import com.techeer.abandoneddog.users.jwt.RefreshEntity;
+import com.techeer.abandoneddog.users.entity.RefreshEntity;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 

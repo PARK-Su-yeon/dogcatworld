@@ -1,4 +1,4 @@
-package com.techeer.abandoneddog.users.jwt;
+package com.techeer.abandoneddog.users.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

@@ -1,7 +1,7 @@
 package com.techeer.abandoneddog.users.controller;
 
 import com.techeer.abandoneddog.users.jwt.JWTUtil;
-import com.techeer.abandoneddog.users.jwt.RefreshEntity;
+import com.techeer.abandoneddog.users.entity.RefreshEntity;
 import com.techeer.abandoneddog.users.repository.RefreshRepository;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.Cookie;

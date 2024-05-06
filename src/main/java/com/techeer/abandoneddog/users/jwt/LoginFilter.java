@@ -1,5 +1,6 @@
 package com.techeer.abandoneddog.users.jwt;
 
+import com.techeer.abandoneddog.users.entity.RefreshEntity;
 import com.techeer.abandoneddog.users.repository.RefreshRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.Cookie;
