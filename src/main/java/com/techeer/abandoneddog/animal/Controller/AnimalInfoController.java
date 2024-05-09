@@ -45,19 +45,19 @@ public class AnimalInfoController {
 
     }
 
-//    @GetMapping("/update")
-//    public ResponseEntity<String> updatePetInfo() {
-//        try {
-//            petInfoService.updatePetInfoDaily();
-////            petInfoService.getAllAndSaveInfo("417000");
-////            petInfoService.getAllAndSaveInfo("422400");
-//
-//            return ResponseEntity.ok("Pet information updated successfully.");
-//        } catch (Exception e) {
-////            log.error("Error updating pet information: " + e.getMessage());
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to update pet information.");
-//        }
-//    }
+    @GetMapping("/update")
+    public ResponseEntity<String> updatePetInfo() {
+        try {
+            petInfoService.updatePetInfoDaily();
+            petInfoService.getAllAndSaveInfo("417000");
+            petInfoService.getAllAndSaveInfo("422400");
+
+            return ResponseEntity.ok("Pet information updated successfully.");
+        } catch (Exception e) {
+//            log.error("Error updating pet information: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to update pet information.");
+        }
+    }
 
 
 

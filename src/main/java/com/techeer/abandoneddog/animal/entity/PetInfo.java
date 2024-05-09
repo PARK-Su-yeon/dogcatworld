@@ -1,6 +1,7 @@
 package com.techeer.abandoneddog.animal.entity;
 
 
+import com.techeer.abandoneddog.shelter.entity.Shelter;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -8,13 +9,13 @@ import lombok.*;
 @Builder
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Setter
 public class PetInfo {
-    //@Id
-//    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-//    private Long id;
+
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     private Long desertionNo;
     private String filename;
     private String happenDt; //발견 날짜
@@ -31,9 +32,15 @@ public class PetInfo {
     private String sexCd;
     private String neuterYn;
     private String specialMark;
-    private String careNm;
-    private String careTel;
-    private String careAddr;
+
+
+    @ManyToOne
+    @JoinColumn(name = "shelter_id")
+    private Shelter shelter;
+
+//    private String careNm;
+//    private String careTel;
+//    private String careAddr;
     private String orgNm;
     private String chargeNm;
     private String officetel;

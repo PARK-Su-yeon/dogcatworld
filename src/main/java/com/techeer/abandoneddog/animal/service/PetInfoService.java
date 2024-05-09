@@ -1,6 +1,8 @@
 package com.techeer.abandoneddog.animal.service;
 
 import com.techeer.abandoneddog.animal.repository.PetInfoRepository;
+import com.techeer.abandoneddog.shelter.entity.Shelter;
+import com.techeer.abandoneddog.shelter.repository.ShelterRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -28,9 +30,11 @@ import java.util.List;
 public class PetInfoService {
 
     private final PetInfoRepository petInfoRepository;
+    private final ShelterRepository shelterRepository;
 
-    public PetInfoService(PetInfoRepository petInfoRepository) {
+    public PetInfoService(PetInfoRepository petInfoRepository, ShelterRepository shelterRepository) {
         this.petInfoRepository = petInfoRepository;
+        this.shelterRepository = shelterRepository;
     }
 
     @Value("${OPEN_API_SECRETKEY}")
@@ -110,9 +114,25 @@ public class PetInfoService {
             JSONArray itemArray = body.getJSONObject("items").getJSONArray("item");
 
             List<PetInfo> petInfoList = new ArrayList<>();
+            List<Shelter> ShelterList = new ArrayList<>();
             for (int i = 0; i < itemArray.length(); i++) {
                 JSONObject item = itemArray.getJSONObject(i);
+
+
                 try {
+                    String careNm=item.getString("careNm");
+
+                    if (!shelterRepository.existsByCareNm(careNm)) {
+                        Shelter shelter = Shelter.builder()
+                                .careNm(careNm)
+                                .careTel(item.getString("careTel"))
+                                .careAddr(item.getString("careAddr"))
+                                .build();
+
+                        // Shelter 엔티티를 저장
+                        shelterRepository.save(shelter);
+                    }
+
                     PetInfo petInfo = PetInfo.builder()
                             .desertionNo(Long.valueOf(item.getString("desertionNo")))
                             .filename(item.getString("filename"))
@@ -130,13 +150,14 @@ public class PetInfoService {
                             .sexCd(item.getString("sexCd"))
                             .neuterYn(item.getString("neuterYn"))
                             .specialMark(item.getString("specialMark"))
-                            .careNm(item.getString("careNm"))
-                            .careTel(item.getString("careTel"))
-                            .careAddr(item.getString("careAddr"))
+//                            .careNm(item.getString("careNm"))
+//                            .careTel(item.getString("careTel"))
+//                            .careAddr(item.getString("careAddr"))
                             .orgNm(item.getString("orgNm"))
                             .chargeNm(item.getString("chargeNm"))
                             .officetel(item.getString("officetel"))
                             .build();
+
 
                     if (!item.isNull("noticeComment")) {
                         petInfo.setNoticeComment(item.getString("noticeComment"));
