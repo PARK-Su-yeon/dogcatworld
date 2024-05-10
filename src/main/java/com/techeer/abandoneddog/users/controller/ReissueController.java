@@ -1,7 +1,7 @@
 package com.techeer.abandoneddog.users.controller;
 
-import com.techeer.abandoneddog.users.jwt.JWTUtil;
 import com.techeer.abandoneddog.users.entity.RefreshEntity;
+import com.techeer.abandoneddog.users.jwt.JWTUtil;
 import com.techeer.abandoneddog.users.repository.RefreshRepository;
 import com.techeer.abandoneddog.users.service.RedisService;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -80,12 +80,16 @@ public class ReissueController {
         String username = jwtUtil.getUsername(refresh);
 
         //make new JWT
-        String newAccess = jwtUtil.createJwt("access", username,600000L);
-        String newRefresh = jwtUtil.createJwt("refresh", username,86400000L);
+        String newAccess = jwtUtil.createJwt("access", username, 600000L); // 10분 유효
+        String newRefresh = jwtUtil.createJwt("refresh", username, 86400000L);  // 24시간 유효
 
         //Refresh 토큰 저장 DB에 기존의 Refresh 토큰 삭제 후 새 Refresh 토큰 저장
-        refreshRepository.deleteByRefresh(refresh);
-        addRefreshEntity(username, newRefresh, 86400000L);
+//        refreshRepository.deleteByRefresh(refresh);
+//        addRefreshEntity(username, newRefresh, 86400000L);
+
+        //Refresh 토큰 Redis에 저장
+        redisService.deleteValues(username);
+        addRefreshRedis(username, newRefresh);
 
         //response
         response.setHeader("access", newAccess);
@@ -97,7 +101,7 @@ public class ReissueController {
     private Cookie createCookie(String key, String value) {
 
         Cookie cookie = new Cookie(key, value);
-        cookie.setMaxAge(24*60*60);
+        cookie.setMaxAge(24 * 60 * 60);
         //cookie.setSecure(true);
         //cookie.setPath("/");
         cookie.setHttpOnly(true);
@@ -105,6 +109,7 @@ public class ReissueController {
         return cookie;
     }
 
+    // DB에 저장
     private void addRefreshEntity(String username, String refresh, Long expiredMs) {
 
         Date date = new Date(System.currentTimeMillis() + expiredMs);
@@ -114,7 +119,13 @@ public class ReissueController {
         refreshEntity.setRefresh(refresh);
         refreshEntity.setExpiration(date.toString());
 
+        refreshRepository.save(refreshEntity);
+    }
+
+    // Redis에 저장
+    private void addRefreshRedis(String username, String refresh) {
+
         redisService.setValues(username, refresh);
-//        refreshRepository.save(refreshEntity);
+
     }
 }

@@ -1,6 +1,5 @@
 package com.techeer.abandoneddog.users.jwt;
 
-import com.techeer.abandoneddog.users.entity.RefreshEntity;
 import com.techeer.abandoneddog.users.service.RedisService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.Cookie;
@@ -11,12 +10,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
-import java.util.Collection;
-import java.util.Date;
-import java.util.Iterator;
 
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
@@ -51,17 +45,12 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         //유저 정보
         String username = authentication.getName();
 
-        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
-        Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
-        GrantedAuthority auth = iterator.next();
-        String role = auth.getAuthority();
-
         //토큰 생성
-        String access = jwtUtil.createJwt("access", username,600000L);
-        String refresh = jwtUtil.createJwt("refresh", username,86400000L);
+        String access = jwtUtil.createJwt("access", username, 600000L);
+        String refresh = jwtUtil.createJwt("refresh", username, 86400000L);
 
         //Refresh 토큰 저장
-        addRefreshEntity(username, refresh, 86400000L);
+        addRefreshRedis(username, refresh);
 
         //응답 설정
         response.setHeader("access", access);
@@ -80,7 +69,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     private Cookie createCookie(String key, String value) {
 
         Cookie cookie = new Cookie(key, value);
-        cookie.setMaxAge(24*60*60);
+        cookie.setMaxAge(24 * 60 * 60);
         //cookie.setSecure(true);
         //cookie.setPath("/");
         cookie.setHttpOnly(true);
@@ -88,17 +77,11 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         return cookie;
     }
 
-    private void addRefreshEntity(String username, String refresh, Long expiredMs) {
+    // Redis에 저장
+    private void addRefreshRedis(String username, String refresh) {
 
-        Date date = new Date(System.currentTimeMillis() + expiredMs);
-
-        RefreshEntity refreshEntity = new RefreshEntity();
-        refreshEntity.setUsername(username);
-        refreshEntity.setRefresh(refresh);
-        refreshEntity.setExpiration(date.toString());
-
-//        refreshRepository.save(refreshEntity);
         redisService.setValues(username, refresh);
+
     }
 }
 
