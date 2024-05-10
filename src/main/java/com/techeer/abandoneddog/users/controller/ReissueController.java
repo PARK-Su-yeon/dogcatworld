@@ -3,6 +3,7 @@ package com.techeer.abandoneddog.users.controller;
 import com.techeer.abandoneddog.users.jwt.JWTUtil;
 import com.techeer.abandoneddog.users.entity.RefreshEntity;
 import com.techeer.abandoneddog.users.repository.RefreshRepository;
+import com.techeer.abandoneddog.users.service.RedisService;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,11 +22,13 @@ public class ReissueController {
 
     private final JWTUtil jwtUtil;
     private final RefreshRepository refreshRepository;
+    private final RedisService redisService;
 
-    public ReissueController(JWTUtil jwtUtil, RefreshRepository refreshRepository) {
+    public ReissueController(JWTUtil jwtUtil, RefreshRepository refreshRepository, RedisService redisService) {
 
         this.jwtUtil = jwtUtil;
         this.refreshRepository = refreshRepository;
+        this.redisService = redisService;
     }
 
     @PostMapping("/reissue")
@@ -111,6 +114,7 @@ public class ReissueController {
         refreshEntity.setRefresh(refresh);
         refreshEntity.setExpiration(date.toString());
 
-        refreshRepository.save(refreshEntity);
+        redisService.setValues(username, refresh);
+//        refreshRepository.save(refreshEntity);
     }
 }

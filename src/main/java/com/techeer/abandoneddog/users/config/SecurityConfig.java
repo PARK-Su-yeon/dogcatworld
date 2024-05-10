@@ -6,6 +6,7 @@ import com.techeer.abandoneddog.users.jwt.JWTFilter;
 import com.techeer.abandoneddog.users.jwt.JWTUtil;
 import com.techeer.abandoneddog.users.jwt.LoginFilter;
 import com.techeer.abandoneddog.users.repository.RefreshRepository;
+import com.techeer.abandoneddog.users.service.RedisService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -49,7 +50,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http, RefreshRepository refreshRepository) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, RedisService redisService) throws Exception {
 
         http
                 .csrf((auth) -> auth.disable());
@@ -73,7 +74,7 @@ public class SecurityConfig {
                 .addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshRepository), LogoutFilter.class);
         //필터 추가 LoginFilter()는 인자를 받음 (AuthenticationManager() 메소드에 authenticationConfiguration 객체를 넣어야 함) 따라서 등록 필요
         http
-                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, refreshRepository), UsernamePasswordAuthenticationFilter.class);
+                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, redisService), UsernamePasswordAuthenticationFilter.class);
 
         http
                 .sessionManagement((session) -> session

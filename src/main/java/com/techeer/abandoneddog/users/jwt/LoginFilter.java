@@ -1,7 +1,7 @@
 package com.techeer.abandoneddog.users.jwt;
 
 import com.techeer.abandoneddog.users.entity.RefreshEntity;
-import com.techeer.abandoneddog.users.repository.RefreshRepository;
+import com.techeer.abandoneddog.users.service.RedisService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -22,13 +22,12 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
     private final JWTUtil jwtUtil;
-    private final RefreshRepository refreshRepository;
+    private final RedisService redisService;
 
-    public LoginFilter(AuthenticationManager authenticationManager, JWTUtil jwtUtil, RefreshRepository refreshRepository) {
-
+    public LoginFilter(AuthenticationManager authenticationManager, JWTUtil jwtUtil, RedisService redisService) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
-        this.refreshRepository = refreshRepository;
+        this.redisService = redisService;
     }
 
     @Override
@@ -98,7 +97,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         refreshEntity.setRefresh(refresh);
         refreshEntity.setExpiration(date.toString());
 
-        refreshRepository.save(refreshEntity);
+//        refreshRepository.save(refreshEntity);
+        redisService.setValues(username, refresh);
     }
 }
 
