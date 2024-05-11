@@ -1,6 +1,7 @@
+DROP TABLE IF EXISTS pet_funeral;
 CREATE TABLE pet_funeral (
-                             id INT AUTO_INCREMENT PRIMARY KEY,
-                              VARCHAR(50),
+                             pet_funeral_id INT AUTO_INCREMENT PRIMARY KEY,
+                             funeral_name VARCHAR(50),
                              address VARCHAR(50),
                              phone_number VARCHAR(50),
                              homepage VARCHAR(1000),
