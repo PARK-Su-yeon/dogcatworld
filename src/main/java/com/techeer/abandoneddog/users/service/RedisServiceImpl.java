@@ -26,4 +26,8 @@ public class RedisServiceImpl implements RedisService {
     public void deleteValues(String refresh) {
         redisTemplate.delete(refresh);
     }
+
+    public Boolean hasKey(String key) {
+        return redisTemplate.hasKey(key);
+    }
 }

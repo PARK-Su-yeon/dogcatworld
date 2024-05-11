@@ -10,4 +10,6 @@ public interface RedisService {
 
     // 데이터 삭제
     void deleteValues(String refresh);
+
+    Boolean hasKey(String key);
 }

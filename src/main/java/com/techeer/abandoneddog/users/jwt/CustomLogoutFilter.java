@@ -1,6 +1,6 @@
 package com.techeer.abandoneddog.users.jwt;
 
-import com.techeer.abandoneddog.users.repository.RefreshRepository;
+import com.techeer.abandoneddog.users.service.RedisService;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -16,12 +16,12 @@ import java.io.IOException;
 public class CustomLogoutFilter extends GenericFilterBean {
 
     private final JWTUtil jwtUtil;
-    private final RefreshRepository refreshRepository;
+    private final RedisService redisService;
 
-    public CustomLogoutFilter(JWTUtil jwtUtil, RefreshRepository refreshRepository) {
+    public CustomLogoutFilter(JWTUtil jwtUtil, RedisService redisService) {
 
         this.jwtUtil = jwtUtil;
-        this.refreshRepository = refreshRepository;
+        this.redisService = redisService;
     }
 
     @Override
@@ -83,8 +83,10 @@ public class CustomLogoutFilter extends GenericFilterBean {
             return;
         }
 
+        String email = jwtUtil.getEmail(refresh);
+
         //DB에 저장되어 있는지 확인
-        Boolean isExist = refreshRepository.existsByRefresh(refresh);
+        Boolean isExist = redisService.hasKey(email);
         if (!isExist) {
 
             //response status code
@@ -94,7 +96,7 @@ public class CustomLogoutFilter extends GenericFilterBean {
 
         //로그아웃 진행
         //Refresh 토큰 DB에서 제거
-        refreshRepository.deleteByRefresh(refresh);
+        redisService.deleteValues(email);
 
         //Refresh 토큰 Cookie 값 0
         Cookie cookie = new Cookie("refresh", null);

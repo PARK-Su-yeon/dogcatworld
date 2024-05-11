@@ -69,15 +69,15 @@ public class ReissueController {
             return new ResponseEntity<>("invalid refresh token", HttpStatus.BAD_REQUEST);
         }
 
+        String username = jwtUtil.getEmail(refresh);
+
         //DB에 저장되어 있는지 확인
-        Boolean isExist = refreshRepository.existsByRefresh(refresh);
+        Boolean isExist = redisService.hasKey(username);
         if (!isExist) {
 
             //response body
             return new ResponseEntity<>("invalid refresh token", HttpStatus.BAD_REQUEST);
         }
-
-        String username = jwtUtil.getUsername(refresh);
 
         //make new JWT
         String newAccess = jwtUtil.createJwt("access", username, 600000L); // 10분 유효
