@@ -1,5 +1,6 @@
 package com.techeer.abandoneddog.users.jwt;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.techeer.abandoneddog.users.service.RedisService;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
@@ -12,11 +13,14 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.web.filter.GenericFilterBean;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class CustomLogoutFilter extends GenericFilterBean {
 
     private final JWTUtil jwtUtil;
     private final RedisService redisService;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     public CustomLogoutFilter(JWTUtil jwtUtil, RedisService redisService) {
 
@@ -57,9 +61,12 @@ public class CustomLogoutFilter extends GenericFilterBean {
             }
         }
 
+        Map<String, Object> responseMap = new HashMap<>();
+        response.setContentType("application/json");
+
         //refresh null check
         if (refresh == null) {
-
+            responseMap.put("error", "토큰이 유효하지 않습니다.");
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
@@ -69,7 +76,7 @@ public class CustomLogoutFilter extends GenericFilterBean {
             jwtUtil.isExpired(refresh);
         } catch (ExpiredJwtException e) {
 
-            //response status code
+            responseMap.put("error", "토큰이 유효하지 않습니다.");
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
@@ -78,7 +85,7 @@ public class CustomLogoutFilter extends GenericFilterBean {
         String category = jwtUtil.getCategory(refresh);
         if (!category.equals("refresh")) {
 
-            //response status code
+            responseMap.put("error", "토큰이 유효하지 않습니다.");
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
@@ -88,8 +95,7 @@ public class CustomLogoutFilter extends GenericFilterBean {
         //DB에 저장되어 있는지 확인
         Boolean isExist = redisService.hasKey(email);
         if (!isExist) {
-
-            //response status code
+            responseMap.put("error", "해당 토큰이 저장되어 있지 않습니다.");
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
@@ -104,6 +110,8 @@ public class CustomLogoutFilter extends GenericFilterBean {
         cookie.setPath("/api/v1");
 
         response.addCookie(cookie);
+        responseMap.put("message", "로그아웃 성공");
         response.setStatus(HttpServletResponse.SC_OK);
+        response.getOutputStream().write(objectMapper.writeValueAsBytes(responseMap));
     }
 }
