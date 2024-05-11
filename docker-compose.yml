@@ -18,6 +18,15 @@ services:
     networks:
       - team_network
 
+  redis:
+    container_name: redis
+    image: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      - team_network
+
   application:
     container_name: backend
     restart: always
