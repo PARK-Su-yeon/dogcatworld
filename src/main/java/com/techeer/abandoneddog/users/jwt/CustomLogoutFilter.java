@@ -34,7 +34,7 @@ public class CustomLogoutFilter extends GenericFilterBean {
 
         //path and method verify
         String requestUri = request.getRequestURI();
-        if (!requestUri.matches("^\\/logout$")) {
+        if (!requestUri.matches("^\\/api/v1/logout$")) {
 
             filterChain.doFilter(request, response);
             return;
@@ -101,7 +101,7 @@ public class CustomLogoutFilter extends GenericFilterBean {
         //Refresh 토큰 Cookie 값 0
         Cookie cookie = new Cookie("refresh", null);
         cookie.setMaxAge(0);
-        cookie.setPath("/");
+        cookie.setPath("/api/v1");
 
         response.addCookie(cookie);
         response.setStatus(HttpServletResponse.SC_OK);
