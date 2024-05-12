@@ -24,7 +24,7 @@ import java.util.Map;
 
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
-    private static final String DEFAULT_LOGIN_REQUEST_URL = "/api/v1/login";
+    private static final String DEFAULT_LOGIN_REQUEST_URL = "/api/v1/users/login";
     private static final String HTTP_METHOD_POST = "POST";
     private static final String CONTENT_TYPE = "application/json"; // JSON
     private static final String USERNAME_KEY = "email";
@@ -90,8 +90,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         addRefreshRedis(username, refresh);
 
         //응답 설정 쿠키: refresh, 헤더: access
-        Cookie refreshCookie = createCookie("refresh", refresh);
-        response.addCookie(refreshCookie);
+        response.addCookie(createCookie("refresh", refresh));
         response.setHeader("access", access);
 
         // JSON 응답 데이터 구성
@@ -132,7 +131,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
         Cookie cookie = new Cookie(key, value);
         cookie.setMaxAge(24 * 60 * 60);
-        cookie.setPath("/api/v1"); // 쿠키 경로 설정
+        cookie.setPath("/api/v1/users"); // 쿠키 경로 설정
         cookie.setHttpOnly(true);
 
         return cookie;

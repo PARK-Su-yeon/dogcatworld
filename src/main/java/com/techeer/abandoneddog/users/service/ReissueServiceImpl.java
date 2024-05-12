@@ -8,7 +8,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
+import java.util.HashMap;
+import java.util.Map;
 
 @RequiredArgsConstructor
 @Service
@@ -46,42 +47,52 @@ public class ReissueServiceImpl implements ReissueService {
     }
 
     @Override
-    public Optional<String> reissueTokens(HttpServletRequest request, HttpServletResponse response) {
+    public Map<String, String> reissueTokens(HttpServletRequest request, HttpServletResponse response) {
+
+        Map<String, String> result = new HashMap<>();
+
         String refresh = extractTokenFromCookies(request, "refresh");
 
         if (refresh == null) {
-            return Optional.of("Refresh token is missing");
+            result.put("error", "Refresh token is missing");
+            return result;
         }
 
         try {
             if (jwtUtil.isExpired(refresh)) {
-                return Optional.of("Refresh token expired");
+                result.put("error", "Refresh token expired");
+                return result;
             }
 
             if (!"refresh".equals(jwtUtil.getCategory(refresh))) {
-                return Optional.of("Invalid refresh token");
+                result.put("error", "Invalid refresh token");
+                return result;
             }
 
             String email = jwtUtil.getEmail(refresh);
 
             if (!redisService.hasKey(email)) {
-                return Optional.of("No refresh token stored");
+                result.put("error", "No refresh token stored");
+                return result;
             }
-
+            // 새 토큰 생성 및 응답 처리
             NewToken(email, response);
+            result.put("access", jwtUtil.createJwt("access", email, 600000L)); // 10분 유효
+            result.put("refresh", jwtUtil.createJwt("refresh", email, 86400000L));  // 24시간 유효
+
         } catch (ExpiredJwtException e) {
-            return Optional.of("Refresh token expired");
+            result.put("error", "Refresh token expired");
+            return result;
         }
 
-        return Optional.empty();
+        return result;
     }
 
     private Cookie createCookie(String key, String value) {
 
         Cookie cookie = new Cookie(key, value);
         cookie.setMaxAge(24 * 60 * 60);
-        //cookie.setSecure(true);
-        //cookie.setPath("/");
+        cookie.setPath("/api/v1/users"); // 쿠키 경로 설정
         cookie.setHttpOnly(true);
 
         return cookie;

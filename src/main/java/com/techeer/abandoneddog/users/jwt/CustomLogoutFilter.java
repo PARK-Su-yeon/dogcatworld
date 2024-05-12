@@ -38,7 +38,7 @@ public class CustomLogoutFilter extends GenericFilterBean {
 
         //path and method verify
         String requestUri = request.getRequestURI();
-        if (!requestUri.matches("^\\/api/v1/logout$")) {
+        if (!requestUri.matches("^\\/api/v1/users/logout$")) {
 
             filterChain.doFilter(request, response);
             return;
@@ -53,11 +53,12 @@ public class CustomLogoutFilter extends GenericFilterBean {
         //get refresh token
         String refresh = null;
         Cookie[] cookies = request.getCookies();
-        for (Cookie cookie : cookies) {
-
-            if (cookie.getName().equals("refresh")) {
-
-                refresh = cookie.getValue();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("refresh".equals(cookie.getName())) {
+                    refresh = cookie.getValue();
+                    break;
+                }
             }
         }
 
@@ -68,6 +69,7 @@ public class CustomLogoutFilter extends GenericFilterBean {
         if (refresh == null) {
             responseMap.put("error", "토큰이 유효하지 않습니다.");
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getOutputStream().write(objectMapper.writeValueAsBytes(responseMap));
             return;
         }
 
@@ -78,6 +80,7 @@ public class CustomLogoutFilter extends GenericFilterBean {
 
             responseMap.put("error", "토큰이 유효하지 않습니다.");
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getOutputStream().write(objectMapper.writeValueAsBytes(responseMap));
             return;
         }
 
@@ -87,6 +90,7 @@ public class CustomLogoutFilter extends GenericFilterBean {
 
             responseMap.put("error", "토큰이 유효하지 않습니다.");
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getOutputStream().write(objectMapper.writeValueAsBytes(responseMap));
             return;
         }
 
@@ -97,6 +101,7 @@ public class CustomLogoutFilter extends GenericFilterBean {
         if (!isExist) {
             responseMap.put("error", "해당 토큰이 저장되어 있지 않습니다.");
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getOutputStream().write(objectMapper.writeValueAsBytes(responseMap));
             return;
         }
 
@@ -107,7 +112,7 @@ public class CustomLogoutFilter extends GenericFilterBean {
         //Refresh 토큰 Cookie 값 0
         Cookie cookie = new Cookie("refresh", null);
         cookie.setMaxAge(0);
-        cookie.setPath("/api/v1");
+        cookie.setPath("/api/v1/users");
 
         response.addCookie(cookie);
         responseMap.put("message", "로그아웃 성공");
