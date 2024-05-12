@@ -51,72 +51,66 @@ public class CustomLogoutFilter extends GenericFilterBean {
         }
 
         //get refresh token
-        String refresh = null;
-        Cookie[] cookies = request.getCookies();
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if ("refresh".equals(cookie.getName())) {
-                    refresh = cookie.getValue();
-                    break;
-                }
-            }
-        }
+        String refresh = extractCookieValue(request, "refresh");
 
         Map<String, Object> responseMap = new HashMap<>();
         response.setContentType("application/json");
 
-        //refresh null check
-        if (refresh == null) {
-            responseMap.put("error", "토큰이 유효하지 않습니다.");
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getOutputStream().write(objectMapper.writeValueAsBytes(responseMap));
-            return;
-        }
-
-        //expired check
-        try {
-            jwtUtil.isExpired(refresh);
-        } catch (ExpiredJwtException e) {
-
-            responseMap.put("error", "토큰이 유효하지 않습니다.");
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getOutputStream().write(objectMapper.writeValueAsBytes(responseMap));
-            return;
-        }
-
-        // 토큰이 refresh인지 확인 (발급시 페이로드에 명시)
-        String category = jwtUtil.getCategory(refresh);
-        if (!category.equals("refresh")) {
-
-            responseMap.put("error", "토큰이 유효하지 않습니다.");
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getOutputStream().write(objectMapper.writeValueAsBytes(responseMap));
+        //refresh null 확인, expired 확인, 토큰이 refresh인지 확인 (발급시 페이로드에 명시)
+        if (refresh == null || !isValidRefreshToken(refresh)) {
+            sendErrorResponse(response, "토큰이 유효하지 않습니다.");
             return;
         }
 
         String email = jwtUtil.getEmail(refresh);
 
-        //DB에 저장되어 있는지 확인
+        //Redis에 저장되어 있는지 확인
         Boolean isExist = redisService.hasKey(email);
         if (!isExist) {
-            responseMap.put("error", "해당 토큰이 저장되어 있지 않습니다.");
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getOutputStream().write(objectMapper.writeValueAsBytes(responseMap));
+            sendErrorResponse(response, "해당 토큰이 저장되어 있지 않습니다.");
             return;
         }
 
         //로그아웃 진행
-        //Refresh 토큰 Redis에서 제거
-        redisService.deleteValues(email);
+        redisService.deleteValues(email);   //Refresh 토큰 Redis 제거
+        deleteRefreshCookie(response);      //Refresh 토큰 쿠키 제거
 
-        //Refresh 토큰 Cookie 값 0
-        Cookie cookie = new Cookie("refresh", null);
-        cookie.setMaxAge(0);
-        cookie.setPath("/api/v1/users");
-
-        response.addCookie(cookie);
         responseMap.put("message", "로그아웃 성공");
         response.setStatus(HttpServletResponse.SC_OK);
         response.getOutputStream().write(objectMapper.writeValueAsBytes(responseMap));
+    }
+    private String extractCookieValue(HttpServletRequest request, String cookieName) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals(cookieName)) {
+                    return cookie.getValue();
+                }
+            }
+        }
+        return null;
+    }
+
+    private boolean isValidRefreshToken(String token) {
+        try {
+            return jwtUtil.isExpired(token) || "refresh".equals(jwtUtil.getCategory(token));
+        } catch (ExpiredJwtException e) {
+            return false;
+        }
+    }
+
+    private void sendErrorResponse(HttpServletResponse response, String errorMessage) throws IOException {
+        Map<String, Object> responseMap = new HashMap<>();
+        responseMap.put("error", errorMessage);
+        response.setContentType("application/json");
+        response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+        response.getOutputStream().write(objectMapper.writeValueAsBytes(responseMap));
+    }
+
+    private void deleteRefreshCookie(HttpServletResponse response) {
+        Cookie cookie = new Cookie("refresh", null);
+        cookie.setMaxAge(0);
+        cookie.setPath("/api/v1/users");
+        response.addCookie(cookie);
     }
 }
