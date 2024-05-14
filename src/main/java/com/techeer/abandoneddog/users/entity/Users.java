@@ -8,7 +8,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Entity
@@ -17,7 +16,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @NoArgsConstructor
 @AllArgsConstructor
 @SQLDelete(sql = "UPDATE user SET deleted = true WHERE user_id = ?")
-@Where(clause = "deleted = false")
 @Table(name = "user")
 public class Users extends BaseEntity {
 

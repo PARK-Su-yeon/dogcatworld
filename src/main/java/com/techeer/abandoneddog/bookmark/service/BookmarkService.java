@@ -47,6 +47,9 @@ public class BookmarkService {
 
     @Transactional
     public Page<BookmarkResponseDto> getUserBookmarks(Pageable pageable, Long userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new UserNotFoundException();
+        }
         Page<Bookmark> bookmarkPage = bookmarkRepository.findBookmarksByUserIdAndIsDeletedFalse(pageable, userId);
         return bookmarkPage.map(BookmarkResponseDto::fromEntity);
     }

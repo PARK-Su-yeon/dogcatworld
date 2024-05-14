@@ -1,7 +1,11 @@
 package com.techeer.abandoneddog.users.controller;
 
 import com.techeer.abandoneddog.users.dto.*;
+import com.techeer.abandoneddog.users.service.ReissueService;
 import com.techeer.abandoneddog.users.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -9,11 +13,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/v1/users/")
 public class UserController implements UserControllerDocs{
     @Autowired
-    private UserService userService;
+    private final UserService userService;
+    private final ReissueService reissueService;
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequestDto registerRequestDto) {
@@ -64,6 +72,23 @@ public class UserController implements UserControllerDocs{
             return ResponseEntity.ok(ResultDto.res(HttpStatus.OK, "유저 삭제 성공"));
         } catch (Exception e) {
             return ResponseEntity.ok(ResultDto.res(HttpStatus.BAD_REQUEST, "유저 삭제애 실패했습니다."));
+        }
+    }
+
+    @PostMapping("/reissue")
+    public ResponseEntity<?> reissue(HttpServletRequest request, HttpServletResponse response) {
+        try {
+            Map<String, String> newTokens = reissueService.reissueTokens(request, response);
+            if (newTokens.containsKey("error")) {
+                return ResponseEntity
+                        .status(HttpStatus.BAD_REQUEST)
+                        .body(ResultDto.res(HttpStatus.BAD_REQUEST, newTokens.get("error")));
+            } else {
+                return ResponseEntity
+                        .ok(ResultDto.res(HttpStatus.OK, "토큰 재발급 성공", newTokens));
+            }
+        } catch (Exception e) {
+            return ResponseEntity.ok(ResultDto.res(HttpStatus.BAD_REQUEST, "토큰 재발급애 실패했습니다."));
         }
     }
 }
