@@ -1,8 +1,11 @@
 package com.techeer.abandoneddog.users.entity;
 
+import com.techeer.abandoneddog.chatting.domain.UsersChatRoom;
 import com.techeer.abandoneddog.global.entity.BaseEntity;
 import com.techeer.abandoneddog.users.dto.UserRequestDto;
 import jakarta.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -35,6 +38,9 @@ public class Users extends BaseEntity {
 
     @Column(name = "phone_num", nullable = false)
     private String phoneNum;
+
+    @OneToMany(mappedBy = "user")
+    private List<UsersChatRoom> usersChatRooms = new ArrayList<>();
 
     public void update(UserRequestDto dto, PasswordEncoder passwordEncoder) {
         this.username = dto.getUsername();
