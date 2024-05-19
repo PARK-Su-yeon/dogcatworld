@@ -1,9 +1,8 @@
 package com.techeer.abandoneddog.animal.Controller;
 
-import com.techeer.abandoneddog.animal.Dto.PetInfoRequestDto;
+import com.techeer.abandoneddog.animal.entity.PetInfo;
 import com.techeer.abandoneddog.animal.service.PetInfoService;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,26 +20,17 @@ public class AnimalInfoController {
     }
 
 
-
-    @PostMapping("/pet_info")
-    public ResponseEntity<?> posting(@RequestBody PetInfoRequestDto dto) {
-
-
+    @GetMapping("/petinfos")
+    public ResponseEntity<Page<PetInfo>> getAllPetInfos(
+            @RequestParam(name="page", required = false, defaultValue = "0") int page,
+            @RequestParam(name="size",required = false, defaultValue = "10") int size) {
         try {
-            return ResponseEntity.ok(petInfoService.createPetInfo(dto));
-
+            Page<PetInfo> petInfos = petInfoService.getAllPetInfos(page, size);
+            return ResponseEntity.ok(petInfos);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("게시물 작성에 실패하였습니다.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
-
-
-//    @GetMapping("/posts")
-//    public ResponseEntity<?> postList(@PageableDefault(size = 10) final Pageable pageable) {
-//        return ResponseEntity.ok( postservice.pageList(pageable));
-//
-//    }
-
     @GetMapping("/pet_info/{id}")
     public ResponseEntity<?> getPost(@PathVariable Long id) {
 
@@ -53,27 +43,23 @@ public class AnimalInfoController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("펫정보 조회에 실패하였습니다.");
         }
 
-
-
-    
-
     }
 
-    @PostMapping("/pet_info/{id}")
-    public ResponseEntity<?> updatePost(@PathVariable Long id,@RequestBody  PetInfoRequestDto dto) {
-
+    @GetMapping("/update")
+    public ResponseEntity<String> updatePetInfo() {
         try {
-            petInfoService.updatePetInfo(dto,id);
-            return ResponseEntity.status(HttpStatus.OK).body("펫정보 수정에 성공하였습니다.");
+            petInfoService.updatePetInfoDaily();
+            petInfoService.getAllAndSaveInfo("417000");
+            petInfoService.getAllAndSaveInfo("422400");
 
-
+            return ResponseEntity.ok("Pet information updated successfully.");
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("펫정보 수정에 실패하였습니다.");
+//            log.error("Error updating pet information: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to update pet information.");
         }
-
-
-
     }
+
+
 
 
     @DeleteMapping("/pet_info/{id}")
