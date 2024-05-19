@@ -21,6 +21,8 @@ import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
+import java.time.Duration;
+
 @Configuration
 public class RedisConfig {
 
@@ -71,7 +73,8 @@ public class RedisConfig {
         return RedisCacheManager.builder(redisConnectionFactory)
                 .cacheDefaults(RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofHours(24)))
                 .build();
-
+    }
+    @Bean
     public RedisMessageListenerContainer redisMessageListenerContainer(LettuceConnectionFactory connectionFactory,
                                                                        MessageListenerAdapter listenerAdapter,
                                                                        ChannelTopic topic) {
