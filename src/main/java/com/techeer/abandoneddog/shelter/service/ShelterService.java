@@ -10,6 +10,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 
@@ -33,21 +34,19 @@ public class ShelterService {
     private String secretKey;
     private final ShelterRepository shelterRepository;
 
+    @Autowired
     public RedisTemplate<String, String> redisTemplate;
 
     public ShelterService(ShelterRepository shelterRepository) {
         this.shelterRepository = shelterRepository;
     }
-
-
-     @Cacheable(value = "shelterCoordinates", key = "#address + ':' + #searchType")
     public List<ShelterInfo> getAllShelterInfos() {
         List<Shelter> shelters;
         try {
             shelters = shelterRepository.findAll();
         } catch (Exception e) {
-            log.error("Error occurred while fetching shelters: {}", e.getMessage());
-            throw new RuntimeException("Error occurred while fetching shelters", e);
+            log.error("에러", e.getMessage());
+            throw new RuntimeException("런타임 에러", e);
         }
 
         List<ShelterInfo> shelterInfos = new ArrayList<>();
@@ -55,16 +54,12 @@ public class ShelterService {
         for (Shelter shelter : shelters) {
             try {
                 String address = shelter.getCareAddr();
-                log.error("11111111111111111111111111 shelter: {}");
-                Coordinate coordinate = getCoordinates(address, "ROAD");
-                log.error("222222222222222222222222222222222 shelter: {}");
-                cacheShelterCoordinates(shelter);
-                log.error("333333333333333333333333333 shelter: {}");
-
+                Coordinate coordinate = getCachedCoordinate(address, "ROAD");
 
                 if (coordinate != null) {
                     ShelterInfo shelterInfo = new ShelterInfo(shelter.getCareNm(), coordinate);
                     shelterInfos.add(shelterInfo);
+                    log.info(shelterInfo.getName(), shelterInfo.getCoordinate());
                 }
             } catch (Exception e) {
                 log.error("Error occurred while processing shelter: {}", e.getMessage());
@@ -75,10 +70,48 @@ public class ShelterService {
         return shelterInfos;
     }
 
+    public Coordinate getCachedCoordinate(String address, String searchType) {
+        String cacheKey = "shelter:" + address + ":" + searchType;
+        String cachedValue = redisTemplate.opsForValue().get(cacheKey);
+
+        if (cachedValue != null) {
+            return parseCoordinateFromJson(cachedValue);
+        } else {
+            Coordinate coordinate = getCoordinates(address, searchType);
+            cacheCoordinate(cacheKey, coordinate);
+            return coordinate;
+        }
+    }
+
+    private void cacheCoordinate(String cacheKey, Coordinate coordinate) {
+        try {
+            JSONObject jsonCoordinate = new JSONObject();
+            jsonCoordinate.put("latitude", coordinate.getLatitude());
+            jsonCoordinate.put("longitude", coordinate.getLongitude());
+
+            redisTemplate.opsForValue().set(cacheKey, jsonCoordinate.toJSONString());
+            redisTemplate.expire(cacheKey, 24, TimeUnit.HOURS); // 캐시 만료 시간 설정 (24시간)
+        } catch (Exception e) {
+            log.error("Error occurred while caching coordinate: {}", e.getMessage());
+            // 예외 처리
+        }
+    }
+
+    private Coordinate parseCoordinateFromJson(String json) {
+        try {
+            JSONObject jsonObject = (JSONObject) new JSONParser().parse(json);
+            double latitude = Double.parseDouble(jsonObject.get("latitude").toString());
+            double longitude = Double.parseDouble(jsonObject.get("longitude").toString());
+            return new Coordinate(latitude, longitude);
+        } catch (Exception e) {
+            log.error("Error occurred while parsing coordinate from JSON: {}", e.getMessage());
+            // 예외 처리
+            return null;
+        }
+    }
     public Coordinate getCoordinates(String address, String searchType) {
         String apikey = secretKey;
         String epsg = "epsg:4326";
-        log.error("44444444444444444444444444444444444444444444 shelter: {}");
         try {
             StringBuilder sb = new StringBuilder("https://api.vworld.kr/req/address");
             sb.append("?service=address");
@@ -95,7 +128,7 @@ public class ShelterService {
             JSONObject jsob = (JSONObject) jspa.parse(reader);
             JSONObject jsrs = (JSONObject) jsob.get("response");
             JSONObject jsResult = (JSONObject) jsrs.get("result");
-            log.error("55555555555555555555555555555555555555 shelter: {}");
+
             if (jsResult == null) {
                 if ("ROAD".equals(searchType)) {
                     return getCoordinates(address, "PARCEL");
@@ -103,7 +136,6 @@ public class ShelterService {
                     return null;
                 }
             }
-            log.error("6666666666666666666666666666666666666666666666666 shelter: {}");
             JSONObject jspoint = (JSONObject) jsResult.get("point");
             double x = Double.parseDouble(jspoint.get("x").toString());
             double y = Double.parseDouble(jspoint.get("y").toString());
@@ -116,27 +148,5 @@ public class ShelterService {
     }
 
 
-    public void cacheShelterCoordinates(Shelter shelter) {
-        String cacheKey = "shelter:" + shelter.getCareNm();
-        String newCacheValue = null;
-        log.error("7777777777777777777777777777777777777 shelter: {}");
-        try {
-            Coordinate coordinate = getCoordinates(shelter.getCareAddr(), "ROAD");
-            if (coordinate != null) {
-                log.error("8888888888888888888888888888888 shelter: {}");
-                newCacheValue = "{\"latitude\": " + coordinate.getLatitude() + ", \"longitude\": " + coordinate.getLongitude() + "}";
-            }
-        } catch (Exception e) {
-            log.error("Error cache while getting coordinates: {}", e.getMessage());
-            // 예외 처리
-        }
 
-        if (newCacheValue != null) {
-            log.error("99999999999999999999999999999999999 shelter: {}");
-            redisTemplate.opsForValue().set(cacheKey, newCacheValue);
-            log.error("8887878787978798 shelter: {}");
-            redisTemplate.expire(cacheKey, 24, TimeUnit.HOURS); // 캐시 만료 시간 설정 (예: 24시간)
-            // 로깅 추가
-        }
-    }
 }
