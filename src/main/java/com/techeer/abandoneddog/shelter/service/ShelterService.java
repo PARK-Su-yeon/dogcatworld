@@ -11,6 +11,7 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 
 
@@ -35,6 +36,7 @@ public class ShelterService {
     private final ShelterRepository shelterRepository;
 
     @Autowired
+    @Qualifier("stringRedisTemplate")
     public RedisTemplate<String, String> redisTemplate;
 
     public ShelterService(ShelterRepository shelterRepository) {

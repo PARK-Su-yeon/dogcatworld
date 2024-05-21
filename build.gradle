@@ -27,6 +27,12 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.security:spring-security-crypto'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	//implementation 'org.vaadin.android:android-json:0.0.20131108.vaadin1'
+
+
+	 implementation 'org.json:json:20210307'
+
+
 	implementation group: 'com.googlecode.json-simple', name: 'json-simple', version: '1.1.1'
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2'	//Swagger
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis' 	//Redis

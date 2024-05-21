@@ -25,6 +25,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
@@ -34,9 +36,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class ChatService {
-
     private final MessageRepository messageRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final SimpMessageSendingOperations messagingTemplate;
@@ -45,6 +45,29 @@ public class ChatService {
     private final UserRepository usersRepository;
     private final UsersChatRoomRepository usersChatRoomRepository;
     private final RedisTemplate<String, Object> redisTemplate;
+
+
+
+
+    public ChatService(
+            MessageRepository messageRepository,
+            ChatRoomRepository chatRoomRepository,
+            SimpMessageSendingOperations messagingTemplate,
+            RedisPublisher redisPublisher,
+            ObjectMapper objectMapper,
+            UserRepository usersRepository,
+            UsersChatRoomRepository usersChatRoomRepository,
+            @Qualifier("chatRedisTemplate") RedisTemplate<String, Object> redisTemplate) {
+        this.messageRepository = messageRepository;
+        this.chatRoomRepository = chatRoomRepository;
+        this.messagingTemplate = messagingTemplate;
+        this.redisPublisher = redisPublisher;
+        this.objectMapper = objectMapper;
+        this.usersRepository = usersRepository;
+        this.usersChatRoomRepository = usersChatRoomRepository;
+        this.redisTemplate = redisTemplate;
+    }
+
 
 
     // 사용자 ID를 기반으로 활성 채팅방 목록을 조회
