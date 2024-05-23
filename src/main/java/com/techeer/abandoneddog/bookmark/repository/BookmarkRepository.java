@@ -8,12 +8,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 public interface BookmarkRepository extends JpaRepository<Bookmark, Long> {
     @Query("SELECT b FROM Bookmark b " +
             "JOIN FETCH b.petBoard " +
             "WHERE b.user.id = :userId AND b.isDeleted = false")
-    Page<Bookmark> findBookmarksByUserIdAndIsDeletedFalse(Pageable pageable, Long userId);
+    Page<Bookmark> findBookmarksByUserIdAndIsDeletedFalse(Pageable pageable,@Param("userId") Long userId);
 
     boolean existsByPetBoardAndUser(PetBoard petBoard, Users user);
 

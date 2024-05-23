@@ -34,21 +34,23 @@ public class BookmarkController implements BookmarkControllerDocs {
     }
 
     @GetMapping("/{userId}")
-    public ResponseEntity<?> getUserBookmark(@PathVariable Long userId, Pageable pageable) {
+    public ResponseEntity<?> getUserBookmark(@PathVariable("userId")  Long userId, Pageable pageable) {
         try {
             Page<BookmarkResponseDto> bookmarkPage = bookmarkService.getUserBookmarks(pageable, userId);
             return ResponseEntity.ok(ResultDto.res(HttpStatus.OK, "유저 북마크 리스트 조회 성공", bookmarkPage.getContent()));
         } catch (Exception e) {
+            log.error(e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("유저 북마크 리스트 조회에 실패했습니다.");
         }
     }
 
     @DeleteMapping("/{bookmarkId}")
-    public ResponseEntity<?> cancelBookmark(@PathVariable Long bookmarkId, @RequestBody BookmarkRequestDto bookmarkRequestDto) {
+    public ResponseEntity<?> cancelBookmark(@PathVariable("bookmarkId")   Long bookmarkId, @RequestBody BookmarkRequestDto bookmarkRequestDto) {
         try {
             bookmarkService.cancelBookmark(bookmarkRequestDto);
             return ResponseEntity.ok(ResultDto.res(HttpStatus.OK, "북마크 취소 성공"));
         } catch (Exception e) {
+            log.error(e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("북마크 취소에 실패했습니다.");
         }
     }
