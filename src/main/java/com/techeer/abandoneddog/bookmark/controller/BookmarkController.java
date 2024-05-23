@@ -5,6 +5,7 @@ import com.techeer.abandoneddog.bookmark.dto.BookmarkResponseDto;
 import com.techeer.abandoneddog.bookmark.service.BookmarkService;
 import com.techeer.abandoneddog.users.dto.ResultDto;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/bookmark")
+@Slf4j
 public class BookmarkController implements BookmarkControllerDocs {
 
     @Autowired
@@ -26,6 +28,7 @@ public class BookmarkController implements BookmarkControllerDocs {
             bookmarkService.addBookmark(bookmarkRequestDto);
             return ResponseEntity.ok(ResultDto.res(HttpStatus.OK, "북마크 저장 성공"));
         } catch (Exception e) {
+            log.error(e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("북마크 저장에 실패했습니다.");
         }
     }

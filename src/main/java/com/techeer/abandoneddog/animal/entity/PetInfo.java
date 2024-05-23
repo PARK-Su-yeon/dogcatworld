@@ -32,6 +32,7 @@ public class PetInfo {
     private String sexCd;
     private String neuterYn;
     private String specialMark;
+    private boolean isPublicApi;
 
 
     @ManyToOne

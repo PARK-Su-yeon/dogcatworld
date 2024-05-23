@@ -171,7 +171,6 @@ public class PetInfoService {
 
 
                     petInfoList.add(petInfo);
-                    log.info("Saved " + petInfoList.size());
 
                 } catch (JSONException e) {
                     log.error("Error creating PetInfo object: " + e.getMessage());
@@ -185,8 +184,7 @@ public class PetInfoService {
             log.error("Error parsing JSON response: " + e.getMessage());
         }
     }
-    @Scheduled(cron = "0 0 0 * * ?") // 매일 자정에 실행
-    //@Scheduled(fixedRate = 180000)
+    ///@Scheduled(cron = "0 0 0 * * ?") // 매일 자정에 실행
     public void updatePetInfoDaily() {
         try {
             deleteAllPetInfo();

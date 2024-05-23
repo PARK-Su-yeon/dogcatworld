@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/pet-board")
+@RequestMapping("/api/v1/pet_board")
 public class PetBoardController {
     private final PetBoardService petBoardService;
 
@@ -37,7 +37,7 @@ public class PetBoardController {
     }
 
     @PutMapping("/{petBoardId}")
-    public ResponseEntity<?> updatePetBoard(@PathVariable Long petBoardId, @RequestBody PetBoardRequestDto requestDto) {
+    public ResponseEntity<?> updatePetBoard(@PathVariable("petBoardId") Long petBoardId, @RequestBody PetBoardRequestDto requestDto) {
         try {
             PetBoardResponseDto responseDto = petBoardService.updatePetBoard(petBoardId, requestDto);
             return ResponseEntity.ok().body(responseDto);
@@ -49,7 +49,7 @@ public class PetBoardController {
     }
 
     @GetMapping("/{petBoardId}")
-    public ResponseEntity<?> getPetBoard(@PathVariable Long petBoardId) {
+    public ResponseEntity<?> getPetBoard(@PathVariable("petBoardId") Long petBoardId) {
         try {
             PetBoardResponseDto responseDto = petBoardService.getPetBoard(petBoardId);
             return ResponseEntity.ok(responseDto);
@@ -77,7 +77,7 @@ public class PetBoardController {
     }
 
     @DeleteMapping("/{petBoardId}")
-    public ResponseEntity<?> deletePetBoard(@PathVariable Long petBoardId) {
+    public ResponseEntity<?> deletePetBoard(@PathVariable("petBoardId") Long petBoardId) {
         try {
             petBoardService.deletePetBoard(petBoardId);
             return ResponseEntity.ok().body("게시물 삭제에 성공하였습니다.");

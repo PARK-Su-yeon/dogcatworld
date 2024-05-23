@@ -65,6 +65,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers("/api/v1/users/login", "/api/v1/users/register", "/login", "/reissue", "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .anyRequest().authenticated());
+             //.anyRequest().permitAll());
 
         //JWTFilter 등록
         http
