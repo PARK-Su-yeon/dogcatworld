@@ -59,7 +59,8 @@ public class ShelterService {
                 Coordinate coordinate = getCachedCoordinate(address, "ROAD");
 
                 if (coordinate != null) {
-                    ShelterInfo shelterInfo = new ShelterInfo(shelter.getCareNm(), coordinate);
+                    ShelterInfo shelterInfo = new ShelterInfo(shelter.getCareNm(), coordinate, shelter.getCareNm(),shelter.getCareTel(), shelter.getCareAddr());
+
                     shelterInfos.add(shelterInfo);
                     log.info(shelterInfo.getName(), shelterInfo.getCoordinate());
                 }

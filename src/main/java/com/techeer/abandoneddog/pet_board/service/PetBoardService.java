@@ -1,5 +1,6 @@
 package com.techeer.abandoneddog.pet_board.service;
 
+import com.techeer.abandoneddog.animal.repository.PetInfoRepository;
 import com.techeer.abandoneddog.pet_board.dto.PetBoardRequestDto;
 import com.techeer.abandoneddog.pet_board.dto.PetBoardResponseDto;
 import com.techeer.abandoneddog.pet_board.entity.PetBoard;
@@ -14,9 +15,12 @@ import org.springframework.stereotype.Service;
 @Service
 public class PetBoardService {
     private final PetBoardRepository petBoardRepository;
+    //private final PetInfoRepository petInfoRepository;
+
 
     @Transactional
     public Long createPetBoard(PetBoardRequestDto petBoardRequestDto) {
+       // petInfoRepository.save()
         return petBoardRepository.save(petBoardRequestDto.toEntity()).getPetBoardId();
     }
 
