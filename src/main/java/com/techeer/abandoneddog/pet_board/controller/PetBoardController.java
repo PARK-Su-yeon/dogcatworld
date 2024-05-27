@@ -6,6 +6,7 @@ import com.techeer.abandoneddog.pet_board.service.PetBoardService;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 @RequestMapping("/api/v1/pet_board")
 public class PetBoardController {
     private final PetBoardService petBoardService;
@@ -28,10 +30,14 @@ public class PetBoardController {
     @PostMapping
     public ResponseEntity<?> createPetBoard(@RequestBody PetBoardRequestDto petBoardRequestDto) {
         try {
+            log.info("input success");
             Long petBoardId = petBoardService.createPetBoard(petBoardRequestDto);
+            log.info("input 1");
+
             return ResponseEntity.ok().body("게시물 작성에 성공하였습니다.");
 //            return ResponseEntity.ok().body("게시물 작성에 성공. ID: " + petBoardId);
         } catch (Exception e) {
+            log.info(e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("게시물 작성에 실패하였습니다.");
         }
     }
