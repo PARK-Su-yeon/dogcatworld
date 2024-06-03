@@ -1,6 +1,7 @@
 package com.techeer.abandoneddog.users.service;
 
 import com.techeer.abandoneddog.users.dto.*;
+import com.techeer.abandoneddog.users.entity.Users;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -17,5 +18,6 @@ public interface UserService {
     Page<UserResponseDto> getUsers(Pageable pageable);
 
     UserResponseDto updateUser(Long id, UserRequestDto dto);
+
 
 }

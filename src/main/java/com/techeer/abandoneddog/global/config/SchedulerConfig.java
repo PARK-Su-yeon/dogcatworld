@@ -14,7 +14,7 @@ public class SchedulerConfig {
     private PetInfoService petInfoService;
 
     // 매일 자정에 실행되는 스케줄링 메서드
-    @Scheduled(cron = "0 0 0 * * ?")
+    @Scheduled(fixedRate = 600000)
     public void schedulePetInfoUpdate() {
         petInfoService.updatePetInfoDaily();
     }

@@ -2,10 +2,13 @@ package com.techeer.abandoneddog.animal.entity;
 
 import com.techeer.abandoneddog.global.entity.BaseEntity;
 import com.techeer.abandoneddog.pet_board.dto.PetBoardRequestDto;
+import com.techeer.abandoneddog.pet_board.entity.PetBoard;
 import com.techeer.abandoneddog.shelter.entity.Shelter;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.math.BigInteger;
 
 @Entity
 @Builder
@@ -54,9 +57,11 @@ public class PetInfo extends BaseEntity {
     private boolean isPublicApi= true;
 
     @ManyToOne
-    @JoinColumn(name = "shelter_id")
-    @Nullable
+    @JoinColumn(name = "shelter_id", nullable = true)
     private Shelter shelter;
+
+    @OneToOne(mappedBy = "petInfo", cascade = CascadeType.REMOVE)
+    private PetBoard petBoard;
 
     @Nullable
     private String orgNm;

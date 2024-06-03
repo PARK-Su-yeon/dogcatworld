@@ -30,9 +30,7 @@ public class PetBoardController {
     @PostMapping
     public ResponseEntity<?> createPetBoard(@RequestBody PetBoardRequestDto petBoardRequestDto) {
         try {
-            log.info("input success");
             Long petBoardId = petBoardService.createPetBoard(petBoardRequestDto);
-            log.info("input 1");
 
             return ResponseEntity.ok().body("게시물 작성에 성공하였습니다.");
 //            return ResponseEntity.ok().body("게시물 작성에 성공. ID: " + petBoardId);

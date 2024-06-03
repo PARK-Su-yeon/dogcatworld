@@ -3,16 +3,15 @@ package com.techeer.abandoneddog.pet_board.entity;
 import com.techeer.abandoneddog.animal.entity.PetInfo;
 import com.techeer.abandoneddog.global.entity.BaseEntity;
 import com.techeer.abandoneddog.pet_board.dto.PetBoardRequestDto;
+import com.techeer.abandoneddog.users.entity.Users;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SQLDelete(sql = "UPDATE pet_board SET deleted = true WHERE pet_board_id = ?")
 @Where(clause = "deleted = false")
@@ -35,9 +34,14 @@ public class PetBoard extends BaseEntity {
     @Column(name = "description")
     private String description;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne
     @JoinColumn(name = "pet_info_id")
     private PetInfo petInfo;
+
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "user_id")
+    private Users users;
+
 
 
     @Enumerated(EnumType.STRING)
