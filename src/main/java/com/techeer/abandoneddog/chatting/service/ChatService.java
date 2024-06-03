@@ -23,9 +23,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
@@ -84,25 +82,6 @@ public class ChatService {
 
         return chatRooms.stream()
                 .map(ChatRoomResponseDto::new)
-                .collect(Collectors.toList());
-    }
-
-    // 특정 채팅방의 모든 메시지를 시간순으로 조회
-    @Transactional(readOnly = true)
-    public List<MessageResponseDto> getMessagesByChatRoomId(Long chatRoomId) {
-        chatRoomRepository.findById(chatRoomId)
-                .orElseThrow(() -> new EntityNotFoundException("ChatRoom not found with id: " + chatRoomId));
-
-        List<Message> messages = messageRepository.findMessagesByChatRoomIdOrderByCreatedAtAsc(chatRoomId);
-        return messages.stream()
-                .map(message -> new MessageResponseDto(
-                        message.getMessageId(),
-                        message.getSender().getId(),
-                        message.getMessage(),
-                        message.getType(),
-                        message.getSender().getUsername(),
-                        message.getCreatedAt()
-                ))
                 .collect(Collectors.toList());
     }
 
@@ -184,26 +163,10 @@ public class ChatService {
                 .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
                 .orElseThrow(() -> new EntityNotFoundException("ChatRoom not found with id: " + chatRoomId));
-        Message leaveMessage = Message.builder()
-                .chatRoom(chatRoom)
-                .sender(user)
-                .message(user.getUsername() + "님이 채팅방을 떠났습니다.")
-                .type(MessageType.LEAVE)
-                .build();
-        messageRepository.save(leaveMessage);
 
-        // 채팅방에 남은 사용자들에게 알림을 보냄
-        messagingTemplate.convertAndSend("/topic/chat/room/" + chatRoomId,
-                new MessageResponseDto(
-                        leaveMessage.getMessageId(),
-                        leaveMessage.getSender().getId(),
-                        leaveMessage.getMessage(),
-                        leaveMessage.getType(),
-                        user.getUsername(),
-                        leaveMessage.getCreatedAt()
-                ));
+        // saveAndSendMessage 메서드를 사용하여 메시지 전송
+        saveAndSendMessage(chatRoom, user, user.getUsername() + "님이 채팅방을 떠났습니다.", MessageType.LEAVE, false);
     }
-
 
     // 채팅방에 메시지 전송 처리
     @Transactional
@@ -249,33 +212,27 @@ public class ChatService {
                 .type(messageType)
                 .build();
         messageRepository.save(message);
-////        내장브로커 In-Memory 사용
-//        MessageResponseDto responseDto = new MessageResponseDto(
-//                message.getMessageId(),
-//                message.getSender().getId(),
-//                message.getMessage(),
-//                message.getType(),
-//                sender.getUsername(),
-//                message.getCreatedAt()
-//        );
-//        messagingTemplate.convertAndSend("/topic/chat/room/" + chatRoom.getChatRoomId(), responseDto);
+
+        // MessageResponseDto 생성
+        MessageResponseDto responseDto = new MessageResponseDto(
+                chatRoom.getChatRoomId(),
+                message.getMessageId(),
+                message.getSender().getId(),
+                message.getMessage(),
+                message.getType(),
+                sender.getUsername()
+        );
 
         // Redis 사용
-        ChatMessageDto chatMessageDto = ChatMessageDto.builder()
-                .chatRoomId(chatRoom.getChatRoomId())
-                .senderId(sender.getId())
-                .content(finalMessageContent)
-                .type(messageType)
-                .build();
-
-        redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer<>(ChatMessageDto.class));
-        redisTemplate.opsForList().rightPush(chatMessageDto.getChatRoomId().toString(), chatMessageDto);
-        redisTemplate.expire(chatMessageDto.getChatRoomId().toString(), 1, TimeUnit.MINUTES);
-
+        redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer<>(MessageResponseDto.class));
+        redisTemplate.opsForList().rightPush(responseDto.getChatRoomId().toString(), responseDto);
+        redisTemplate.expire(responseDto.getChatRoomId().toString(), 1, TimeUnit.MINUTES);
 
         ChannelTopic topic = new ChannelTopic(String.valueOf(chatRoom.getChatRoomId()));
-        redisPublisher.publish(topic, chatMessageDto);
+        redisPublisher.publish(topic, responseDto);
 
+//         채팅방에 남은 사용자들에게 알림을 보냄
+        messagingTemplate.convertAndSend("/topic/chat/room/" + chatRoom.getChatRoomId(), responseDto);
     }
 
     @Transactional(readOnly = true)

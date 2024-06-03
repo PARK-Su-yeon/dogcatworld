@@ -2,6 +2,7 @@ package com.techeer.abandoneddog.chatting.redis;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.techeer.abandoneddog.chatting.dto.ChatMessageDto;
+import com.techeer.abandoneddog.chatting.dto.MessageResponseDto;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import lombok.RequiredArgsConstructor;
@@ -20,8 +21,8 @@ public class RedisSubscriber implements MessageListener {
     public void onMessage(Message message, byte[] pattern) {
         try {
             String msg = new String(message.getBody(), StandardCharsets.UTF_8);
-            ChatMessageDto chatMessageDto = objectMapper.readValue(msg, ChatMessageDto.class);
-            messagingTemplate.convertAndSend("/topic/chat/room/" + chatMessageDto.getChatRoomId(), chatMessageDto);
+            MessageResponseDto messageResponseDto = objectMapper.readValue(msg, MessageResponseDto.class);
+            messagingTemplate.convertAndSend("/topic/chat/room/" + messageResponseDto.getChatRoomId(), messageResponseDto);
         } catch (IOException e) {
             e.printStackTrace();
         }

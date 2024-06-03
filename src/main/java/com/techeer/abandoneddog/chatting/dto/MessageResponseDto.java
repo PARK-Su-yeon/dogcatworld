@@ -11,10 +11,11 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MessageResponseDto {
+    private Long chatRoomId;
     private Long messageId;
     private Long senderId;
     private String message;
     private MessageType type;
     private String senderUsername;
-    private LocalDateTime createdAt;
+//    private LocalDateTime createdAt;
 }
