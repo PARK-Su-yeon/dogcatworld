@@ -72,6 +72,8 @@ public class PetInfo extends BaseEntity {
     @Nullable
     private String noticeComment;
 
+    @Column(name = "pet_board_stored")
+    private boolean petBoardStored=false;
 
 
 
@@ -98,6 +100,7 @@ public class PetInfo extends BaseEntity {
         this.chargeNm = petInfo.getChargeNm();
         this.officetel = petInfo.getOfficetel();
         this.noticeComment = petInfo.getNoticeComment();
+        this.petBoardStored=true;
     }
 }
 

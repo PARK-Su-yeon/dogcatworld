@@ -19,6 +19,8 @@ public interface PetInfoRepository extends JpaRepository<PetInfo, Long> {
   @Query("SELECT b.desertionNo FROM PetInfo b")
   List<Long> findAllDesertionNos();
 
+  List<PetInfo> findByPetBoardStoredFalse();
+
 
   //   void deleteByCreatedDateBefore(LocalDateTime oneWeekAgo);
 }
