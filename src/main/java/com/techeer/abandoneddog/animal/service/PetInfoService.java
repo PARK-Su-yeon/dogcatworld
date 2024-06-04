@@ -5,10 +5,9 @@ import com.techeer.abandoneddog.shelter.entity.Shelter;
 import com.techeer.abandoneddog.shelter.repository.ShelterRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Value;
-
 import lombok.extern.slf4j.Slf4j;
-import org.json.*;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -19,11 +18,11 @@ import com.techeer.abandoneddog.animal.entity.PetInfo;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.math.BigInteger;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -31,6 +30,7 @@ public class PetInfoService {
 
     private final PetInfoRepository petInfoRepository;
     private final ShelterRepository shelterRepository;
+    private final Set<Long> existingDesertionNos = new HashSet<>();
 
     public PetInfoService(PetInfoRepository petInfoRepository, ShelterRepository shelterRepository) {
         this.petInfoRepository = petInfoRepository;
@@ -40,8 +40,9 @@ public class PetInfoService {
     @Value("${OPEN_API_SECRETKEY}")
     private String secretKey;
 
-    public void deleteAllPetInfo() {
-        petInfoRepository.deleteAll();
+    public void initializeExistingDesertionNos() {
+        List<Long> desertionNos = petInfoRepository.findAllDesertionNos();
+        existingDesertionNos.addAll(desertionNos);
     }
 
     public void getAllAndSaveInfo(String upkind) throws IOException, JSONException {
@@ -74,11 +75,14 @@ public class PetInfoService {
             } else {
                 rd = new BufferedReader(new InputStreamReader(conn.getErrorStream()));
             }
+
             StringBuilder sb = new StringBuilder();
             String line;
+
             while ((line = rd.readLine()) != null) {
                 sb.append(line);
             }
+
             rd.close();
             conn.disconnect();
 
@@ -107,23 +111,35 @@ public class PetInfoService {
         JSONObject body = jsonObject.getJSONObject("response").getJSONObject("body");
         return body.getInt("totalCount");
     }
+
     private void savePetInfoFromApiResponse(String apiResponse) {
         try {
+
             JSONObject jsonObject = new JSONObject(apiResponse);
+
+
             JSONObject body = jsonObject.getJSONObject("response").getJSONObject("body");
             JSONArray itemArray = body.getJSONObject("items").getJSONArray("item");
 
             List<PetInfo> petInfoList = new ArrayList<>();
-            List<Shelter> ShelterList = new ArrayList<>();
             for (int i = 0; i < itemArray.length(); i++) {
                 JSONObject item = itemArray.getJSONObject(i);
 
-
                 try {
-                    String careNm=item.getString("careNm");
+                    Long desertionNo = Long.parseLong(item.getString("desertionNo"));
 
-                    if (!shelterRepository.existsByCareNm(careNm)) {
-                        Shelter shelter = Shelter.builder()
+                    // 이미 존재하는 desertionNo인지 확인
+                    if (existingDesertionNos.contains(desertionNo)) {
+                        continue;
+                    }
+
+
+                    String careNm = item.getString("careNm");
+
+                    Shelter shelter;
+                    Optional<Shelter> optionalShelter = shelterRepository.findByCareNm(careNm);
+                    if (!optionalShelter.isPresent()) {
+                        shelter = Shelter.builder()
                                 .careNm(careNm)
                                 .careTel(item.getString("careTel"))
                                 .careAddr(item.getString("careAddr"))
@@ -131,73 +147,71 @@ public class PetInfoService {
 
                         // Shelter 엔티티를 저장
                         shelterRepository.save(shelter);
+                    } else {
+                        // 이미 존재하는 Shelter 객체를 불러옴
+                        shelter = optionalShelter.get();
                     }
 
                     PetInfo petInfo = PetInfo.builder()
-                            .desertionNo(Long.valueOf(item.getString("desertionNo")))
-                            .filename(item.getString("filename"))
-                            .happenDt(item.getString("happenDt"))
-                            .happenPlace(item.getString("happenPlace"))
-                            .kindCd(item.getString("kindCd"))
-                            .colorCd(item.getString("colorCd"))
-                            .age(item.getString("age"))
-                            .weight(item.getString("weight"))
-                            .noticeNo(item.getString("noticeNo"))
-                            .noticeSdt(item.getString("noticeSdt"))
-                            .noticeEdt(item.getString("noticeEdt"))
-                            .popfile(item.getString("popfile"))
-                            .processState(item.getString("processState"))
-                            .sexCd(item.getString("sexCd"))
-                            .neuterYn(item.getString("neuterYn"))
-                            .specialMark(item.getString("specialMark"))
-//                            .careNm(item.getString("careNm"))
-//                            .careTel(item.getString("careTel"))
-//                            .careAddr(item.getString("careAddr"))
-                            .orgNm(item.getString("orgNm"))
-                            .chargeNm(item.getString("chargeNm"))
-                            .officetel(item.getString("officetel"))
+                            .desertionNo(desertionNo)
+                            .filename(item.optString("filename", null))
+                            .happenDt(item.optString("happenDt", null))
+                            .happenPlace(item.optString("happenPlace", null))
+                            .kindCd(item.optString("kindCd", null))
+                            .colorCd(item.optString("colorCd", null))
+                            .age(item.optString("age", null))
+                            .weight(item.optString("weight", null))
+                            .noticeNo(item.optString("noticeNo", null))
+                            .noticeSdt(item.optString("noticeSdt", null))
+                            .noticeEdt(item.optString("noticeEdt", null))
+                            .popfile(item.optString("popfile", null))
+                            .processState(item.optString("processState", null))
+                            .sexCd(item.optString("sexCd", null))
+                            .neuterYn(item.optString("neuterYn", null))
+                            .specialMark(item.optString("specialMark", null))
+                            .orgNm(item.optString("orgNm", null))
+                            .chargeNm(item.optString("chargeNm", null)) // optString을 사용하여 필드가 없을 경우 기본값 null로 설정
+                            .officetel(item.optString("officetel", null))
+                            .noticeComment(item.optString("noticeComment", null))
+                            .shelter(shelter)
                             .build();
 
+                    petInfoList.add(petInfo);
 
                     if (!item.isNull("noticeComment")) {
                         petInfo.setNoticeComment(item.getString("noticeComment"));
-                        log.info("Saved " + petInfo.getNoticeComment());
                     }
-                    else {
-                        log.info("Saved null notice comment");
-                    }
-
-                    // noticeComment는 null 값이 아닌 것으로 가정
-
 
                     petInfoList.add(petInfo);
+                    existingDesertionNos.add(desertionNo);
 
                 } catch (JSONException e) {
                     log.error("Error creating PetInfo object: " + e.getMessage());
                 }
             }
             petInfoRepository.saveAll(petInfoList);
-     ;
 
-            log.info("Saved " + petInfoList.size() + " pet information to the database.");
+            log.info("Saved " + petInfoList.size() + " new pet information to the database.");
         } catch (JSONException e) {
             log.error("Error parsing JSON response: " + e.getMessage());
+        } catch (Exception e) {
+            log.error("General error: " + e.getMessage());
         }
     }
-    ///@Scheduled(cron = "0 0 0 * * ?") // 매일 자정에 실행
+
+    // @Scheduled(cron = "0 0 0 * * ?") // 매일 자정에 실행
     public void updatePetInfoDaily() {
         try {
-            deleteAllPetInfo();
-            log.info("delete update schedluder");
+            initializeExistingDesertionNos();
+            log.info("Initialized existing desertion numbers");
 
             getAllAndSaveInfo("417000");
             getAllAndSaveInfo("422400");
-            log.info("Saved update schedluder");
+            log.info("Saved update scheduler");
         } catch (Exception e) {
-            log.error( e.getMessage());
+            log.error(e.getMessage());
         }
     }
-
 
     public PetInfo getPetInfo(Long id) {
         return petInfoRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("not found"));
@@ -207,6 +221,7 @@ public class PetInfoService {
         PetInfo entity = petInfoRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("not found"));
         petInfoRepository.delete(entity);
     }
+
     public Page<PetInfo> getAllPetInfos(int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size);
         return petInfoRepository.findAll(pageRequest);

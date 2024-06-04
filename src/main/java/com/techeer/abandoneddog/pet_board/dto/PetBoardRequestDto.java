@@ -1,5 +1,6 @@
 package com.techeer.abandoneddog.pet_board.dto;
 
+import com.techeer.abandoneddog.animal.entity.PetInfo;
 import com.techeer.abandoneddog.pet_board.entity.PetBoard;
 import com.techeer.abandoneddog.pet_board.entity.Status;
 import lombok.AccessLevel;
@@ -17,7 +18,7 @@ public class PetBoardRequestDto {
 //    private Long memberId;
     private String title;
     private String description;
-    private String location;
+    private PetInfo petInfo;
     private Status status;
 
     public PetBoard toEntity() {
@@ -26,7 +27,7 @@ public class PetBoardRequestDto {
 //                .memberId(memberId)
                 .title(title)
                 .description(description)
-                .location(location)
+                .petInfo(petInfo)
                 .status(status)
                 .build();
     }
