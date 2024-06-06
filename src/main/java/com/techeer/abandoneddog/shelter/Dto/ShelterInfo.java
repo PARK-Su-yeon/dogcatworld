@@ -1,10 +1,11 @@
 package com.techeer.abandoneddog.shelter.Dto;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
-
+@Builder
 public class ShelterInfo {
     private String name;
     private Coordinate coordinate;

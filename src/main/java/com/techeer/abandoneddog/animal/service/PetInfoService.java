@@ -1,6 +1,7 @@
 package com.techeer.abandoneddog.animal.service;
 
 import com.techeer.abandoneddog.animal.PetInfoDto.PetInfoDto;
+import com.techeer.abandoneddog.animal.PetInfoDto.PetInfoResponseDto;
 import com.techeer.abandoneddog.animal.repository.PetInfoRepository;
 import com.techeer.abandoneddog.shelter.entity.Shelter;
 import com.techeer.abandoneddog.shelter.repository.ShelterRepository;
@@ -230,8 +231,14 @@ public class PetInfoService {
         }
     }
 
-    public PetInfo getPetInfo(Long id) {
-        return petInfoRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("not found"));
+//    public PetInfo getPetInfo(Long id) {
+//        return petInfoRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("not found"));
+//    }
+
+    public PetInfoResponseDto getPetInfoById(Long id) {
+        PetInfo petInfo = petInfoRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("PetInfo not found with id: " + id));
+        return PetInfoResponseDto.fromEntity(petInfo);
     }
 
     public void deletePetInfo(Long id) {

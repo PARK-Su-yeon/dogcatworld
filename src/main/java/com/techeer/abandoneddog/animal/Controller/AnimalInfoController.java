@@ -1,7 +1,9 @@
 package com.techeer.abandoneddog.animal.Controller;
 
+import com.techeer.abandoneddog.animal.PetInfoDto.PetInfoResponseDto;
 import com.techeer.abandoneddog.animal.entity.PetInfo;
 import com.techeer.abandoneddog.animal.service.PetInfoService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -40,9 +42,12 @@ public class AnimalInfoController {
     @GetMapping("/{id}")
     public ResponseEntity<?> getPetInfo(@PathVariable Long id) {
         try {
-            return ResponseEntity.ok(petInfoService.getPetInfo(id));
+            PetInfoResponseDto petInfoDto = petInfoService.getPetInfoById(id);
+            return ResponseEntity.ok(petInfoDto);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("펫 정보를 찾을 수 없습니다.");
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("펫 정보를 조회할 수 없습니다.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("펫 정보를 조회하는 동안 오류가 발생했습니다.");
         }
     }
 
