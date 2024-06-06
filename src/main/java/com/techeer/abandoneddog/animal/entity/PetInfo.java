@@ -30,6 +30,8 @@ public class PetInfo extends BaseEntity {
     @Nullable
     private String happenPlace; // 발견 장소
     @Nullable
+    private String petType; // 개 or 고양이인지
+    @Nullable
     private String kindCd; // 품종
     @Nullable
     private String colorCd;
@@ -83,6 +85,7 @@ public class PetInfo extends BaseEntity {
         this.filename = petInfo.getFilename();
         this.happenDt = petInfo.getHappenDt();
         this.happenPlace = petInfo.getHappenPlace();
+        this.petType = petInfo.getPetType();
         this.kindCd = petInfo.getKindCd();
         this.colorCd = petInfo.getColorCd();
         this.age = petInfo.getAge();

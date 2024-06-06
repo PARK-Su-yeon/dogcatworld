@@ -1,5 +1,6 @@
 package com.techeer.abandoneddog.animal.service;
 
+import com.techeer.abandoneddog.animal.PetInfoDto.PetInfoDto;
 import com.techeer.abandoneddog.animal.repository.PetInfoRepository;
 import com.techeer.abandoneddog.shelter.entity.Shelter;
 import com.techeer.abandoneddog.shelter.repository.ShelterRepository;
@@ -92,7 +93,7 @@ public class PetInfoService {
             }
 
             // PetInfo 엔티티에 저장
-            savePetInfoFromApiResponse(sb.toString());
+            savePetInfoFromApiResponse(sb.toString(), upkind);
 
             // 다음 페이지로 이동
             pageNo++;
@@ -112,12 +113,9 @@ public class PetInfoService {
         return body.getInt("totalCount");
     }
 
-    private void savePetInfoFromApiResponse(String apiResponse) {
+    private void savePetInfoFromApiResponse(String apiResponse, String upkind) {
         try {
-
             JSONObject jsonObject = new JSONObject(apiResponse);
-
-
             JSONObject body = jsonObject.getJSONObject("response").getJSONObject("body");
             JSONArray itemArray = body.getJSONObject("items").getJSONArray("item");
 
@@ -157,7 +155,9 @@ public class PetInfoService {
                             .filename(item.optString("filename", null))
                             .happenDt(item.optString("happenDt", null))
                             .happenPlace(item.optString("happenPlace", null))
-                            .kindCd(item.optString("kindCd", null))
+                            .petType(getPetType(upkind)) // 개와 고양이를 구분
+                            .kindCd(getKindCd(item.optString("kindCd", null))) // 품종만 추출
+//                            .kindCd(item.optString("kindCd", null))
                             .colorCd(item.optString("colorCd", null))
                             .age(item.optString("age", null))
                             .weight(item.optString("weight", null))
@@ -199,14 +199,31 @@ public class PetInfoService {
         }
     }
 
+    private String getPetType(String upkind) {
+        if ("417000".equals(upkind)) {
+            return "개";
+        } else if ("422400".equals(upkind)) {
+            return "고양이";
+        } else {
+            return "기타";
+        }
+    }
+
+    private String getKindCd(String kindCd) {
+        if (kindCd.contains("]")) {
+            return kindCd.split("]")[1].trim();
+        }
+        return kindCd;
+    }
+
     // @Scheduled(cron = "0 0 0 * * ?") // 매일 자정에 실행
     public void updatePetInfoDaily() {
         try {
             initializeExistingDesertionNos();
             log.info("Initialized existing desertion numbers");
 
-            getAllAndSaveInfo("417000");
-            getAllAndSaveInfo("422400");
+            getAllAndSaveInfo("417000"); //고양이
+            getAllAndSaveInfo("422400"); //개
             log.info("Saved update scheduler");
         } catch (Exception e) {
             log.error(e.getMessage());

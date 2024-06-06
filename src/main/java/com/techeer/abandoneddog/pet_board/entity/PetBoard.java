@@ -22,17 +22,14 @@ public class PetBoard extends BaseEntity {
     @Column(name = "pet_board_id", updatable = false)
     private Long petBoardId;
 
-//    @Column(name = "pet_id", nullable = false)
-//    private Long petId;
-//
-//    @Column(name = "member_id", nullable = false)
-//    private Long memberId;
-
     @Column(name = "title")
     private String title;
 
     @Column(name = "description")
     private String description;
+
+    @Column(name = "pet_type")
+    private String petType;
 
     @OneToOne
     @JoinColumn(name = "pet_info_id")
@@ -42,30 +39,26 @@ public class PetBoard extends BaseEntity {
     @JoinColumn(name = "user_id")
     private Users users;
 
-
-
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
     private Status status;
 
     @Builder
-    public PetBoard(Long petBoardId, int petId, int memberId, String title, String description, PetInfo petInfo, Status status) {
+    public PetBoard(Long petBoardId, String title, String description, String petType, PetInfo petInfo, Status status) {
         this.petBoardId = petBoardId;
-//        this.petId = petId;
-//        this.memberId = memberId;
         this.title = title;
         this.description = description;
+        this.petType = petType;
         this.petInfo = petInfo;
         this.status = status;
     }
 
     public void update(PetBoardRequestDto requestDto) {
-//        this.petId = requestDto.getPetId();
-//        this.memberId = requestDto.getMemberId();
         this.title = requestDto.getTitle();
         this.description = requestDto.getDescription();
         this.petInfo = requestDto.getPetInfo();
-        this.status = requestDto.getStatus();
+        this.petType = requestDto.getPetInfo().getPetType();
+        this.status = Status.fromProcessState(requestDto.getPetInfo().getProcessState());
     }
 
 }

@@ -8,9 +8,12 @@ import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,6 +21,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -65,15 +69,46 @@ public class PetBoardController {
     }
 
     @GetMapping("/list")
-    public ResponseEntity<?> getPetBoards(Pageable pageable) {
+    public ResponseEntity<?> getPetBoards(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "12") int size,
+            @RequestParam(defaultValue = "asc") String direction) {
         try {
+            Sort sort = direction.equalsIgnoreCase("desc") ? Sort.by("petBoardId").descending() : Sort.by("petBoardId").ascending();
+            Pageable pageable = PageRequest.of(page, size, sort);
             Page<PetBoardResponseDto> petBoardPage = petBoardService.getPetBoards(pageable);
             Map<String, Object> response = new LinkedHashMap<>();
             response.put("message", "입양/분양 공고 리스트 조회 성공");
             response.put("result", petBoardPage.getContent());
+            response.put("totalPages", petBoardPage.getTotalPages());
 
             return ResponseEntity.ok(response);
         } catch (Exception e) {
+            log.error("Error retrieving pet boards", e);
+            Map<String, String> errorResponse = new LinkedHashMap<>();
+            errorResponse.put("message", "입양/분양 공고 리스트 조회에 실패했습니다.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+        }
+    }
+
+    @GetMapping("/list/type/{petType}")
+    public ResponseEntity<?> getPetBoardsByPetType(
+            @PathVariable String petType,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "12") int size,
+            @RequestParam(defaultValue = "asc") String direction) {
+        try {
+            Sort sort = direction.equalsIgnoreCase("desc") ? Sort.by("petBoardId").descending() : Sort.by("petBoardId").ascending();
+            Pageable pageable = PageRequest.of(page, size, sort);
+            Page<PetBoardResponseDto> petBoardPage = petBoardService.getPetBoardsByPetType(petType, pageable);
+            Map<String, Object> response = new LinkedHashMap<>();
+            response.put("message", "입양/분양 공고 리스트 조회 성공");
+            response.put("result", petBoardPage.getContent());
+            response.put("totalPages", petBoardPage.getTotalPages());
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            log.error("Error retrieving pet boards by pet type", e);
             Map<String, String> errorResponse = new LinkedHashMap<>();
             errorResponse.put("message", "입양/분양 공고 리스트 조회에 실패했습니다.");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);

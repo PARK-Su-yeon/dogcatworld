@@ -1,6 +1,6 @@
 package com.techeer.abandoneddog.pet_board.dto;
 
-import com.techeer.abandoneddog.animal.entity.PetInfo;
+import com.techeer.abandoneddog.animal.PetInfoDto.PetInfoDto;
 import com.techeer.abandoneddog.pet_board.entity.PetBoard;
 
 import jakarta.validation.constraints.Null;
@@ -15,22 +15,35 @@ import org.springframework.lang.Nullable;
 @NoArgsConstructor
 public class PetBoardResponseDto {
     private Long petBoardId;
-//    private Long petId;
-//    private Long memberId;
     private String title;
     private String description;
     @Nullable
-    private PetInfo petInfo;
+    private PetInfoDto petInfo;
     @Nullable
     private String status;
 
     public static PetBoardResponseDto fromEntity(PetBoard petBoard) {
+        PetInfoDto petInfoDto = null;
+        if (petBoard.getPetInfo() != null) {
+            petInfoDto = new PetInfoDto(
+                    petBoard.getPetInfo().getDesertionNo(),
+                    petBoard.getPetInfo().getFilename(),
+                    petBoard.getPetInfo().getPopfile(),
+                    petBoard.getPetInfo().getProcessState(),
+                    petBoard.getPetInfo().getAge(),
+                    petBoard.getPetInfo().getWeight(),
+                    petBoard.getPetInfo().getSexCd(),
+                    petBoard.getPetInfo().getKindCd(),
+                    petBoard.getPetInfo().getPetType()
+            );
+        }
+
         return new PetBoardResponseDto(
                 petBoard.getPetBoardId(),
                 petBoard.getTitle(),
                 petBoard.getDescription(),
-                petBoard.getPetInfo(),
-                petBoard.getStatus().toString()
+                petInfoDto,
+                petBoard.getStatus() != null ? petBoard.getStatus().toString() : "N/A"
         );
     }
 }

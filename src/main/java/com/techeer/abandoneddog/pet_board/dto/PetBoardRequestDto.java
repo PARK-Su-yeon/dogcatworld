@@ -14,21 +14,16 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class PetBoardRequestDto {
-//    private Long petId;
-//    private Long memberId;
     private String title;
     private String description;
     private PetInfo petInfo;
-    private Status status;
 
     public PetBoard toEntity() {
         return PetBoard.builder()
-//                .petId(petId)
-//                .memberId(memberId)
                 .title(title)
                 .description(description)
                 .petInfo(petInfo)
-                .status(status)
+                .status(Status.fromProcessState(petInfo.getProcessState()))
                 .build();
     }
 }

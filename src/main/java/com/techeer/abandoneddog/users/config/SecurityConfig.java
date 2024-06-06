@@ -18,6 +18,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -27,12 +31,14 @@ public class SecurityConfig {
     private final AuthenticationConfiguration authenticationConfiguration;
     private final JWTUtil jwtUtil;
     private final RefreshRepository refreshRepository;
+    private final CorsFilter corsFilter;
 
-    public SecurityConfig(AuthenticationConfiguration authenticationConfiguration, JWTUtil jwtUtil, RefreshRepository refreshRepository) {
 
+    public SecurityConfig(AuthenticationConfiguration authenticationConfiguration, JWTUtil jwtUtil, RefreshRepository refreshRepository, CorsFilter corsFilter) {
         this.authenticationConfiguration = authenticationConfiguration;
         this.jwtUtil = jwtUtil;
         this.refreshRepository = refreshRepository;
+        this.corsFilter = corsFilter;
     }
 
     //AuthenticationManager Bean 등록
@@ -66,6 +72,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/users/login", "/api/v1/users/register", "/login", "/reissue", "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         //.anyRequest().authenticated());
              .anyRequest().permitAll());
+
+        // CorsFilter 추가
+        http.addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class);
 
         //JWTFilter 등록
         http

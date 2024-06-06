@@ -1,10 +1,12 @@
 package com.techeer.abandoneddog.pet_board.service;
 
+import com.techeer.abandoneddog.animal.PetInfoDto.PetInfoDto;
 import com.techeer.abandoneddog.animal.entity.PetInfo;
 import com.techeer.abandoneddog.animal.repository.PetInfoRepository;
 import com.techeer.abandoneddog.pet_board.dto.PetBoardRequestDto;
 import com.techeer.abandoneddog.pet_board.dto.PetBoardResponseDto;
 import com.techeer.abandoneddog.pet_board.entity.PetBoard;
+import com.techeer.abandoneddog.pet_board.entity.Status;
 import com.techeer.abandoneddog.pet_board.repository.PetBoardRepository;
 import com.techeer.abandoneddog.users.entity.Users;
 import jakarta.transaction.Transactional;
@@ -54,7 +56,17 @@ public class PetBoardService {
         return PetBoardResponseDto.fromEntity(petBoard);
     }
 
-    @Transactional
+    public Page<PetBoardResponseDto> getPetBoardsByPetType(String petType, Pageable pageable) {
+        Page<PetBoard> petBoardPage = petBoardRepository.findByPetInfoPetTypeAndStatus(petType, Status.Awaiting_adoption, pageable);
+        return petBoardPage.map(PetBoardResponseDto::fromEntity);
+    }
+
+//    @Transactional
+//    public Page<PetBoardResponseDto> getPetBoards(Pageable pageable) {
+//        Page<PetBoard> petBoardPage = petBoardRepository.findAll(pageable);
+//        log.info("Retrieved pet boards: {}", petBoardPage.getContent());
+//        return petBoardPage.map(PetBoardResponseDto::fromEntity);
+//    }
     public Page<PetBoardResponseDto> getPetBoards(Pageable pageable) {
         Page<PetBoard> petBoardPage = petBoardRepository.findAll(pageable);
         return petBoardPage.map(PetBoardResponseDto::fromEntity);
@@ -82,10 +94,14 @@ public class PetBoardService {
     public void syncPetBoardFromPetInfo() {
     List<PetInfo> petInfos = petInfoRepository.findByPetBoardStoredFalse();
     for (PetInfo petInfo : petInfos) {
+        Status status = Status.fromProcessState(petInfo.getProcessState());
+
         PetBoard newPetBoard = PetBoard.builder()
                 .title(String.valueOf(petInfo.getDesertionNo()))
                 .description(petInfo.getSpecialMark())
                 .petInfo(petInfo)
+                .petType(petInfo.getPetType())
+                .status(status)
                 .build();
         petBoardRepository.save(newPetBoard);
         petInfo.setPetBoardStored(true); // PetBoard에 저장되었음을 표시
