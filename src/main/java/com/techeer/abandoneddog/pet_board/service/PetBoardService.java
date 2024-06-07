@@ -36,7 +36,7 @@ public class PetBoardService {
             Status status = Status.fromProcessState(savedPetInfo.getProcessState());
 
             PetBoard newPetBoard = PetBoard.builder()
-                    .title(String.valueOf(savedPetInfo.getDesertionNo()))
+                    .title(String.valueOf(petBoardRequestDto.getTitle()))
                     .description(savedPetInfo.getSpecialMark())
                     .petInfo(savedPetInfo)
                     .petType(savedPetInfo.getPetType())
