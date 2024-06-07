@@ -25,7 +25,6 @@ public class PetInfo extends BaseEntity {
     private Long desertionNo;
 
     @Nullable
-    @Column(length = 1024)
     private String filename;
 
     @Nullable
@@ -59,7 +58,6 @@ public class PetInfo extends BaseEntity {
     private String noticeEdt;
 
     @Nullable
-    @Column(length = 1024)
     private String popfile;
 
     @Nullable
