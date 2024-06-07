@@ -175,6 +175,7 @@ public class PetInfoService {
                             .officetel(item.optString("officetel", null))
                             .noticeComment(item.optString("noticeComment", null))
                             .shelter(shelter)
+                            .isPublicApi(true)
                             .build();
 
                     petInfoList.add(petInfo);
