@@ -1,6 +1,7 @@
 package com.techeer.abandoneddog.funeral.dto;
 
 import com.techeer.abandoneddog.funeral.entity.PetFuneral;
+import com.techeer.abandoneddog.funeral.entity.Region;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,13 +20,19 @@ public class PetFuneralResponseDto {
 
     private String homepage;
 
+    private Region region;
+
+    private String image;
+
     public static PetFuneralResponseDto fromEntity(PetFuneral petFuneral) {
         return new PetFuneralResponseDto(
                 petFuneral.getId(),
                 petFuneral.getFuneralName(),
                 petFuneral.getAddress(),
                 petFuneral.getPhoneNum(),
-                petFuneral.getHomepage()
+                petFuneral.getHomepage(),
+                petFuneral.getRegion(),
+                petFuneral.getImage()
         );
     }
 }

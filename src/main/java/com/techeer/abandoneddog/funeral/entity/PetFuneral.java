@@ -35,4 +35,12 @@ public class PetFuneral extends BaseEntity {
 
     @Column(name = "homepage")
     private String homepage;
+
+    @Column(name = "region")
+    @Enumerated(EnumType.STRING)
+    private Region region;
+
+    @Column(name = "image", columnDefinition = "LONGTEXT")
+    private String image;
+
 }
