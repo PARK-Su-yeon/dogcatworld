@@ -26,6 +26,7 @@ public class PetBoardResponseDto {
         PetInfoDto petInfoDto = null;
         if (petBoard.getPetInfo() != null) {
             petInfoDto = new PetInfoDto(
+                    petBoard.getPetInfo().getId(),
                     petBoard.getPetInfo().getDesertionNo(),
                     petBoard.getPetInfo().getFilename(),
                     petBoard.getPetInfo().getPopfile(),

@@ -1,6 +1,5 @@
 package com.techeer.abandoneddog.pet_board.service;
 
-import com.techeer.abandoneddog.animal.PetInfoDto.PetInfoDto;
 import com.techeer.abandoneddog.animal.entity.PetInfo;
 import com.techeer.abandoneddog.animal.repository.PetInfoRepository;
 import com.techeer.abandoneddog.pet_board.dto.PetBoardRequestDto;
@@ -8,17 +7,15 @@ import com.techeer.abandoneddog.pet_board.dto.PetBoardResponseDto;
 import com.techeer.abandoneddog.pet_board.entity.PetBoard;
 import com.techeer.abandoneddog.pet_board.entity.Status;
 import com.techeer.abandoneddog.pet_board.repository.PetBoardRepository;
-import com.techeer.abandoneddog.users.entity.Users;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -28,12 +25,39 @@ public class PetBoardService {
     private final PetBoardRepository petBoardRepository;
     private final PetInfoRepository petInfoRepository;
 
-
     @Transactional
     public Long createPetBoard(PetBoardRequestDto petBoardRequestDto) {
-       // petInfoRepository.save()
-        petInfoRepository.save(petBoardRequestDto.getPetInfo());
-        return petBoardRepository.save(petBoardRequestDto.toEntity()).getPetBoardId();
+        try {
+            PetInfo petInfo = petBoardRequestDto.getPetInfo();
+            petInfo.setPublicApi(false);
+            petInfo.setPetBoardStored(false);
+            PetInfo savedPetInfo = petInfoRepository.save(petInfo);
+
+            Status status = Status.fromProcessState(savedPetInfo.getProcessState());
+
+            PetBoard newPetBoard = PetBoard.builder()
+                    .title(String.valueOf(savedPetInfo.getDesertionNo()))
+                    .description(savedPetInfo.getSpecialMark())
+                    .petInfo(savedPetInfo)
+                    .petType(savedPetInfo.getPetType())
+                    .status(status)
+                    .build();
+            PetBoard savedPetBoard = petBoardRepository.save(newPetBoard);
+
+            savedPetInfo.setPetBoardStored(true);
+            petInfoRepository.save(savedPetInfo);
+
+            return savedPetBoard.getPetBoardId();
+        } catch (DataIntegrityViolationException e) {
+            // 데이터 무결성 위반 예외 처리
+            throw new RuntimeException("Data integrity violation occurred while creating PetBoard", e);
+        } catch (EntityNotFoundException e) {
+            // 엔티티를 찾을 수 없는 예외 처리
+            throw new RuntimeException("Entity not found while creating PetBoard", e);
+        } catch (Exception e) {
+            // 일반 예외 처리
+            throw new RuntimeException("An unexpected error occurred while creating PetBoard", e);
+        }
     }
 
     @Transactional

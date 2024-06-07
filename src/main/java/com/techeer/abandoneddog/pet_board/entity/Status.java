@@ -6,6 +6,8 @@ public enum Status {
     public static Status fromProcessState(String processState) {
         if ("보호중".equals(processState)) {
             return Awaiting_adoption;
+        } else if ("개인보호중".equals(processState)) {
+            return Awaiting_adoption;
         } else if ("공고중".equals(processState)) {
             return Awaiting_adoption;
         } else if ("종료(반환)".equals(processState)) {

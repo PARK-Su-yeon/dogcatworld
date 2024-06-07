@@ -1,7 +1,6 @@
 package com.techeer.abandoneddog.animal.entity;
 
 import com.techeer.abandoneddog.global.entity.BaseEntity;
-import com.techeer.abandoneddog.pet_board.dto.PetBoardRequestDto;
 import com.techeer.abandoneddog.pet_board.entity.PetBoard;
 import com.techeer.abandoneddog.shelter.entity.Shelter;
 import jakarta.annotation.Nullable;
@@ -21,42 +20,59 @@ public class PetInfo extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Nullable
     private Long desertionNo;
+
     @Nullable
     private String filename;
+
     @Nullable
     private String happenDt; // 발견 날짜
+
     @Nullable
     private String happenPlace; // 발견 장소
+
     @Nullable
     private String petType; // 개 or 고양이인지
+
     @Nullable
     private String kindCd; // 품종
+
     @Nullable
     private String colorCd;
+
     @Nullable
     private String age;
+
     @Nullable
     private String weight;
+
     @Nullable
     private String noticeNo;
+
     @Nullable
     private String noticeSdt;
+
     @Nullable
     private String noticeEdt;
+
     @Nullable
     private String popfile;
+
     @Nullable
     private String processState;
+
     @Nullable
     private String sexCd;
+
     @Nullable
     private String neuterYn;
+
     @Nullable
     private String specialMark;
 
-    private boolean isPublicApi= true;
+    private boolean isPublicApi= false;
 
     @ManyToOne
     @JoinColumn(name = "shelter_id", nullable = true)
@@ -67,17 +83,18 @@ public class PetInfo extends BaseEntity {
 
     @Nullable
     private String orgNm;
+
     @Nullable
     private String chargeNm;
+
     @Nullable
     private String officetel;
+
     @Nullable
     private String noticeComment;
 
     @Column(name = "pet_board_stored")
     private boolean petBoardStored=false;
-
-
 
     public void update(PetInfo petInfo) {
         this.desertionNo = petInfo.getDesertionNo();
