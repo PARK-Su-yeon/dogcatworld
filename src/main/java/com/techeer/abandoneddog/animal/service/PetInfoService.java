@@ -6,24 +6,25 @@ import com.techeer.abandoneddog.animal.repository.PetInfoRepository;
 import com.techeer.abandoneddog.shelter.entity.Shelter;
 import com.techeer.abandoneddog.shelter.repository.ShelterRepository;
 import jakarta.persistence.EntityNotFoundException;
-import org.springframework.beans.factory.annotation.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import com.techeer.abandoneddog.animal.entity.PetInfo;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.math.BigInteger;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Service
@@ -33,43 +34,41 @@ public class PetInfoService {
     private final PetInfoRepository petInfoRepository;
     private final ShelterRepository shelterRepository;
     private final Set<Long> existingDesertionNos = new HashSet<>();
+    private boolean isInitialized = false;
+
+    @Value("${OPEN_API_SECRETKEY}")
+    private String secretKey;
 
     public PetInfoService(PetInfoRepository petInfoRepository, ShelterRepository shelterRepository) {
         this.petInfoRepository = petInfoRepository;
         this.shelterRepository = shelterRepository;
     }
 
-    @Value("${OPEN_API_SECRETKEY}")
-    private String secretKey;
-
     public void initializeExistingDesertionNos() {
         List<Long> desertionNos = petInfoRepository.findAllDesertionNos();
         existingDesertionNos.addAll(desertionNos);
+        isInitialized = true;
     }
 
-    public void getAllAndSaveInfo(String upkind) throws IOException, JSONException {
-        int numOfRows = 1000; // 한 번에 가져올 결과 수, 최대 1000
-        int pageNo = 1; // 시작 페이지 번호
-        int totalCount = 0; // 전체 결과 수
+    public void getAllAndSaveInfo(String upkind, String bgnde, String endde) throws IOException, JSONException {
+        int numOfRows = 1000;
+        int pageNo = 1;
+        int totalCount = 0;
 
-        // 첫 번째 페이지부터 마지막 페이지까지 반복하여 데이터를 가져옴
         while (true) {
-            StringBuilder urlBuilder = new StringBuilder("http://apis.data.go.kr/1543061/abandonmentPublicSrvc/abandonmentPublic"); /*URL*/
-            urlBuilder.append("?" + URLEncoder.encode("serviceKey", "UTF-8") +secretKey ); /*Service Key*/
-            urlBuilder.append("&" + URLEncoder.encode("numOfRows", "UTF-8") + "=" + URLEncoder.encode(String.valueOf(numOfRows), "UTF-8")); /*한 페이지 결과 수(1,000 이하)*/
-            urlBuilder.append("&" + URLEncoder.encode("pageNo", "UTF-8") + "=" + URLEncoder.encode(String.valueOf(pageNo), "UTF-8")); /*페이지 번호*/
-            urlBuilder.append("&" + URLEncoder.encode("upkind", "UTF-8") + "=" + upkind); /*강아지*/
-            //urlBuilder.append("&" + URLEncoder.encode("upkind", "UTF-8") + "=422400"); /*강아지*/
-            log.info("upking code: " + upkind);
-
-            urlBuilder.append("&" + URLEncoder.encode("_type", "UTF-8") + "=" + URLEncoder.encode("json", "UTF-8")); /*xml(기본값) 또는 json*/
+            StringBuilder urlBuilder = new StringBuilder("http://apis.data.go.kr/1543061/abandonmentPublicSrvc/abandonmentPublic");
+            urlBuilder.append("?" + URLEncoder.encode("serviceKey", "UTF-8") + secretKey);
+            urlBuilder.append("&" + URLEncoder.encode("numOfRows", "UTF-8") + "=" + URLEncoder.encode(String.valueOf(numOfRows), "UTF-8"));
+            urlBuilder.append("&" + URLEncoder.encode("pageNo", "UTF-8") + "=" + URLEncoder.encode(String.valueOf(pageNo), "UTF-8"));
+            urlBuilder.append("&" + URLEncoder.encode("upkind", "UTF-8") + "=" + URLEncoder.encode(upkind, "UTF-8"));
+            urlBuilder.append("&" + URLEncoder.encode("bgnde", "UTF-8") + "=" + URLEncoder.encode(bgnde, "UTF-8"));
+            urlBuilder.append("&" + URLEncoder.encode("endde", "UTF-8") + "=" + URLEncoder.encode(endde, "UTF-8"));
+            urlBuilder.append("&" + URLEncoder.encode("_type", "UTF-8") + "=" + URLEncoder.encode("json", "UTF-8"));
 
             URL url = new URL(urlBuilder.toString());
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
             conn.setRequestProperty("Content-type", "application/json");
-
-            log.info("Response code: " + conn.getResponseCode());
 
             BufferedReader rd;
             if (conn.getResponseCode() >= 200 && conn.getResponseCode() <= 300) {
@@ -80,7 +79,6 @@ public class PetInfoService {
 
             StringBuilder sb = new StringBuilder();
             String line;
-
             while ((line = rd.readLine()) != null) {
                 sb.append(line);
             }
@@ -88,7 +86,6 @@ public class PetInfoService {
             rd.close();
             conn.disconnect();
 
-            // 전체 결과 수 갱신
             if (totalCount == 0) {
                 totalCount = getTotalCount(sb.toString());
             }
@@ -96,10 +93,7 @@ public class PetInfoService {
             // PetInfo 엔티티에 저장
             savePetInfoFromApiResponse(sb.toString(), upkind);
 
-            // 다음 페이지로 이동
             pageNo++;
-
-            // 마지막 페이지인지 확인
             if ((pageNo - 1) * numOfRows >= totalCount) {
                 break;
             }
@@ -126,15 +120,11 @@ public class PetInfoService {
 
                 try {
                     Long desertionNo = Long.parseLong(item.getString("desertionNo"));
-
-                    // 이미 존재하는 desertionNo인지 확인
                     if (existingDesertionNos.contains(desertionNo)) {
                         continue;
                     }
 
-
                     String careNm = item.getString("careNm");
-
                     Shelter shelter;
                     Optional<Shelter> optionalShelter = shelterRepository.findByCareNm(careNm);
                     if (!optionalShelter.isPresent()) {
@@ -143,11 +133,8 @@ public class PetInfoService {
                                 .careTel(item.getString("careTel"))
                                 .careAddr(item.getString("careAddr"))
                                 .build();
-
-                        // Shelter 엔티티를 저장
                         shelterRepository.save(shelter);
                     } else {
-                        // 이미 존재하는 Shelter 객체를 불러옴
                         shelter = optionalShelter.get();
                     }
 
@@ -171,18 +158,12 @@ public class PetInfoService {
                             .neuterYn(item.optString("neuterYn", null))
                             .specialMark(item.optString("specialMark", null))
                             .orgNm(item.optString("orgNm", null))
-                            .chargeNm(item.optString("chargeNm", null)) // optString을 사용하여 필드가 없을 경우 기본값 null로 설정
+                            .chargeNm(item.optString("chargeNm", null))
                             .officetel(item.optString("officetel", null))
                             .noticeComment(item.optString("noticeComment", null))
                             .shelter(shelter)
                             .isPublicApi(true)
                             .build();
-
-                    petInfoList.add(petInfo);
-
-                    if (!item.isNull("noticeComment")) {
-                        petInfo.setNoticeComment(item.getString("noticeComment"));
-                    }
 
                     petInfoList.add(petInfo);
                     existingDesertionNos.add(desertionNo);
@@ -192,7 +173,6 @@ public class PetInfoService {
                 }
             }
             petInfoRepository.saveAll(petInfoList);
-
             log.info("Saved " + petInfoList.size() + " new pet information to the database.");
         } catch (JSONException e) {
             log.error("Error parsing JSON response: " + e.getMessage());
@@ -221,11 +201,21 @@ public class PetInfoService {
     // @Scheduled(cron = "0 0 0 * * ?") // 매일 자정에 실행
     public void updatePetInfoDaily() {
         try {
-            initializeExistingDesertionNos();
-            log.info("Initialized existing desertion numbers");
+            if (!isInitialized) {
+                initializeExistingDesertionNos();
+                log.info("Initialized existing desertion numbers");
+            }
 
-            getAllAndSaveInfo("417000"); //고양이
-            getAllAndSaveInfo("422400"); //개
+            LocalDate today = LocalDate.now();
+            LocalDate tenDaysAgo = today.minusDays(10);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+
+            String bgnde = tenDaysAgo.format(formatter);
+            String endde = today.format(formatter);
+
+            getAllAndSaveInfo("417000", bgnde, endde); // 강아지
+            getAllAndSaveInfo("422400", bgnde, endde); // 고양이
+
             log.info("Saved update scheduler");
         } catch (Exception e) {
             log.error(e.getMessage());
