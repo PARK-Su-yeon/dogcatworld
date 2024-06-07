@@ -91,6 +91,7 @@ public class PetInfoService {
             }
 
             // PetInfo 엔티티에 저장
+            savePetInfoFromApiResponse(sb.toString(), upkind);
 
             pageNo++;
             if ((pageNo - 1) * numOfRows >= totalCount) {
