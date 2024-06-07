@@ -1,6 +1,7 @@
 package com.techeer.abandoneddog.animal.repository;
 
 import com.techeer.abandoneddog.animal.entity.PetInfo;
+import com.techeer.abandoneddog.shelter.entity.Shelter;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -20,6 +21,8 @@ public interface PetInfoRepository extends JpaRepository<PetInfo, Long> {
   List<Long> findAllDesertionNos();
 
   List<PetInfo> findByPetBoardStoredFalse();
+
+  Page<PetInfo> findByShelter(Shelter shelter, Pageable pageable);
 
 
   //   void deleteByCreatedDateBefore(LocalDateTime oneWeekAgo);

@@ -13,4 +13,8 @@ public interface ShelterRepository extends JpaRepository<Shelter,Long> {
 
     Optional<Shelter> findByCareNm(String careNm);
 
+    Optional<Shelter> findById(Long shelter_id);
+
+
+
 }

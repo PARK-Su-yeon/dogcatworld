@@ -1,9 +1,13 @@
 package com.techeer.abandoneddog.shelter.service;
 
+import com.techeer.abandoneddog.animal.entity.PetInfo;
+import com.techeer.abandoneddog.animal.repository.PetInfoRepository;
 import com.techeer.abandoneddog.shelter.Dto.Coordinate;
+import com.techeer.abandoneddog.shelter.Dto.PetInfoDto;
 import com.techeer.abandoneddog.shelter.Dto.ShelterInfo;
 import com.techeer.abandoneddog.shelter.entity.Shelter;
 import com.techeer.abandoneddog.shelter.repository.ShelterRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONObject;
 
@@ -15,6 +19,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.cache.annotation.Cacheable;
@@ -26,6 +33,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -34,13 +42,15 @@ public class ShelterService {
     @Value("${GET_COORDINATE}")
     private String secretKey;
     private final ShelterRepository shelterRepository;
+    private final PetInfoRepository petInfoRepository;
 
     @Autowired
     @Qualifier("stringRedisTemplate")
     public RedisTemplate<String, String> redisTemplate;
 
-    public ShelterService(ShelterRepository shelterRepository) {
+    public ShelterService(ShelterRepository shelterRepository, PetInfoRepository petInfoRepository) {
         this.shelterRepository = shelterRepository;
+        this.petInfoRepository = petInfoRepository;
     }
     public List<ShelterInfo> getAllShelterInfos() {
         List<Shelter> shelters;
@@ -149,7 +159,32 @@ public class ShelterService {
             throw new RuntimeException("Error occurred while getting coordinates", e);
         }
     }
+    public Page<PetInfoDto> getPetInfosByShelterNamePaginated(Long shelter_id, int page, int size) {
+        Optional<Shelter> optionalShelter = shelterRepository.findById(shelter_id);
+        if (!optionalShelter.isPresent()) {
+            throw new EntityNotFoundException("Shelter not found with name: " + shelter_id);
+        }
+
+        Shelter shelter = optionalShelter.get();
+        Pageable pageable = PageRequest.of(page, size);
+        Page<PetInfo> petInfoPage = petInfoRepository.findByShelter(shelter, pageable);
+
+        return petInfoPage.map(petInfo -> PetInfoDto.builder()
+                .filename(petInfo.getFilename())
+                .kindCd(petInfo.getKindCd())
+                .age(petInfo.getAge())
+                .sexCd(petInfo.getSexCd())
+                .processState(petInfo.getProcessState())
+                .desertionNo(petInfo.getDesertionNo())
+
+                .build());
+    }
+
+
+    }
 
 
 
-}
+
+
+
