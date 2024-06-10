@@ -12,10 +12,12 @@ public class CustomUserDetails implements UserDetails {
     private final Users userEntity;
 
     public CustomUserDetails(Users userEntity) {
-
         this.userEntity = userEntity;
     }
 
+    public Long getId() {
+        return userEntity.getId();
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
