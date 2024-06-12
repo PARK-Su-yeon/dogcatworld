@@ -83,6 +83,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         String username = userDetails.getUsername();
         Long userId = userDetails.getId();
+        String phoneNum = userDetails.getPhoneNum();
 
         // 토큰 생성
         String access = jwtUtil.createJwt("access", username, 6000000L);
@@ -98,6 +99,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         // JSON 응답 데이터 구성
         Map<String, String> tokens = new HashMap<>();
         tokens.put("userId", userId.toString());
+        tokens.put("phoneNum", phoneNum);
         tokens.put("username", username);
         tokens.put("access_token", access);
         tokens.put("refresh_token", refresh);

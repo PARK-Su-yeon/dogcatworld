@@ -19,6 +19,10 @@ public class CustomUserDetails implements UserDetails {
         return userEntity.getId();
     }
 
+    public String getPhoneNum() {
+        return userEntity.getPhoneNum();
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
 
