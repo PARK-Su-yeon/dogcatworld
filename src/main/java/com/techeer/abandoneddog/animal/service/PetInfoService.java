@@ -138,6 +138,11 @@ public class PetInfoService {
                         shelter = optionalShelter.get();
                     }
 
+                    String year=item.optString("age", null);
+
+                    int years= Integer.parseInt(year.split("\\(")[0].trim()); // 괄호 이전의 숫자만 추출
+
+
                     PetInfo petInfo = PetInfo.builder()
                             .desertionNo(desertionNo)
                             .filename(item.optString("filename", null))
@@ -147,7 +152,7 @@ public class PetInfoService {
                             .kindCd(getKindCd(item.optString("kindCd", null))) // 품종만 추출
 //                            .kindCd(item.optString("kindCd", null))
                             .colorCd(item.optString("colorCd", null))
-                            .age(item.optString("age", null))
+                            .age(years)
                             .weight(item.optString("weight", null))
                             .noticeNo(item.optString("noticeNo", null))
                             .noticeSdt(item.optString("noticeSdt", null))

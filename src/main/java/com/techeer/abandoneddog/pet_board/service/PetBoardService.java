@@ -13,9 +13,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -36,7 +40,7 @@ public class PetBoardService {
             Status status = Status.fromProcessState(savedPetInfo.getProcessState());
 
             PetBoard newPetBoard = PetBoard.builder()
-                    .title(String.valueOf(savedPetInfo.getDesertionNo()))
+                    .title("["+savedPetInfo.getKindCd()+"]"+String.valueOf(savedPetInfo.getDesertionNo()))
                     .description(savedPetInfo.getSpecialMark())
                     .petInfo(savedPetInfo)
                     .petType(savedPetInfo.getPetType())
@@ -85,6 +89,15 @@ public class PetBoardService {
         return petBoardPage.map(PetBoardResponseDto::fromEntity);
     }
 
+
+//필터링으로 검색
+    public Page<PetBoardResponseDto> searchPetBoards(String categories, Status status, int minYear, int maxYear, String title, int page, int size) {
+            Pageable pageable = PageRequest.of(page, size);
+            Page<PetBoard> petBoards = petBoardRepository.searchPetBoards(categories, status, minYear, maxYear, title, pageable);
+
+            return petBoards.map(PetBoardResponseDto::fromEntity);
+        }
+
 //    @Transactional
 //    public Page<PetBoardResponseDto> getPetBoards(Pageable pageable) {
 //        Page<PetBoard> petBoardPage = petBoardRepository.findAll(pageable);
@@ -121,7 +134,7 @@ public class PetBoardService {
         Status status = Status.fromProcessState(petInfo.getProcessState());
 
         PetBoard newPetBoard = PetBoard.builder()
-                .title(String.valueOf(petInfo.getDesertionNo()))
+                .title("["+petInfo.getKindCd()+"]"+String.valueOf(petInfo.getDesertionNo()))
                 .description(petInfo.getSpecialMark())
                 .petInfo(petInfo)
                 .petType(petInfo.getPetType())

@@ -43,7 +43,7 @@ public class PetInfo extends BaseEntity {
     private String colorCd;
 
     @Nullable
-    private String age;
+    private int age;
 
     @Nullable
     private String weight;
@@ -122,6 +122,9 @@ public class PetInfo extends BaseEntity {
         this.noticeComment = petInfo.getNoticeComment();
         this.petBoardStored=true;
     }
+
+
+
 }
 
 

@@ -16,7 +16,7 @@ public class PetInfoResponseDto {
     private String petType;
     private String kindCd;
     private String colorCd;
-    private String age;
+    private int age;
     private String weight;
     private String noticeNo;
     private String noticeSdt;

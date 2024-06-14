@@ -2,8 +2,11 @@ package com.techeer.abandoneddog.pet_board.controller;
 
 import com.techeer.abandoneddog.pet_board.dto.PetBoardRequestDto;
 import com.techeer.abandoneddog.pet_board.dto.PetBoardResponseDto;
+import com.techeer.abandoneddog.pet_board.entity.PetBoard;
+import com.techeer.abandoneddog.pet_board.entity.Status;
 import com.techeer.abandoneddog.pet_board.service.PetBoardService;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -114,6 +117,23 @@ public class PetBoardController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
         }
     }
+
+    @GetMapping("/search")
+    public ResponseEntity<Page<PetBoardResponseDto>> searchPetBoards(
+            @RequestParam(value = "categories", required = false) String categories,
+            @RequestParam(value = "status", required = false) Status status,
+            @RequestParam(value = "minAge", required = false) int minAge,
+            @RequestParam(value = "maxAge", required = false) int maxAge,
+            @RequestParam(value = "title", required = false) String title,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size) {
+
+        Page<PetBoardResponseDto> result = petBoardService.searchPetBoards(categories, status, minAge, maxAge, title, page, size);
+        return ResponseEntity.ok(result);
+    }
+
+    // 연도 추출 메서드
+
 
     @DeleteMapping("/{petBoardId}")
     public ResponseEntity<?> deletePetBoard(@PathVariable("petBoardId") Long petBoardId) {
