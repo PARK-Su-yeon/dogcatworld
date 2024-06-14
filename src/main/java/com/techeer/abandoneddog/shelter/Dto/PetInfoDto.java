@@ -7,15 +7,15 @@ import org.springframework.http.ContentDisposition;
 @Builder
 public class PetInfoDto {
     private final String kindCd;
-    private String filename;
+    private String popfile;
 
     private String age;
     private String sexCd;
     private String processState;
 
     private Long desertionNo;
-    public PetInfoDto(String filename, String kindCd, String age, String sexCd, String processState, Long desertionNo) {
-        this.filename = filename;
+    public PetInfoDto(String popfile, String kindCd, String age, String sexCd, String processState, Long desertionNo) {
+        this.popfile = popfile;
         this.kindCd = kindCd;
         this.age = age;
         this.sexCd = sexCd;

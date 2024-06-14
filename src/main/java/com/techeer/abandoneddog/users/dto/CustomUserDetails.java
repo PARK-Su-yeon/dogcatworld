@@ -12,10 +12,16 @@ public class CustomUserDetails implements UserDetails {
     private final Users userEntity;
 
     public CustomUserDetails(Users userEntity) {
-
         this.userEntity = userEntity;
     }
 
+    public Long getId() {
+        return userEntity.getId();
+    }
+
+    public String getPhoneNum() {
+        return userEntity.getPhoneNum();
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

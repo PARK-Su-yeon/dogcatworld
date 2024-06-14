@@ -170,7 +170,7 @@ public class ShelterService {
         Page<PetInfo> petInfoPage = petInfoRepository.findByShelter(shelter, pageable);
 
         return petInfoPage.map(petInfo -> PetInfoDto.builder()
-                .filename(petInfo.getFilename())
+                .popfile(petInfo.getPopfile())
                 .kindCd(petInfo.getKindCd())
                 .age(petInfo.getAge())
                 .sexCd(petInfo.getSexCd())
