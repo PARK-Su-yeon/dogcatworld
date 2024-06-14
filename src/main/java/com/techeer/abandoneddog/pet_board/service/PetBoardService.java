@@ -7,8 +7,11 @@ import com.techeer.abandoneddog.pet_board.dto.PetBoardResponseDto;
 import com.techeer.abandoneddog.pet_board.entity.PetBoard;
 import com.techeer.abandoneddog.pet_board.entity.Status;
 import com.techeer.abandoneddog.pet_board.repository.PetBoardRepository;
+import com.techeer.abandoneddog.shelter.entity.Shelter;
+import com.techeer.abandoneddog.shelter.repository.ShelterRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -24,6 +27,7 @@ import java.util.List;
 public class PetBoardService {
     private final PetBoardRepository petBoardRepository;
     private final PetInfoRepository petInfoRepository;
+    private final ShelterRepository shelterRepository;
 
     @Transactional
     public Long createPetBoard(PetBoardRequestDto petBoardRequestDto) {
@@ -31,6 +35,14 @@ public class PetBoardService {
             PetInfo petInfo = petBoardRequestDto.getPetInfo();
             petInfo.setPublicApi(false);
             petInfo.setPetBoardStored(false);
+
+            Shelter shelter = petInfo.getShelter();
+            if (shelter != null) {
+                shelter = shelterRepository.save(shelter);
+            }
+
+            petInfo.setShelter(shelter);
+
             PetInfo savedPetInfo = petInfoRepository.save(petInfo);
 
             Status status = Status.fromProcessState(savedPetInfo.getProcessState());
