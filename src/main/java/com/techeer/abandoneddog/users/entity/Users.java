@@ -4,14 +4,15 @@ import com.techeer.abandoneddog.chatting.domain.UsersChatRoom;
 import com.techeer.abandoneddog.global.entity.BaseEntity;
 import com.techeer.abandoneddog.users.dto.UserRequestDto;
 import jakarta.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLDelete;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -44,7 +45,7 @@ public class Users extends BaseEntity {
 
     public void update(UserRequestDto dto, PasswordEncoder passwordEncoder) {
         this.username = dto.getUsername();
-        this.password = passwordEncoder.encode(dto.getPassword());
+//        this.password = passwordEncoder.encode(dto.getPassword());
         this.email = dto.getEmail();
         this.phoneNum = dto.getPhoneNum();
     }
