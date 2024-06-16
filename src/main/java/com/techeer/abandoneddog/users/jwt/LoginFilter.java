@@ -70,7 +70,15 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
             UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(email, password, null);
 
             // token에 담은 검증을 위한 AuthenticationManager로 전달
-            return authenticationManager.authenticate(authToken);
+            Authentication authentication = authenticationManager.authenticate(authToken);
+
+            // CustomUserDetails를 가져와 isDeleted 필드를 확인
+            CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+            if (userDetails.isDeleted()) {
+                throw new AuthenticationServiceException("Account is deleted");
+            }
+
+            return authentication;
         } catch (IOException e) {
             throw new AuthenticationServiceException("Failed to parse authentication request body", e);
         }
@@ -119,13 +127,16 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
         if (failed instanceof UsernameNotFoundException) {
             responseData.put("error", "User not found");
-            response.setStatus(HttpStatus.UNAUTHORIZED.value()); // 401 status code
+            response.setStatus(HttpStatus.UNAUTHORIZED.value());
         } else if (failed instanceof BadCredentialsException) {
             responseData.put("error", "Invalid password");
-            response.setStatus(HttpStatus.UNAUTHORIZED.value()); // 401 status code
+            response.setStatus(HttpStatus.UNAUTHORIZED.value());
+        } else if (failed instanceof AuthenticationServiceException) {
+            responseData.put("error", failed.getMessage());
+            response.setStatus(HttpStatus.UNAUTHORIZED.value());
         } else {
             responseData.put("error", "Authentication failed");
-            response.setStatus(HttpStatus.UNAUTHORIZED.value()); // 401 status code
+            response.setStatus(HttpStatus.UNAUTHORIZED.value());
         }
 
         response.getOutputStream().write(objectMapper.writeValueAsBytes(responseData));
