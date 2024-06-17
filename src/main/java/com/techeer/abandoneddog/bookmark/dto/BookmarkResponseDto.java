@@ -1,7 +1,7 @@
 package com.techeer.abandoneddog.bookmark.dto;
 
 import com.techeer.abandoneddog.bookmark.entity.Bookmark;
-import com.techeer.abandoneddog.pet_board.entity.PetBoard;
+import com.techeer.abandoneddog.pet_board.dto.PetBoardDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,12 +11,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class BookmarkResponseDto {
     private Long id;
-    private PetBoard petBoard;
+    private PetBoardDto petBoard;
 
     public static BookmarkResponseDto fromEntity(Bookmark bookmark) {
         return new BookmarkResponseDto(
                 bookmark.getId(),
-                bookmark.getPetBoard()
+                PetBoardDto.fromEntity(bookmark.getPetBoard())
         );
     }
 }
