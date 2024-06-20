@@ -146,27 +146,29 @@ public class PetBoardService {
     @Transactional
     public void syncPetBoardFromPetInfo() {
 
-    List<PetInfo> petInfos = petInfoRepository.findByPetBoardStoredFalse();
-    for (PetInfo petInfo : petInfos) {
-        Status status = Status.fromProcessState(petInfo.getProcessState());
+        List<PetInfo> petInfos = petInfoRepository.findByPetBoardStoredFalse();
+        for (PetInfo petInfo : petInfos) {
+            Status status = Status.fromProcessState(petInfo.getProcessState());
 
-        PetBoard newPetBoard = PetBoard.builder()
-                .title("["+petInfo.getKindCd()+"]"+String.valueOf(petInfo.getDesertionNo()))
-                .description(petInfo.getSpecialMark())
-                .petInfo(petInfo)
-                .petType(petInfo.getPetType())
-                .status(status)
-                .build();
-        petBoardRepository.save(newPetBoard);
-        petInfo.setPetBoardStored(true); // PetBoard에 저장되었음을 표시
-        petInfoRepository.save(petInfo); // PetInfo 엔티티 업데이트
+            PetBoard newPetBoard = PetBoard.builder()
+                    .title("[" + petInfo.getKindCd() + "]" + String.valueOf(petInfo.getDesertionNo()))
+                    .description(petInfo.getSpecialMark())
+                    .petInfo(petInfo)
+                    .petType(petInfo.getPetType())
+                    .status(status)
+                    .build();
+            petBoardRepository.save(newPetBoard);
+            petInfo.setPetBoardStored(true); // PetBoard에 저장되었음을 표시
+            petInfoRepository.save(petInfo); // PetInfo 엔티티 업데이트
 
 
+        }
     }
 
-    @Transactional
-    public Page<PetBoardResponseDto> getMyPetBoard(Long userId, Pageable pageable) {
-        Page<PetBoard> petBoardPage = petBoardRepository.findPetBoardByUsersId(userId, pageable);
-        return petBoardPage.map(PetBoardResponseDto::fromEntity);
-    }
+        @Transactional
+        public Page<PetBoardResponseDto> getMyPetBoard (Long userId, Pageable pageable){
+            Page<PetBoard> petBoardPage = petBoardRepository.findPetBoardByUsersId(userId, pageable);
+            return petBoardPage.map(PetBoardResponseDto::fromEntity);
+        }
+
 }
