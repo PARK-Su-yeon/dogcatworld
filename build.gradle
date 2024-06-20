@@ -30,7 +30,9 @@ dependencies {
 	//implementation 'org.vaadin.android:android-json:0.0.20131108.vaadin1'
 
 
-	 implementation 'org.json:json:20210307'
+	implementation 'org.json:json:20210307'
+
+	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE' // AWS
 
 
 	implementation group: 'com.googlecode.json-simple', name: 'json-simple', version: '1.1.1'

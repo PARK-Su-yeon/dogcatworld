@@ -19,6 +19,14 @@ public class CustomUserDetails implements UserDetails {
         return userEntity.getId();
     }
 
+    public String getPhoneNum() {
+        return userEntity.getPhoneNum();
+    }
+
+    public boolean isDeleted() {
+        return userEntity.getIsDeleted(); // Users 엔티티의 isDeleted 필드와 동기화
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
 
@@ -68,7 +76,6 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-
-        return true;
+        return !userEntity.getIsDeleted(); // isDeleted 필드에 따라 계정 활성화 상태 설정
     }
 }
