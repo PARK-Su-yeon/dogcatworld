@@ -1,5 +1,6 @@
 package com.techeer.abandoneddog.pet_board.controller;
 
+import com.techeer.abandoneddog.pet_board.dto.PetBoardFilterRequest;
 import com.techeer.abandoneddog.pet_board.dto.PetBoardRequestDto;
 import com.techeer.abandoneddog.pet_board.dto.PetBoardResponseDto;
 import com.techeer.abandoneddog.pet_board.entity.PetBoard;
@@ -16,16 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -120,19 +112,14 @@ public class PetBoardController {
 
     @GetMapping("/search")
     public ResponseEntity<Page<PetBoardResponseDto>> searchPetBoards(
-            @RequestParam(value = "categories", required = false) String categories,
-            @RequestParam(value = "status", required = false) Status status,
-            @RequestParam(value = "minAge", required = false) int minAge,
-            @RequestParam(value = "maxAge", required = false) int maxAge,
-            @RequestParam(value = "title", required = false) String title,
+            @ModelAttribute ("filterRequest")PetBoardFilterRequest request,
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "10") int size) {
 
-        Page<PetBoardResponseDto> result = petBoardService.searchPetBoards(categories, status, minAge, maxAge, title, page, size);
+        Page<PetBoardResponseDto> result = petBoardService.searchPetBoards(request, page, size);
         return ResponseEntity.ok(result);
     }
 
-    // 연도 추출 메서드
 
 
     @DeleteMapping("/{petBoardId}")

@@ -28,6 +28,7 @@ public class PetInfoResponseDto {
     private String specialMark;
     private boolean isPublicApi;
     private ShelterInfo shelter;
+    private boolean isYoung;
 
     public static PetInfoResponseDto fromEntity(PetInfo petInfo) {
         ShelterInfo shelterInfo = new ShelterInfo(
@@ -59,6 +60,7 @@ public class PetInfoResponseDto {
                 .specialMark(petInfo.getSpecialMark())
                 .isPublicApi(petInfo.isPublicApi())
                 .shelter(shelterInfo)
+                .isYoung(petInfo.isYoung())
                 .build();
     }
 }

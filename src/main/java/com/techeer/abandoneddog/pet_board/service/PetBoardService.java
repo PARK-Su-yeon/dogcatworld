@@ -2,6 +2,7 @@ package com.techeer.abandoneddog.pet_board.service;
 
 import com.techeer.abandoneddog.animal.entity.PetInfo;
 import com.techeer.abandoneddog.animal.repository.PetInfoRepository;
+import com.techeer.abandoneddog.pet_board.dto.PetBoardFilterRequest;
 import com.techeer.abandoneddog.pet_board.dto.PetBoardRequestDto;
 import com.techeer.abandoneddog.pet_board.dto.PetBoardResponseDto;
 import com.techeer.abandoneddog.pet_board.entity.PetBoard;
@@ -91,9 +92,9 @@ public class PetBoardService {
 
 
 //필터링으로 검색
-    public Page<PetBoardResponseDto> searchPetBoards(String categories, Status status, int minYear, int maxYear, String title, int page, int size) {
+    public Page<PetBoardResponseDto> searchPetBoards(PetBoardFilterRequest dto, int page, int size) {
             Pageable pageable = PageRequest.of(page, size);
-            Page<PetBoard> petBoards = petBoardRepository.searchPetBoards(categories, status, minYear, maxYear, title, pageable);
+            Page<PetBoard> petBoards = petBoardRepository.searchPetBoards(dto, pageable);
 
             return petBoards.map(PetBoardResponseDto::fromEntity);
         }

@@ -1,6 +1,7 @@
 package com.techeer.abandoneddog.pet_board.repository;
 
 import com.techeer.abandoneddog.animal.entity.PetInfo;
+import com.techeer.abandoneddog.pet_board.dto.PetBoardFilterRequest;
 import com.techeer.abandoneddog.pet_board.entity.PetBoard;
 import com.techeer.abandoneddog.pet_board.entity.Status;
 import org.springframework.data.domain.Page;
@@ -18,15 +19,11 @@ public interface PetBoardRepository extends JpaRepository<PetBoard, Long> {
 
 
     @Query("SELECT pb FROM PetBoard pb JOIN pb.petInfo pi WHERE " +
-                "(:categories IS NULL OR pi.kindCd IN :categories) AND " +
-                "(:status IS NULL OR pb.status = :status) AND " +
-                "(:minYear IS NULL OR  pi.age >= :minYear) AND " +
-                "(:maxYear IS NULL OR  pi.age <= :maxYear) AND " +
-                "(:title IS NULL OR pb.title LIKE %:title%)")
-        Page<PetBoard> searchPetBoards(@Param("categories") String categories,
-                                       @Param("status") Status status,
-                                       @Param("minYear") int minYear,
-                                       @Param("maxYear") int maxYear,
-                                       @Param("title") String title,
-                                       Pageable pageable);
+            "(:#{#dto.categories} IS NULL OR pi.kindCd IN :#{#dto.categories}) AND " +
+            "(:#{#dto.isYoung} IS NULL OR pi.isYoung = :#{#dto.isYoung}) AND " +
+            "(:#{#dto.status} IS NULL OR pb.status = :#{#dto.status}) AND " +
+            "(:#{#dto.minYear} IS NULL OR pi.age >= :#{#dto.minYear}) AND " +
+            "(:#{#dto.maxYear} IS NULL OR pi.age <= :#{#dto.maxYear}) AND " +
+            "(:#{#dto.title} IS NULL OR pb.title LIKE %:#{#dto.title}%)")
+    Page<PetBoard> searchPetBoards(@Param("dto") PetBoardFilterRequest dto, Pageable pageable);
     }
