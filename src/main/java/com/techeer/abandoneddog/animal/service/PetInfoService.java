@@ -24,6 +24,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.time.LocalDate;
+import java.time.Year;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -137,6 +138,26 @@ public class PetInfoService {
                     } else {
                         shelter = optionalShelter.get();
                     }
+                    String year = item.optString("age", null);
+
+                    boolean isYoung = false;
+
+                    int currentYear = Year.now().getValue();
+
+                    if (year.contains("60일")) {
+                        isYoung = true;
+
+                    }
+                    String ageStr = year.split("\\(")[0].trim();
+
+
+                    int age = currentYear - Integer.parseInt(ageStr);
+
+
+
+
+                   // 괄호 이전의 숫자만 추출
+
 
                     PetInfo petInfo = PetInfo.builder()
                             .desertionNo(desertionNo)
@@ -147,7 +168,7 @@ public class PetInfoService {
                             .kindCd(getKindCd(item.optString("kindCd", null))) // 품종만 추출
 //                            .kindCd(item.optString("kindCd", null))
                             .colorCd(item.optString("colorCd", null))
-                            .age(item.optString("age", null))
+                            .age(age)
                             .weight(item.optString("weight", null))
                             .noticeNo(item.optString("noticeNo", null))
                             .noticeSdt(item.optString("noticeSdt", null))
@@ -163,6 +184,7 @@ public class PetInfoService {
                             .noticeComment(item.optString("noticeComment", null))
                             .shelter(shelter)
                             .isPublicApi(true)
+                            .isYoung(isYoung)
                             .build();
 
                     petInfoList.add(petInfo);
@@ -178,6 +200,21 @@ public class PetInfoService {
             log.error("Error parsing JSON response: " + e.getMessage());
         } catch (Exception e) {
             log.error("General error: " + e.getMessage());
+        }
+    }
+
+    @Scheduled(cron = "0 0 0 1 1 ?") // 매년 1월 1일 자정에 실행
+    public void updateAges() {
+        try {
+            List<PetInfo> allPets = petInfoRepository.findAll();
+            for (PetInfo pet : allPets) {
+
+                pet.setAge(pet.getAge() + 1);
+            }
+            petInfoRepository.saveAll(allPets);
+            log.info("Updated ages for all pets");
+        } catch (Exception e) {
+            log.error("Error updating ages: " + e.getMessage());
         }
     }
 
