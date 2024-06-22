@@ -1,17 +1,13 @@
 package com.techeer.abandoneddog.global.config;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.cache.RedisCacheConfiguration;
-import org.springframework.data.redis.cache.RedisCacheManager;
-import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.serializer.StringRedisSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.techeer.abandoneddog.chatting.redis.RedisSubscriber;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.cache.RedisCacheConfiguration;
+import org.springframework.data.redis.cache.RedisCacheManager;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -26,10 +22,10 @@ import java.time.Duration;
 @Configuration
 public class RedisConfig {
 
-    @Value("localhost")
+    @Value("${spring.data.redis.host}")
     private String host;
 
-    @Value("6379")
+    @Value("${spring.data.redis.port}")
     private int port;
 
     @Bean
@@ -56,7 +52,7 @@ public class RedisConfig {
 
         return redisTemplate;
     }
-  
+
   @Bean
     public RedisTemplate<String, String> StringRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
         RedisTemplate<String, String> redisTemplate = new RedisTemplate<>();
@@ -65,7 +61,7 @@ public class RedisConfig {
         redisTemplate.setValueSerializer(new StringRedisSerializer());
   return redisTemplate;
     }
-  
+
 
     @Bean
 
