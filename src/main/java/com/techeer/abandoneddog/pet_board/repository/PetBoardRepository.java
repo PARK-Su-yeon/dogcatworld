@@ -23,12 +23,13 @@ public interface PetBoardRepository extends JpaRepository<PetBoard, Long> {
     // List<PetInfo> findByCreatedAtBefore(LocalDateTime tenDaysAgo);
 
 
+
     @Query("SELECT pb FROM PetBoard pb JOIN pb.petInfo pi WHERE " +
                 "(:categories IS NULL OR pi.kindCd IN :categories) AND " +
                 "(:status IS NULL OR pb.status = :status) AND " +
                 "(:minAge IS NULL OR  pi.age >= :minAge) AND " +
                 "(:maxAge IS NULL OR  pi.age <= :maxAge) AND " +
-            "(:isYoung IS NULL OR  pi.isYoung <= :isYoung) AND " +
+            "(:isYoung IS NULL OR  pi.isYoung =:isYoung) AND " +
               "(:title IS NULL OR pb.title LIKE %:title%)")
         Page<PetBoard> searchPetBoards(@Param("categories") String categories,
                                        @Param("status") Status status,
