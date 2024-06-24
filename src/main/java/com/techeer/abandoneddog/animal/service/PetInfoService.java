@@ -152,12 +152,7 @@ public class PetInfoService {
 
 
                     int age = currentYear - Integer.parseInt(ageStr);
-
-
-
-
-                   // 괄호 이전의 숫자만 추출
-
+                    // 괄호 이전의 숫자만 추출
 
                     PetInfo petInfo = PetInfo.builder()
                             .desertionNo(desertionNo)
@@ -202,7 +197,6 @@ public class PetInfoService {
             log.error("General error: " + e.getMessage());
         }
     }
-
     @Scheduled(cron = "0 0 0 1 1 ?") // 매년 1월 1일 자정에 실행
     public void updateAges() {
         try {
@@ -217,7 +211,6 @@ public class PetInfoService {
             log.error("Error updating ages: " + e.getMessage());
         }
     }
-
     private String getPetType(String upkind) {
         if ("417000".equals(upkind)) {
             return "개";

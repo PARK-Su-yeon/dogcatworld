@@ -115,11 +115,16 @@ public class PetBoardController {
 
     @GetMapping("/search")
     public ResponseEntity<Page<PetBoardResponseDto>> searchPetBoards(
-            @ModelAttribute ("filterRequest")PetBoardFilterRequest request,
+            @RequestParam(value = "categories", required = false) String categories,
+            @RequestParam(value = "status", required = false) Status status,
+            @RequestParam(value = "minAge", required = false) int minAge,
+            @RequestParam(value = "maxAge", required = false) int maxAge,
+            @RequestParam(value = "title", required = false) String title,
+            @RequestParam(value = "isYoung", required = false) boolean isYoung,
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "10") int size) {
 
-        Page<PetBoardResponseDto> result = petBoardService.searchPetBoards(request, page, size);
+        Page<PetBoardResponseDto> result = petBoardService.searchPetBoards(categories, status, minAge, maxAge, title,isYoung, page, size);
         return ResponseEntity.ok(result);
     }
 

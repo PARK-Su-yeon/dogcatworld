@@ -24,11 +24,18 @@ public interface PetBoardRepository extends JpaRepository<PetBoard, Long> {
 
 
     @Query("SELECT pb FROM PetBoard pb JOIN pb.petInfo pi WHERE " +
-            "(:#{#dto.categories} IS NULL OR pi.kindCd IN :#{#dto.categories}) AND " +
-            "(:#{#dto.isYoung} IS NULL OR pi.isYoung = :#{#dto.isYoung}) AND " +
-            "(:#{#dto.status} IS NULL OR pb.status = :#{#dto.status}) AND " +
-            "(:#{#dto.minYear} IS NULL OR pi.age >= :#{#dto.minYear}) AND " +
-            "(:#{#dto.maxYear} IS NULL OR pi.age <= :#{#dto.maxYear}) AND " +
-            "(:#{#dto.title} IS NULL OR pb.title LIKE %:#{#dto.title}%)")
-    Page<PetBoard> searchPetBoards(@Param("dto") PetBoardFilterRequest dto, Pageable pageable);
+                "(:categories IS NULL OR pi.kindCd IN :categories) AND " +
+                "(:status IS NULL OR pb.status = :status) AND " +
+                "(:minAge IS NULL OR  pi.age >= :minAge) AND " +
+                "(:maxAge IS NULL OR  pi.age <= :maxAge) AND " +
+            "(:isYoung IS NULL OR  pi.isYoung <= :isYoung) AND " +
+              "(:title IS NULL OR pb.title LIKE %:title%)")
+        Page<PetBoard> searchPetBoards(@Param("categories") String categories,
+                                       @Param("status") Status status,
+                                       @Param("minAge") int minAge,
+                                       @Param("maxAge") int maxAge,
+                                       @Param("title") String title,
+                                       @Param("isYoung") boolean isYoung,
+
+                                       Pageable pageable);
     }
