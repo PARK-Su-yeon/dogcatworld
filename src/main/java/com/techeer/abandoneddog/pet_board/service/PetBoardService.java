@@ -106,9 +106,9 @@ public class PetBoardService {
 
 
 //필터링으로 검색
-    public Page<PetBoardResponseDto> searchPetBoards(PetBoardFilterRequest dto, int page, int size) {
+    public Page<PetBoardResponseDto> searchPetBoards(String categories, Status status, int minYear, int maxYear, String title,boolean isYoung, int page, int size) {
             Pageable pageable = PageRequest.of(page, size);
-            Page<PetBoard> petBoards = petBoardRepository.searchPetBoards(dto, pageable);
+            Page<PetBoard> petBoards = petBoardRepository.searchPetBoards(categories, status, minYear, maxYear, title,isYoung, pageable);
 
             return petBoards.map(PetBoardResponseDto::fromEntity);
         }
