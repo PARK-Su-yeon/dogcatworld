@@ -2,6 +2,7 @@ package com.techeer.abandoneddog.pet_board.service;
 
 import com.techeer.abandoneddog.animal.entity.PetInfo;
 import com.techeer.abandoneddog.animal.repository.PetInfoRepository;
+import com.techeer.abandoneddog.pet_board.dto.PetBoardFilterRequest;
 import com.techeer.abandoneddog.pet_board.dto.PetBoardRequestDto;
 import com.techeer.abandoneddog.pet_board.dto.PetBoardResponseDto;
 import com.techeer.abandoneddog.pet_board.entity.PetBoard;
@@ -16,9 +17,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -48,7 +53,8 @@ public class PetBoardService {
             Status status = Status.fromProcessState(savedPetInfo.getProcessState());
 
             PetBoard newPetBoard = PetBoard.builder()
-                    .title(String.valueOf(petBoardRequestDto.getTitle()))
+
+                    .title("["+savedPetInfo.getKindCd()+"]"+String.valueOf(savedPetInfo.getDesertionNo()))
                     .description(savedPetInfo.getSpecialMark())
                     .petInfo(savedPetInfo)
                     .petType(savedPetInfo.getPetType())
@@ -97,7 +103,18 @@ public class PetBoardService {
         return petBoardPage.map(PetBoardResponseDto::fromEntity);
     }
 
-    //    @Transactional
+
+
+//필터링으로 검색
+    public Page<PetBoardResponseDto> searchPetBoards(PetBoardFilterRequest dto, int page, int size) {
+            Pageable pageable = PageRequest.of(page, size);
+            Page<PetBoard> petBoards = petBoardRepository.searchPetBoards(dto, pageable);
+
+            return petBoards.map(PetBoardResponseDto::fromEntity);
+        }
+
+//    @Transactional
+
 //    public Page<PetBoardResponseDto> getPetBoards(Pageable pageable) {
 //        Page<PetBoard> petBoardPage = petBoardRepository.findAll(pageable);
 //        log.info("Retrieved pet boards: {}", petBoardPage.getContent());
@@ -128,12 +145,13 @@ public class PetBoardService {
     @Scheduled(fixedRate = 600000)
     @Transactional
     public void syncPetBoardFromPetInfo() {
+
         List<PetInfo> petInfos = petInfoRepository.findByPetBoardStoredFalse();
         for (PetInfo petInfo : petInfos) {
             Status status = Status.fromProcessState(petInfo.getProcessState());
 
             PetBoard newPetBoard = PetBoard.builder()
-                    .title(String.valueOf(petInfo.getDesertionNo()))
+                    .title("[" + petInfo.getKindCd() + "]" + String.valueOf(petInfo.getDesertionNo()))
                     .description(petInfo.getSpecialMark())
                     .petInfo(petInfo)
                     .petType(petInfo.getPetType())
@@ -142,13 +160,15 @@ public class PetBoardService {
             petBoardRepository.save(newPetBoard);
             petInfo.setPetBoardStored(true); // PetBoard에 저장되었음을 표시
             petInfoRepository.save(petInfo); // PetInfo 엔티티 업데이트
+
+
+        }
+    }
+
+        @Transactional
+        public Page<PetBoardResponseDto> getMyPetBoard (Long userId, Pageable pageable){
+            Page<PetBoard> petBoardPage = petBoardRepository.findPetBoardByUsersId(userId, pageable);
+            return petBoardPage.map(PetBoardResponseDto::fromEntity);
         }
 
-    }
-
-    @Transactional
-    public Page<PetBoardResponseDto> getMyPetBoard(Long userId, Pageable pageable) {
-        Page<PetBoard> petBoardPage = petBoardRepository.findPetBoardByUsersId(userId, pageable);
-        return petBoardPage.map(PetBoardResponseDto::fromEntity);
-    }
 }

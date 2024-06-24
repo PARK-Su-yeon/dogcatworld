@@ -1,8 +1,16 @@
 package com.techeer.abandoneddog.pet_board.controller;
 
+import com.techeer.abandoneddog.pet_board.dto.PetBoardFilterRequest;
 import com.techeer.abandoneddog.pet_board.dto.PetBoardRequestDto;
 import com.techeer.abandoneddog.pet_board.dto.PetBoardResponseDto;
+import com.techeer.abandoneddog.pet_board.entity.PetBoard;
+import com.techeer.abandoneddog.pet_board.entity.Status;
 import com.techeer.abandoneddog.pet_board.service.PetBoardService;
+
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -13,8 +21,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -106,6 +112,18 @@ public class PetBoardController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
         }
     }
+
+    @GetMapping("/search")
+    public ResponseEntity<Page<PetBoardResponseDto>> searchPetBoards(
+            @ModelAttribute ("filterRequest")PetBoardFilterRequest request,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size) {
+
+        Page<PetBoardResponseDto> result = petBoardService.searchPetBoards(request, page, size);
+        return ResponseEntity.ok(result);
+    }
+
+
 
     @DeleteMapping("/{petBoardId}")
     public ResponseEntity<?> deletePetBoard(@PathVariable("petBoardId") Long petBoardId) {

@@ -9,14 +9,16 @@ public class PetInfoDto {
     private String filename;
     private String popfile;
     private String processState;
-    private String age;
+    private int age;
     private String weight;
     private String sexCd;
     private String kindCd;
     private String petType;
     private boolean isPublicApi;
 
-    public PetInfoDto(Long id, Long desertionNo, String filename, String popfile, String processState, String age, String weight, String sexCd, String kindCd, String petType, boolean isPublicApi) {
+
+    public PetInfoDto(Long id, Long desertionNo, String filename, String popfile, String processState, int age, String weight, String sexCd, String kindCd, String petType, boolean isPublicApi) {
+
         this.id = id;
         this.desertionNo = desertionNo;
         this.filename = filename;
