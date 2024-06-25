@@ -40,7 +40,7 @@ public class PetFuneralService {
 
     @Transactional
     public void savePetFuneral() throws IOException {
-        String filePath = "classpath:funeralData/장묘업목록_20240410 복사본.xls";
+        String filePath = "classpath:funeralData/PetFuneralData.xls";
         log.info("파일 경로: {}", filePath);
 
         Resource resource = resourceLoader.getResource(filePath);
