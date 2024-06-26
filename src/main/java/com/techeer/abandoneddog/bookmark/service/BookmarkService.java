@@ -38,11 +38,15 @@ public class BookmarkService {
             bookmarkDto.setUser(user);
             bookmarkDto.setPetBoard(petBoard);
             bookmarkRepository.save(bookmarkDto.toEntity());
+
         } else {
             Bookmark bookmark = bookmarkRepository.findByPetBoardAndUser(petBoard, user);
             bookmarkRepository.resave(bookmark.getId());
 //            throw new InvalidPetBoardRequestException();
+
         }
+        petBoard.updateLike(true);
+        petBoardRepository.save(petBoard);
     }
 
     @Transactional
@@ -65,5 +69,7 @@ public class BookmarkService {
 
         Bookmark bookmark = bookmarkRepository.findByPetBoardAndUser(petBoard, user);
         bookmarkRepository.delete(bookmark);
+        petBoard.updateLike(false);
+        petBoardRepository.save(petBoard);
     }
 }

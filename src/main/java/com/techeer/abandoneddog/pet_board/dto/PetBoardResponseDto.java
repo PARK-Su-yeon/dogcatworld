@@ -21,6 +21,7 @@ public class PetBoardResponseDto {
     private PetInfoDto petInfo;
     @Nullable
     private String status;
+    private boolean isLiked;
 
     public static PetBoardResponseDto fromEntity(PetBoard petBoard) {
         PetInfoDto petInfoDto = null;
@@ -45,7 +46,8 @@ public class PetBoardResponseDto {
                 petBoard.getTitle(),
                 petBoard.getDescription(),
                 petInfoDto,
-                petBoard.getStatus() != null ? petBoard.getStatus().toString() : "N/A"
+                petBoard.getStatus() != null ? petBoard.getStatus().toString() : "N/A",
+                petBoard.isLiked()
         );
     }
 }
