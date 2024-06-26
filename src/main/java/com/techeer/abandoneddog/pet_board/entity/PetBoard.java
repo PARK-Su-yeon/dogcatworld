@@ -43,14 +43,18 @@ public class PetBoard extends BaseEntity {
     @Column(name = "status")
     private Status status;
 
+    @Column(name = "isLiked", nullable = false, columnDefinition = "bit(1) default 0")
+    private boolean isLiked = false;
+
     @Builder
-    public PetBoard(Long petBoardId, String title, String description, String petType, PetInfo petInfo, Status status) {
+    public PetBoard(Long petBoardId, String title, String description, String petType, PetInfo petInfo, Status status, boolean isLiked) {
         this.petBoardId = petBoardId;
         this.title = title;
         this.description = description;
         this.petType = petType;
         this.petInfo = petInfo;
         this.status = status;
+        this.isLiked = isLiked;
     }
 
     public void update(PetBoardRequestDto requestDto) {
@@ -61,4 +65,8 @@ public class PetBoard extends BaseEntity {
         this.status = Status.fromProcessState(requestDto.getPetInfo().getProcessState());
     }
 
+    public void updateLike(boolean isLiked) {
+        this.isLiked = isLiked;
+    }
+    
 }
