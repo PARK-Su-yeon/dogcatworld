@@ -44,13 +44,14 @@ public class PetBoard extends BaseEntity {
     private Status status;
 
     @Builder
-    public PetBoard(Long petBoardId, String title, String description, String petType, PetInfo petInfo, Status status) {
+    public PetBoard(Long petBoardId, String title, String description, String petType, PetInfo petInfo, Status status, Users users) {
         this.petBoardId = petBoardId;
         this.title = title;
         this.description = description;
         this.petType = petType;
         this.petInfo = petInfo;
         this.status = status;
+        this.users = users;
     }
 
     public void update(PetBoardRequestDto requestDto) {

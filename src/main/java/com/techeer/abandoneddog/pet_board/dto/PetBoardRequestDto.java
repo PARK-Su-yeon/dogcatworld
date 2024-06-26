@@ -17,6 +17,7 @@ public class PetBoardRequestDto {
     private String title;
     private String description;
     private PetInfo petInfo;
+    private Long userId;
 
     public PetBoard toEntity() {
         return PetBoard.builder()
