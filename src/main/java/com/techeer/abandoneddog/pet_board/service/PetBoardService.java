@@ -10,6 +10,8 @@ import com.techeer.abandoneddog.pet_board.entity.Status;
 import com.techeer.abandoneddog.pet_board.repository.PetBoardRepository;
 import com.techeer.abandoneddog.shelter.entity.Shelter;
 import com.techeer.abandoneddog.shelter.repository.ShelterRepository;
+import com.techeer.abandoneddog.users.entity.Users;
+import com.techeer.abandoneddog.users.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import java.util.Optional;
@@ -33,6 +35,7 @@ public class PetBoardService {
     private final PetBoardRepository petBoardRepository;
     private final PetInfoRepository petInfoRepository;
     private final ShelterRepository shelterRepository;
+    private final UserRepository userRepository;
 
     @Transactional
     public Long createPetBoard(PetBoardRequestDto petBoardRequestDto) {
@@ -52,6 +55,9 @@ public class PetBoardService {
 
             Status status = Status.fromProcessState(savedPetInfo.getProcessState());
 
+            Users user = userRepository.findById(petBoardRequestDto.getUserId())
+                    .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + petBoardRequestDto.getUserId()));
+
             PetBoard newPetBoard = PetBoard.builder()
 
                     .title("["+savedPetInfo.getKindCd()+"]"+String.valueOf(savedPetInfo.getDesertionNo()))
@@ -59,6 +65,7 @@ public class PetBoardService {
                     .petInfo(savedPetInfo)
                     .petType(savedPetInfo.getPetType())
                     .status(status)
+                    .users(user) // user 설정
                     .build();
             PetBoard savedPetBoard = petBoardRepository.save(newPetBoard);
 

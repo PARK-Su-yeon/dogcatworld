@@ -14,18 +14,20 @@ public class WebSocketMessageController {
 
     private final ChatService chatService;
 
-    @MessageMapping("/message/enter")
-    public void handleEnterMessage(SimplifiedMessageDto messageDto) {
-        chatService.enterChatRoom(messageDto);
-    }
-
-    @MessageMapping("/message/talk")
-    public void handleTalkMessage(SimplifiedMessageDto messageDto) {
-        chatService.sendMessageToChatRoom(messageDto);
-    }
-
-    @MessageMapping("/message/leave")
-    public void handleLeaveMessage(SimplifiedMessageDto messageDto) {
-        chatService.leaveChatRoom(messageDto.getSenderId(), messageDto.getChatRoomId());
+    @MessageMapping("/message")
+    public void handleMessage(SimplifiedMessageDto messageDto) {
+        switch (messageDto.getType()) {
+            case ENTER:
+                chatService.enterChatRoom(messageDto);
+                break;
+            case TALK:
+                chatService.sendMessageToChatRoom(messageDto);
+                break;
+            case LEAVE:
+                chatService.leaveChatRoom(messageDto.getSenderId(), messageDto.getChatRoomId());
+                break;
+            default:
+                log.warn("Unknown message type: {}", messageDto.getType());
+        }
     }
 }

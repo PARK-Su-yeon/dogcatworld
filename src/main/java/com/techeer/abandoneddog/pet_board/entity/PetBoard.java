@@ -47,13 +47,14 @@ public class PetBoard extends BaseEntity {
     private boolean isLiked = false;
 
     @Builder
-    public PetBoard(Long petBoardId, String title, String description, String petType, PetInfo petInfo, Status status, boolean isLiked) {
+    public PetBoard(Long petBoardId, String title, String description, String petType, PetInfo petInfo, Status status, Users users, boolean isLiked) {
         this.petBoardId = petBoardId;
         this.title = title;
         this.description = description;
         this.petType = petType;
         this.petInfo = petInfo;
         this.status = status;
+        this.users = users;
         this.isLiked = isLiked;
     }
 
