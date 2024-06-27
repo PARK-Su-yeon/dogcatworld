@@ -8,6 +8,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigInteger;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 @Entity
 @Builder
@@ -15,10 +17,14 @@ import java.math.BigInteger;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Setter
+@SQLDelete(sql = "UPDATE pet_info SET deleted = true WHERE id = ?")
+@Where(clause = "deleted = false")
+@Table(name = "pet_info")
 public class PetInfo extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", updatable = false)
     private Long id;
 
     @Nullable
@@ -78,7 +84,7 @@ public class PetInfo extends BaseEntity {
     @JoinColumn(name = "shelter_id", nullable = true)
     private Shelter shelter;
 
-    @OneToOne(mappedBy = "petInfo", cascade = CascadeType.REMOVE)
+    @OneToOne(mappedBy = "petInfo")
     private PetBoard petBoard;
 
     @Nullable

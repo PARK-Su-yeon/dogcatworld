@@ -136,9 +136,7 @@ public class PetBoardService {
     public void deletePetBoard(Long petBoardId) {
         PetBoard petBoard = petBoardRepository.findById(petBoardId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 게시글을 찾을 수 없습니다. id=" + petBoardId));
-        PetInfo petInfo = petBoard.getPetInfo();
 
-        petInfoRepository.delete(petInfo);
         petBoardRepository.delete(petBoard);
     }
 
