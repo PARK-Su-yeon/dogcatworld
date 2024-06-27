@@ -60,7 +60,7 @@ public class PetBoardService {
 
             PetBoard newPetBoard = PetBoard.builder()
 
-                    .title("["+savedPetInfo.getKindCd()+"]"+String.valueOf(savedPetInfo.getDesertionNo()))
+                    .title("["+savedPetInfo.getKindCd()+"]"+String.valueOf(petBoardRequestDto.getTitle()))
                     .description(savedPetInfo.getSpecialMark())
                     .petInfo(savedPetInfo)
                     .petType(savedPetInfo.getPetType())
