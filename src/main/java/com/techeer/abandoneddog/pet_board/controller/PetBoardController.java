@@ -11,6 +11,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.techeer.abandoneddog.s3.S3Service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -20,6 +21,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 
 @RestController
@@ -117,12 +119,12 @@ public class PetBoardController {
     public ResponseEntity<Page<PetBoardResponseDto>> searchPetBoards(
             @RequestParam(value = "categories", required = false) String categories,
             @RequestParam(value = "status", required = false) Status status,
-            @RequestParam(value = "minAge", required = false) int minAge,
-            @RequestParam(value = "maxAge", required = false) int maxAge,
+            @RequestParam(value = "minAge", required = false) Integer minAge,
+            @RequestParam(value = "maxAge", required = false) Integer maxAge,
             @RequestParam(value = "title", required = false) String title,
             @RequestParam(value = "isYoung", required = false) boolean isYoung,
-            @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "10") int size) {
+            @RequestParam(value = "page", defaultValue = "0") Integer page,
+            @RequestParam(value = "size", defaultValue = "10") Integer size) {
 
         Page<PetBoardResponseDto> result = petBoardService.searchPetBoards(categories, status, minAge, maxAge, title,isYoung, page, size);
         return ResponseEntity.ok(result);
