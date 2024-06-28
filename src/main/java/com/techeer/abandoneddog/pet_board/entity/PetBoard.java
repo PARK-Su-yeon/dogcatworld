@@ -31,11 +31,11 @@ public class PetBoard extends BaseEntity {
     @Column(name = "pet_type")
     private String petType;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "pet_info_id")
     private PetInfo petInfo;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "user_id")
     private Users users;
 
