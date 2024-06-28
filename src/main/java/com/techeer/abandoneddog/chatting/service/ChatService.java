@@ -66,7 +66,23 @@ public class ChatService {
         this.redisTemplate = redisTemplate;
     }
 
+    @Transactional(readOnly = true)
+    public List<MessageResponseDto> getMessagesByChatRoomId(Long chatRoomId) {
+        if (!chatRoomRepository.existsById(chatRoomId)) {
+            throw new EntityNotFoundException("ChatRoom not found with id: " + chatRoomId);
+        }
 
+        return messageRepository.findMessagesByChatRoomIdOrderByCreatedAtAsc(chatRoomId).stream()
+                .map(message -> new MessageResponseDto(
+                        message.getChatRoom().getChatRoomId(),
+                        message.getMessageId(),
+                        message.getSender().getId(),
+                        message.getMessage(),
+                        message.getType(),
+                        message.getSender().getUsername()
+                ))
+                .collect(Collectors.toList());
+    }
 
     // 사용자 ID를 기반으로 활성 채팅방 목록을 조회
     @Transactional(readOnly = true)
