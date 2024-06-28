@@ -34,20 +34,20 @@ public class ChatController {
         return ResponseEntity.ok(chatRooms);
     }
 
-//    @GetMapping("/not-use-redis/messages/{chatRoomId}")
-//    public ResponseEntity<?> getMessagesByChatRoomId(@PathVariable Long chatRoomId) {
-//        try {
-//            List<MessageResponseDto> messages = chatService.getMessagesByChatRoomId(chatRoomId);
-//
-//            if (messages.isEmpty()) {
-//                return ResponseEntity.ok("No messages found in this chat room.");
-//            }
-//
-//            return ResponseEntity.ok(messages);
-//        } catch (EntityNotFoundException e) {
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-//        }
-//    }
+    @GetMapping("/not-use-redis/messages/{chatRoomId}")
+    public ResponseEntity<?> getMessagesByChatRoomId(@PathVariable Long chatRoomId) {
+        try {
+            List<MessageResponseDto> messages = chatService.getMessagesByChatRoomId(chatRoomId);
+
+            if (messages.isEmpty()) {
+                return ResponseEntity.ok("No messages found in this chat room.");
+            }
+
+            return ResponseEntity.ok(messages);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
 
     @GetMapping("/messages/{chatRoomId}")
     public ResponseEntity<List<ChatMessageDto>> getMessages(@PathVariable Long chatRoomId) {
