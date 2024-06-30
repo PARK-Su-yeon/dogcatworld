@@ -31,6 +31,9 @@ public class PetBoard extends BaseEntity {
     @Column(name = "pet_type")
     private String petType;
 
+    @Column(name = "image")
+    private String image;
+
     @OneToOne
     @JoinColumn(name = "pet_info_id")
     private PetInfo petInfo;
@@ -44,10 +47,11 @@ public class PetBoard extends BaseEntity {
     private Status status;
 
     @Builder
-    public PetBoard(Long petBoardId, String title, String description, String petType, PetInfo petInfo, Status status) {
+    public PetBoard(Long petBoardId, String title, String description,String image, String petType, PetInfo petInfo, Status status) {
         this.petBoardId = petBoardId;
         this.title = title;
         this.description = description;
+        this.image=image;
         this.petType = petType;
         this.petInfo = petInfo;
         this.status = status;

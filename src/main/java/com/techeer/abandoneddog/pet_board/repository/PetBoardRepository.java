@@ -15,6 +15,7 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Repository
 public interface PetBoardRepository extends JpaRepository<PetBoard, Long> {
     Page<PetBoard> findByPetInfoPetTypeAndStatus(String petType, Status status, Pageable pageable);
 

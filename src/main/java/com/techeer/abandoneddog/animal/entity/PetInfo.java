@@ -1,6 +1,7 @@
 package com.techeer.abandoneddog.animal.entity;
 
 import com.techeer.abandoneddog.global.entity.BaseEntity;
+import com.techeer.abandoneddog.image.entity.Image;
 import com.techeer.abandoneddog.pet_board.entity.PetBoard;
 import com.techeer.abandoneddog.shelter.entity.Shelter;
 import jakarta.annotation.Nullable;
@@ -8,6 +9,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigInteger;
+import java.util.List;
 
 @Entity
 @Builder
@@ -97,6 +99,10 @@ public class PetInfo extends BaseEntity {
 
     @Column(name = "pet_board_stored")
     private boolean petBoardStored=false;
+
+    @OneToMany(mappedBy = "petInfo", cascade = CascadeType.ALL)
+    private List<Image> images;
+
 
     public void update(PetInfo petInfo) {
         this.desertionNo = petInfo.getDesertionNo();

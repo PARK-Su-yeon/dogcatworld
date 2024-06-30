@@ -2,12 +2,15 @@ package com.techeer.abandoneddog.pet_board.service;
 
 import com.techeer.abandoneddog.animal.entity.PetInfo;
 import com.techeer.abandoneddog.animal.repository.PetInfoRepository;
+import com.techeer.abandoneddog.image.entity.Image;
+import com.techeer.abandoneddog.image.repository.ImageRepository;
 import com.techeer.abandoneddog.pet_board.dto.PetBoardFilterRequest;
 import com.techeer.abandoneddog.pet_board.dto.PetBoardRequestDto;
 import com.techeer.abandoneddog.pet_board.dto.PetBoardResponseDto;
 import com.techeer.abandoneddog.pet_board.entity.PetBoard;
 import com.techeer.abandoneddog.pet_board.entity.Status;
 import com.techeer.abandoneddog.pet_board.repository.PetBoardRepository;
+import com.techeer.abandoneddog.s3.S3Service;
 import com.techeer.abandoneddog.shelter.entity.Shelter;
 import com.techeer.abandoneddog.shelter.repository.ShelterRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -22,6 +25,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,47 +37,90 @@ public class PetBoardService {
     private final PetBoardRepository petBoardRepository;
     private final PetInfoRepository petInfoRepository;
     private final ShelterRepository shelterRepository;
+    private final S3Service s3Service;
+    private final ImageRepository imageRepository;
 
     @Transactional
-    public Long createPetBoard(PetBoardRequestDto petBoardRequestDto) {
+    public String createPetBoard(PetBoardRequestDto petBoardRequestDto, MultipartFile mainImage, List<MultipartFile> images) {
         try {
             PetInfo petInfo = petBoardRequestDto.getPetInfo();
-            petInfo.setPublicApi(false);
-            petInfo.setPetBoardStored(false);
-
-            Shelter shelter = petInfo.getShelter();
-            if (shelter != null) {
-                shelter = shelterRepository.save(shelter);
-            }
-
-            petInfo.setShelter(shelter);
+            petInfo = PetInfo.builder()
+                    .desertionNo(petInfo.getDesertionNo())
+                    .filename(petInfo.getFilename())
+                    .happenDt(petInfo.getHappenDt())
+                    .happenPlace(petInfo.getHappenPlace())
+                    .petType(petInfo.getPetType())
+                    .kindCd(petInfo.getKindCd())
+                    .colorCd(petInfo.getColorCd())
+                    .age(petInfo.getAge())
+                    .weight(petInfo.getWeight())
+                    .noticeNo(petInfo.getNoticeNo())
+                    .noticeSdt(petInfo.getNoticeSdt())
+                    .noticeEdt(petInfo.getNoticeEdt())
+                    .processState(petInfo.getProcessState())
+                    .sexCd(petInfo.getSexCd())
+                    .neuterYn(petInfo.getNeuterYn())
+                    .specialMark(petInfo.getSpecialMark())
+                    .isPublicApi(false)
+                    .petBoardStored(false)
+                    .shelter(petInfo.getShelter() != null ? shelterRepository.save(petInfo.getShelter()) : null)
+                    .orgNm(petInfo.getOrgNm())
+                    .chargeNm(petInfo.getChargeNm())
+                    .officetel(petInfo.getOfficetel())
+                    .noticeComment(petInfo.getNoticeComment())
+                    .isYoung(petInfo.isYoung())
+                    .build();
 
             PetInfo savedPetInfo = petInfoRepository.save(petInfo);
 
-            Status status = Status.fromProcessState(savedPetInfo.getProcessState());
+            // Save main image to S3 and set as popfile
+            String mainImageUrl = null;
+            if (mainImage != null && !mainImage.isEmpty()) {
+                mainImageUrl = s3Service.saveFile(mainImage);
+                savedPetInfo = savedPetInfo.builder().popfile(mainImageUrl).build();
+                petInfoRepository.save(savedPetInfo);
+            }
+
+            // Save other images to S3 and Image repository
+            List<Image> imageEntities = new ArrayList<>();
+            for (MultipartFile file : images) {
+                String fileUrl = s3Service.saveFile(file);
+                Image image = Image.builder()
+                        .url(fileUrl)
+                        .petInfo(savedPetInfo)
+                        .build();
+                imageEntities.add(image);
+            }
+            imageRepository.saveAll(imageEntities);
+
+            // Build PetBoard
+//            List<String> imageUrls = new ArrayList<>();
+//            imageUrls.add(mainImageUrl); // Add main image URL
+//
+//            for (Image imageEntity : imageEntities) {
+//                imageUrls.add(imageEntity.getUrl()); // Add other images' URLs
+//            }
 
             PetBoard newPetBoard = PetBoard.builder()
-
-                    .title("["+savedPetInfo.getKindCd()+"]"+String.valueOf(savedPetInfo.getDesertionNo()))
+                    .title("[" + savedPetInfo.getKindCd() + "]")
                     .description(savedPetInfo.getSpecialMark())
                     .petInfo(savedPetInfo)
                     .petType(savedPetInfo.getPetType())
-                    .status(status)
+                    .status(Status.fromProcessState(savedPetInfo.getProcessState()))
                     .build();
-            PetBoard savedPetBoard = petBoardRepository.save(newPetBoard);
 
-            savedPetInfo.setPetBoardStored(true);
+            petBoardRepository.save(newPetBoard);
+
+            // Update PetInfo to indicate it has a PetBoard
+            savedPetInfo = savedPetInfo.builder().petBoardStored(true).build();
             petInfoRepository.save(savedPetInfo);
 
-            return savedPetBoard.getPetBoardId();
+            return mainImageUrl;
         } catch (DataIntegrityViolationException e) {
-            // 데이터 무결성 위반 예외 처리
             throw new RuntimeException("Data integrity violation occurred while creating PetBoard", e);
         } catch (EntityNotFoundException e) {
-            // 엔티티를 찾을 수 없는 예외 처리
             throw new RuntimeException("Entity not found while creating PetBoard", e);
         } catch (Exception e) {
-            // 일반 예외 처리
             throw new RuntimeException("An unexpected error occurred while creating PetBoard", e);
         }
     }
