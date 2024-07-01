@@ -11,7 +11,7 @@ import org.springframework.lang.Nullable;
 @AllArgsConstructor
 
 @NoArgsConstructor
-public class PetBoardResponseDto {
+public class PetBoardDetailResponseDto {
     private Long petBoardId;
     private String title;
     private String description;
@@ -19,9 +19,10 @@ public class PetBoardResponseDto {
     private PetInfoDto petInfo;
     @Nullable
     private String status;
+    private boolean isLiked;
     private Integer likeCount;
 
-    public static PetBoardResponseDto fromEntity(PetBoard petBoard) {
+    public static PetBoardDetailResponseDto fromEntity(PetBoard petBoard, boolean isLiked) {
         PetInfoDto petInfoDto = null;
         if (petBoard.getPetInfo() != null) {
             petInfoDto = new PetInfoDto(
@@ -39,12 +40,13 @@ public class PetBoardResponseDto {
             );
         }
 
-        return new PetBoardResponseDto(
+        return new PetBoardDetailResponseDto(
                 petBoard.getPetBoardId(),
                 petBoard.getTitle(),
                 petBoard.getDescription(),
                 petInfoDto,
                 petBoard.getStatus() != null ? petBoard.getStatus().toString() : "N/A",
+                isLiked,
                 petBoard.getLikeCount()
         );
     }

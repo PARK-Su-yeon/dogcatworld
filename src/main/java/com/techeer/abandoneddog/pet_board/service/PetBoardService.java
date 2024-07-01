@@ -2,7 +2,8 @@ package com.techeer.abandoneddog.pet_board.service;
 
 import com.techeer.abandoneddog.animal.entity.PetInfo;
 import com.techeer.abandoneddog.animal.repository.PetInfoRepository;
-import com.techeer.abandoneddog.pet_board.dto.PetBoardFilterRequest;
+import com.techeer.abandoneddog.bookmark.repository.BookmarkRepository;
+import com.techeer.abandoneddog.pet_board.dto.PetBoardDetailResponseDto;
 import com.techeer.abandoneddog.pet_board.dto.PetBoardRequestDto;
 import com.techeer.abandoneddog.pet_board.dto.PetBoardResponseDto;
 import com.techeer.abandoneddog.pet_board.entity.PetBoard;
@@ -14,18 +15,15 @@ import com.techeer.abandoneddog.users.entity.Users;
 import com.techeer.abandoneddog.users.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -36,6 +34,7 @@ public class PetBoardService {
     private final PetInfoRepository petInfoRepository;
     private final ShelterRepository shelterRepository;
     private final UserRepository userRepository;
+    private final BookmarkRepository bookmarkRepository;
 
     @Transactional
     public Long createPetBoard(PetBoardRequestDto petBoardRequestDto) {
@@ -60,7 +59,7 @@ public class PetBoardService {
 
             PetBoard newPetBoard = PetBoard.builder()
 
-                    .title("["+savedPetInfo.getKindCd()+"]"+String.valueOf(petBoardRequestDto.getTitle()))
+                    .title("[" + savedPetInfo.getKindCd() + "]" + String.valueOf(petBoardRequestDto.getTitle()))
                     .description(savedPetInfo.getSpecialMark())
                     .petInfo(savedPetInfo)
                     .petType(savedPetInfo.getPetType())
@@ -99,10 +98,20 @@ public class PetBoardService {
     }
 
     @Transactional
-    public PetBoardResponseDto getPetBoard(Long petBoardId) {
+    public PetBoardDetailResponseDto getPetBoard(Long petBoardId, Long userId) {
+
+        Boolean isLiked;
+
         PetBoard petBoard = petBoardRepository.findById(petBoardId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 게시글을 찾을 수 없습니다. id=" + petBoardId));
-        return PetBoardResponseDto.fromEntity(petBoard);
+
+        if (!(bookmarkRepository.existsByPetBoardAndUserIdAndIsDeletedFalse(petBoard, userId)) || userId.equals("-1")) {
+            isLiked = false;
+        } else {
+            isLiked = true;
+        }
+
+        return PetBoardDetailResponseDto.fromEntity(petBoard, isLiked);
     }
 
     public Page<PetBoardResponseDto> getPetBoardsByPetType(String petType, Pageable pageable) {
@@ -111,18 +120,17 @@ public class PetBoardService {
     }
 
 
+    //필터링으로 검색
+    public Page<PetBoardResponseDto> searchPetBoards(String categories, Status status, int minYear, int maxYear, String title, boolean isYoung, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<PetBoard> petBoards = petBoardRepository.searchPetBoards(categories, status, minYear, maxYear, title, isYoung, pageable);
 
-//필터링으로 검색
-    public Page<PetBoardResponseDto> searchPetBoards(String categories, Status status, int minYear, int maxYear, String title,boolean isYoung, int page, int size) {
-            Pageable pageable = PageRequest.of(page, size);
-            Page<PetBoard> petBoards = petBoardRepository.searchPetBoards(categories, status, minYear, maxYear, title,isYoung, pageable);
-
-            return petBoards.map(PetBoardResponseDto::fromEntity);
-        }
+        return petBoards.map(PetBoardResponseDto::fromEntity);
+    }
 
 //    @Transactional
 
-//    public Page<PetBoardResponseDto> getPetBoards(Pageable pageable) {
+    //    public Page<PetBoardResponseDto> getPetBoards(Pageable pageable) {
 //        Page<PetBoard> petBoardPage = petBoardRepository.findAll(pageable);
 //        log.info("Retrieved pet boards: {}", petBoardPage.getContent());
 //        return petBoardPage.map(PetBoardResponseDto::fromEntity);
@@ -170,10 +178,10 @@ public class PetBoardService {
         }
     }
 
-        @Transactional
-        public Page<PetBoardResponseDto> getMyPetBoard (Long userId, Pageable pageable){
-            Page<PetBoard> petBoardPage = petBoardRepository.findPetBoardByUsersId(userId, pageable);
-            return petBoardPage.map(PetBoardResponseDto::fromEntity);
-        }
+    @Transactional
+    public Page<PetBoardResponseDto> getMyPetBoard(Long userId, Pageable pageable) {
+        Page<PetBoard> petBoardPage = petBoardRepository.findPetBoardByUsersId(userId, pageable);
+        return petBoardPage.map(PetBoardResponseDto::fromEntity);
+    }
 
 }
