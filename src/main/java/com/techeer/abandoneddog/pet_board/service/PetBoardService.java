@@ -2,6 +2,7 @@ package com.techeer.abandoneddog.pet_board.service;
 
 import com.techeer.abandoneddog.animal.entity.PetInfo;
 import com.techeer.abandoneddog.animal.repository.PetInfoRepository;
+import com.techeer.abandoneddog.bookmark.repository.BookmarkRepository;
 import com.techeer.abandoneddog.pet_board.dto.PetBoardFilterRequest;
 import com.techeer.abandoneddog.pet_board.dto.PetBoardRequestDto;
 import com.techeer.abandoneddog.pet_board.dto.PetBoardResponseDto;
@@ -36,6 +37,7 @@ public class PetBoardService {
     private final PetInfoRepository petInfoRepository;
     private final ShelterRepository shelterRepository;
     private final UserRepository userRepository;
+    private final BookmarkRepository bookmarkRepository;
 
     @Transactional
     public Long createPetBoard(PetBoardRequestDto petBoardRequestDto) {
@@ -99,9 +101,16 @@ public class PetBoardService {
     }
 
     @Transactional
-    public PetBoardResponseDto getPetBoard(Long petBoardId) {
+    public PetBoardResponseDto getPetBoard(Long petBoardId, Long userId) {
         PetBoard petBoard = petBoardRepository.findById(petBoardId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 게시글을 찾을 수 없습니다. id=" + petBoardId));
+
+        if (bookmarkRepository.existsByPetBoardAndUserIdAndIsDeletedFalse(petBoard, userId)) {
+            petBoard.updateLike(true);
+        } else {
+            petBoard.updateLike(false);
+        }
+
         return PetBoardResponseDto.fromEntity(petBoard);
     }
 

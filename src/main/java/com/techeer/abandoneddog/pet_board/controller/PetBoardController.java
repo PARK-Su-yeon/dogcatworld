@@ -55,9 +55,9 @@ public class PetBoardController {
     }
 
     @GetMapping("/{petBoardId}")
-    public ResponseEntity<?> getPetBoard(@PathVariable("petBoardId") Long petBoardId) {
+    public ResponseEntity<?> getPetBoard(@PathVariable("petBoardId") Long petBoardId, @RequestParam Long userId) {
         try {
-            PetBoardResponseDto responseDto = petBoardService.getPetBoard(petBoardId);
+            PetBoardResponseDto responseDto = petBoardService.getPetBoard(petBoardId, userId);
             return ResponseEntity.ok(responseDto);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
