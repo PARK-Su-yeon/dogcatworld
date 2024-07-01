@@ -102,16 +102,19 @@ public class PetBoardService {
 
     @Transactional
     public PetBoardResponseDto getPetBoard(Long petBoardId, Long userId) {
+
+        Boolean isLiked;
+
         PetBoard petBoard = petBoardRepository.findById(petBoardId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 게시글을 찾을 수 없습니다. id=" + petBoardId));
 
         if (bookmarkRepository.existsByPetBoardAndUserIdAndIsDeletedFalse(petBoard, userId)) {
-            petBoard.updateLike(true);
+            isLiked = true;
         } else {
-            petBoard.updateLike(false);
+            isLiked = false;
         }
 
-        return PetBoardResponseDto.fromEntity(petBoard);
+        return PetBoardResponseDto.fromEntity(petBoard, isLiked);
     }
 
     public Page<PetBoardResponseDto> getPetBoardsByPetType(String petType, Pageable pageable) {

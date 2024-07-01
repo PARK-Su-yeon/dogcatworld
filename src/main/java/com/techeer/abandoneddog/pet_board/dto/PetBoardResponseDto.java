@@ -47,7 +47,35 @@ public class PetBoardResponseDto {
                 petBoard.getDescription(),
                 petInfoDto,
                 petBoard.getStatus() != null ? petBoard.getStatus().toString() : "N/A",
-                petBoard.isLiked()
+                false
+        );
+    }
+
+    public static PetBoardResponseDto fromEntity(PetBoard petBoard, boolean isLiked) {
+        PetInfoDto petInfoDto = null;
+        if (petBoard.getPetInfo() != null) {
+            petInfoDto = new PetInfoDto(
+                    petBoard.getPetInfo().getId(),
+                    petBoard.getPetInfo().getDesertionNo(),
+                    petBoard.getPetInfo().getFilename(),
+                    petBoard.getPetInfo().getPopfile(),
+                    petBoard.getPetInfo().getProcessState(),
+                    petBoard.getPetInfo().getAge(),
+                    petBoard.getPetInfo().getWeight(),
+                    petBoard.getPetInfo().getSexCd(),
+                    petBoard.getPetInfo().getKindCd(),
+                    petBoard.getPetInfo().getPetType(),
+                    petBoard.getPetInfo().isPublicApi()
+            );
+        }
+
+        return new PetBoardResponseDto(
+                petBoard.getPetBoardId(),
+                petBoard.getTitle(),
+                petBoard.getDescription(),
+                petInfoDto,
+                petBoard.getStatus() != null ? petBoard.getStatus().toString() : "N/A",
+                isLiked
         );
     }
 }
