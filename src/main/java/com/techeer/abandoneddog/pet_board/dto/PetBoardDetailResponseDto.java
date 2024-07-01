@@ -2,7 +2,6 @@ package com.techeer.abandoneddog.pet_board.dto;
 
 import com.techeer.abandoneddog.animal.PetInfoDto.PetInfoDto;
 import com.techeer.abandoneddog.pet_board.entity.PetBoard;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

@@ -66,13 +66,14 @@ public class PetBoard extends BaseEntity {
         this.status = Status.fromProcessState(requestDto.getPetInfo().getProcessState());
     }
 
-    public void incleaseLikeCount(){
+    public void incleaseLikeCount() {
         this.likeCount++;
     }
-    public void decreaseLikeCount(){
-        if (this.likeCount >= 0){
+
+    public void decreaseLikeCount() {
+        if (this.likeCount >= 0) {
             this.likeCount--;
-        }else{
+        } else {
             this.likeCount = 0;
         }
     }
