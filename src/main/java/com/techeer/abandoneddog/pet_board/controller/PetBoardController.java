@@ -52,7 +52,7 @@ public class PetBoardController {
     }
 
     @GetMapping("/{petBoardId}")
-    public ResponseEntity<?> getPetBoard(@PathVariable("petBoardId") Long petBoardId, @RequestParam Long userId) {
+    public ResponseEntity<?> getPetBoard(@PathVariable("petBoardId") Long petBoardId, @RequestParam(defaultValue = "-1") Long userId) {
         try {
             PetBoardDetailResponseDto responseDto = petBoardService.getPetBoard(petBoardId, userId);
             return ResponseEntity.ok(responseDto);

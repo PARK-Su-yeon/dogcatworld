@@ -105,10 +105,10 @@ public class PetBoardService {
         PetBoard petBoard = petBoardRepository.findById(petBoardId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 게시글을 찾을 수 없습니다. id=" + petBoardId));
 
-        if (bookmarkRepository.existsByPetBoardAndUserIdAndIsDeletedFalse(petBoard, userId)) {
-            isLiked = true;
-        } else {
+        if (!(bookmarkRepository.existsByPetBoardAndUserIdAndIsDeletedFalse(petBoard, userId)) || userId.equals("-1")) {
             isLiked = false;
+        } else {
+            isLiked = true;
         }
 
         return PetBoardDetailResponseDto.fromEntity(petBoard, isLiked);

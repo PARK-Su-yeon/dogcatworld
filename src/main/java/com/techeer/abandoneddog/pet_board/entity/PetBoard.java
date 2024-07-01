@@ -71,7 +71,7 @@ public class PetBoard extends BaseEntity {
     }
 
     public void decreaseLikeCount() {
-        if (this.likeCount >= 0) {
+        if (this.likeCount > 0) {
             this.likeCount--;
         } else {
             this.likeCount = 0;

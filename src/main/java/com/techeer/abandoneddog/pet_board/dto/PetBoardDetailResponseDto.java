@@ -20,34 +20,7 @@ public class PetBoardDetailResponseDto {
     @Nullable
     private String status;
     private boolean isLiked;
-
-    public static PetBoardDetailResponseDto fromEntity(PetBoard petBoard) {
-        PetInfoDto petInfoDto = null;
-        if (petBoard.getPetInfo() != null) {
-            petInfoDto = new PetInfoDto(
-                    petBoard.getPetInfo().getId(),
-                    petBoard.getPetInfo().getDesertionNo(),
-                    petBoard.getPetInfo().getFilename(),
-                    petBoard.getPetInfo().getPopfile(),
-                    petBoard.getPetInfo().getProcessState(),
-                    petBoard.getPetInfo().getAge(),
-                    petBoard.getPetInfo().getWeight(),
-                    petBoard.getPetInfo().getSexCd(),
-                    petBoard.getPetInfo().getKindCd(),
-                    petBoard.getPetInfo().getPetType(),
-                    petBoard.getPetInfo().isPublicApi()
-            );
-        }
-
-        return new PetBoardDetailResponseDto(
-                petBoard.getPetBoardId(),
-                petBoard.getTitle(),
-                petBoard.getDescription(),
-                petInfoDto,
-                petBoard.getStatus() != null ? petBoard.getStatus().toString() : "N/A",
-                false
-        );
-    }
+    private Integer likeCount;
 
     public static PetBoardDetailResponseDto fromEntity(PetBoard petBoard, boolean isLiked) {
         PetInfoDto petInfoDto = null;
@@ -73,7 +46,8 @@ public class PetBoardDetailResponseDto {
                 petBoard.getDescription(),
                 petInfoDto,
                 petBoard.getStatus() != null ? petBoard.getStatus().toString() : "N/A",
-                isLiked
+                isLiked,
+                petBoard.getLikeCount()
         );
     }
 }
