@@ -43,6 +43,9 @@ public class PetBoard extends BaseEntity {
     @Column(name = "status")
     private Status status;
 
+    @Column(name = "like_count", nullable = false, columnDefinition = "int default 0")
+    private Integer likeCount = 0;
+
 
     @Builder
     public PetBoard(Long petBoardId, String title, String description, String petType, PetInfo petInfo, Status status, Users users) {
@@ -63,4 +66,14 @@ public class PetBoard extends BaseEntity {
         this.status = Status.fromProcessState(requestDto.getPetInfo().getProcessState());
     }
 
+    public void incleaseLikeCount(){
+        this.likeCount++;
+    }
+    public void decreaseLikeCount(){
+        if (this.likeCount >= 0){
+            this.likeCount--;
+        }else{
+            this.likeCount = 0;
+        }
+    }
 }

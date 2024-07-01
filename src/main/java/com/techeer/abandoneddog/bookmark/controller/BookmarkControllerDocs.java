@@ -42,7 +42,7 @@ public interface BookmarkControllerDocs {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "북마크 취소 성공")
     })
-    public ResponseEntity<?> cancelBookmark(@PathVariable Long bookmarkId, @RequestBody BookmarkRequestDto bookmarkRequestDto);
+    public ResponseEntity<?> cancelBookmark(@RequestBody BookmarkRequestDto bookmarkRequestDto);
 
 }
 

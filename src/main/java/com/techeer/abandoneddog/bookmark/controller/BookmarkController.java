@@ -44,8 +44,8 @@ public class BookmarkController implements BookmarkControllerDocs {
         }
     }
 
-    @DeleteMapping("/{bookmarkId}")
-    public ResponseEntity<?> cancelBookmark(@PathVariable("bookmarkId")   Long bookmarkId, @RequestBody BookmarkRequestDto bookmarkRequestDto) {
+    @DeleteMapping
+    public ResponseEntity<?> cancelBookmark(@RequestBody BookmarkRequestDto bookmarkRequestDto) {
         try {
             bookmarkService.cancelBookmark(bookmarkRequestDto);
             return ResponseEntity.ok(ResultDto.res(HttpStatus.OK, "북마크 취소 성공"));

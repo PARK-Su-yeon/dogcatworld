@@ -3,6 +3,7 @@ package com.techeer.abandoneddog.pet_board.service;
 import com.techeer.abandoneddog.animal.entity.PetInfo;
 import com.techeer.abandoneddog.animal.repository.PetInfoRepository;
 import com.techeer.abandoneddog.bookmark.repository.BookmarkRepository;
+import com.techeer.abandoneddog.pet_board.dto.PetBoardDetailResponseDto;
 import com.techeer.abandoneddog.pet_board.dto.PetBoardFilterRequest;
 import com.techeer.abandoneddog.pet_board.dto.PetBoardRequestDto;
 import com.techeer.abandoneddog.pet_board.dto.PetBoardResponseDto;
@@ -101,7 +102,7 @@ public class PetBoardService {
     }
 
     @Transactional
-    public PetBoardResponseDto getPetBoard(Long petBoardId, Long userId) {
+    public PetBoardDetailResponseDto getPetBoard(Long petBoardId, Long userId) {
 
         Boolean isLiked;
 
@@ -114,7 +115,7 @@ public class PetBoardService {
             isLiked = false;
         }
 
-        return PetBoardResponseDto.fromEntity(petBoard, isLiked);
+        return PetBoardDetailResponseDto.fromEntity(petBoard, isLiked);
     }
 
     public Page<PetBoardResponseDto> getPetBoardsByPetType(String petType, Pageable pageable) {

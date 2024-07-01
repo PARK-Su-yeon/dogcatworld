@@ -45,6 +45,8 @@ public class BookmarkService {
 //            throw new InvalidPetBoardRequestException();
 
         }
+        petBoard.incleaseLikeCount();
+        petBoardRepository.save(petBoard);
     }
 
     @Transactional
@@ -67,5 +69,7 @@ public class BookmarkService {
 
         Bookmark bookmark = bookmarkRepository.findByPetBoardAndUser(petBoard, user);
         bookmarkRepository.delete(bookmark);
+        petBoard.decreaseLikeCount();
+        petBoardRepository.save(petBoard);
     }
 }

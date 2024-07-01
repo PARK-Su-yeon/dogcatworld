@@ -1,5 +1,6 @@
 package com.techeer.abandoneddog.pet_board.controller;
 
+import com.techeer.abandoneddog.pet_board.dto.PetBoardDetailResponseDto;
 import com.techeer.abandoneddog.pet_board.dto.PetBoardFilterRequest;
 import com.techeer.abandoneddog.pet_board.dto.PetBoardRequestDto;
 import com.techeer.abandoneddog.pet_board.dto.PetBoardResponseDto;
@@ -57,7 +58,7 @@ public class PetBoardController {
     @GetMapping("/{petBoardId}")
     public ResponseEntity<?> getPetBoard(@PathVariable("petBoardId") Long petBoardId, @RequestParam Long userId) {
         try {
-            PetBoardResponseDto responseDto = petBoardService.getPetBoard(petBoardId, userId);
+            PetBoardDetailResponseDto responseDto = petBoardService.getPetBoard(petBoardId, userId);
             return ResponseEntity.ok(responseDto);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
