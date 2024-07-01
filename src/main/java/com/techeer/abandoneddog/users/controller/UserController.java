@@ -5,12 +5,14 @@ import com.techeer.abandoneddog.users.service.ReissueService;
 import com.techeer.abandoneddog.users.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -18,13 +20,14 @@ import java.util.Map;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/users/")
+@Validated
 public class UserController implements UserControllerDocs{
     @Autowired
     private final UserService userService;
     private final ReissueService reissueService;
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody RegisterRequestDto registerRequestDto) {
+    public ResponseEntity<?> register(@Valid @RequestBody RegisterRequestDto registerRequestDto) {
         userService.signUp(registerRequestDto);
         return ResponseEntity.ok(ResultDto.res(HttpStatus.OK, "회원가입 성공"));
     }
