@@ -50,7 +50,7 @@ public class PetBoardController {
             @RequestPart(name = "mainImage", required = true) @Parameter(description = "메인 이미지", content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE)) MultipartFile mainImage,
             @RequestPart(name = "images", required = true) @Parameter(description = "추가 이미지 목록", content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE)) List<MultipartFile> images) {
         try {
-            String petBoardId = petBoardService.createPetBoard(petBoardRequestDto, mainImage, images);
+            long petBoardId = petBoardService.createPetBoard(petBoardRequestDto, mainImage, images);
             return ResponseEntity.ok().body("게시물 작성에 성공하였습니다.");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("게시물 작성에 실패하였습니다.");

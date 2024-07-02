@@ -36,7 +36,8 @@ public class PetBoardResponseDto {
                     petBoard.getPetInfo().getSexCd(),
                     petBoard.getPetInfo().getKindCd(),
                     petBoard.getPetInfo().getPetType(),
-                    petBoard.getPetInfo().isPublicApi()
+                    petBoard.getPetInfo().isPublicApi(),
+                    petBoard.getPetInfo().getImages()
             );
         }
 

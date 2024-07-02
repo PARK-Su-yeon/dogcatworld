@@ -13,6 +13,8 @@ import com.techeer.abandoneddog.pet_board.repository.PetBoardRepository;
 import com.techeer.abandoneddog.s3.S3Service;
 import com.techeer.abandoneddog.shelter.entity.Shelter;
 import com.techeer.abandoneddog.shelter.repository.ShelterRepository;
+import com.techeer.abandoneddog.users.entity.Users;
+import com.techeer.abandoneddog.users.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import java.util.Optional;
@@ -39,47 +41,36 @@ public class PetBoardService {
     private final ShelterRepository shelterRepository;
     private final S3Service s3Service;
     private final ImageRepository imageRepository;
+    private final UserRepository userRepository;
 
     @Transactional
-    public String createPetBoard(PetBoardRequestDto petBoardRequestDto, MultipartFile mainImage, List<MultipartFile> images) {
+    public Long createPetBoard(PetBoardRequestDto petBoardRequestDto, MultipartFile mainImage, List<MultipartFile> images) {
         try {
             PetInfo petInfo = petBoardRequestDto.getPetInfo();
-            petInfo = PetInfo.builder()
-                    .desertionNo(petInfo.getDesertionNo())
-                    .filename(petInfo.getFilename())
-                    .happenDt(petInfo.getHappenDt())
-                    .happenPlace(petInfo.getHappenPlace())
-                    .petType(petInfo.getPetType())
-                    .kindCd(petInfo.getKindCd())
-                    .colorCd(petInfo.getColorCd())
-                    .age(petInfo.getAge())
-                    .weight(petInfo.getWeight())
-                    .noticeNo(petInfo.getNoticeNo())
-                    .noticeSdt(petInfo.getNoticeSdt())
-                    .noticeEdt(petInfo.getNoticeEdt())
-                    .processState(petInfo.getProcessState())
-                    .sexCd(petInfo.getSexCd())
-                    .neuterYn(petInfo.getNeuterYn())
-                    .specialMark(petInfo.getSpecialMark())
-                    .isPublicApi(false)
-                    .petBoardStored(false)
-                    .shelter(petInfo.getShelter() != null ? shelterRepository.save(petInfo.getShelter()) : null)
-                    .orgNm(petInfo.getOrgNm())
-                    .chargeNm(petInfo.getChargeNm())
-                    .officetel(petInfo.getOfficetel())
-                    .noticeComment(petInfo.getNoticeComment())
-                    .isYoung(petInfo.isYoung())
-                    .build();
+            petInfo.setPublicApi(false);
+            petInfo.setPetBoardStored(false);
 
-            PetInfo savedPetInfo = petInfoRepository.save(petInfo);
+            Shelter shelter = petInfo.getShelter();
+            if (shelter != null) {
+                shelter = shelterRepository.save(shelter);
+            }
+            petInfo.setShelter(shelter);
+
+            //PetInfo savedPetInfo = petInfoRepository.save(petInfo);
+
+            Status status = Status.fromProcessState(petInfo.getProcessState());
+
+            Users user = userRepository.findById(petBoardRequestDto.getUserId())
+                    .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + petBoardRequestDto.getUserId()));
 
             // Save main image to S3 and set as popfile
             String mainImageUrl = null;
             if (mainImage != null && !mainImage.isEmpty()) {
                 mainImageUrl = s3Service.saveFile(mainImage);
-                savedPetInfo = savedPetInfo.builder().popfile(mainImageUrl).build();
-                petInfoRepository.save(savedPetInfo);
+                petInfo.setPopfile(mainImageUrl);
+                petInfoRepository.save(petInfo);
             }
+            log.info(String.valueOf(petInfo.getWeight()));
 
             // Save other images to S3 and Image repository
             List<Image> imageEntities = new ArrayList<>();
@@ -87,7 +78,7 @@ public class PetBoardService {
                 String fileUrl = s3Service.saveFile(file);
                 Image image = Image.builder()
                         .url(fileUrl)
-                        .petInfo(savedPetInfo)
+                        .petInfo(petInfo)
                         .build();
                 imageEntities.add(image);
             }
@@ -102,20 +93,20 @@ public class PetBoardService {
 //            }
 
             PetBoard newPetBoard = PetBoard.builder()
-                    .title("[" + savedPetInfo.getKindCd() + "]")
-                    .description(savedPetInfo.getSpecialMark())
-                    .petInfo(savedPetInfo)
-                    .petType(savedPetInfo.getPetType())
-                    .status(Status.fromProcessState(savedPetInfo.getProcessState()))
+                    .title("[" + petInfo.getKindCd() + "]" + String.valueOf(petBoardRequestDto.getTitle()))
+                    .description(petInfo.getSpecialMark())
+                    .petInfo(petInfo)
+                    .petType(petInfo.getPetType())
+                    .status(Status.fromProcessState(petInfo.getProcessState()))
                     .build();
 
-            petBoardRepository.save(newPetBoard);
+            PetBoard savedPetBoard = petBoardRepository.save(newPetBoard);
 
             // Update PetInfo to indicate it has a PetBoard
-            savedPetInfo = savedPetInfo.builder().petBoardStored(true).build();
-            petInfoRepository.save(savedPetInfo);
+            petInfo.setPetBoardStored(true);
+            petInfoRepository.save(petInfo);
 
-            return mainImageUrl;
+            return savedPetBoard.getPetBoardId();
         } catch (DataIntegrityViolationException e) {
             throw new RuntimeException("Data integrity violation occurred while creating PetBoard", e);
         } catch (EntityNotFoundException e) {

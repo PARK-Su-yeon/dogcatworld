@@ -15,9 +15,8 @@ import org.springframework.web.multipart.MultipartFile;
 public class PetBoardRequestDto {
     private String title;
     private String description;
-   // private MultipartFile image;
-  //  private String imageUrl;
     private PetInfo petInfo;
+    private Long userId;
 
     public PetBoard toEntity() {
         return PetBoard.builder()
