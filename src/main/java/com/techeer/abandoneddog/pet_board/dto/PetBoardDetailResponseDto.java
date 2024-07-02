@@ -1,6 +1,6 @@
 package com.techeer.abandoneddog.pet_board.dto;
 
-import com.techeer.abandoneddog.animal.PetInfoDto.PetInfoDto;
+import com.techeer.abandoneddog.animal.PetInfoDto.PetInfoResponseDto;
 import com.techeer.abandoneddog.pet_board.entity.PetBoard;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,42 +9,29 @@ import org.springframework.lang.Nullable;
 
 @Getter
 @AllArgsConstructor
-
 @NoArgsConstructor
 public class PetBoardDetailResponseDto {
     private Long petBoardId;
     private String title;
     private String description;
     @Nullable
-    private PetInfoDto petInfo;
+    private PetInfoResponseDto petInfo;
     @Nullable
     private String status;
     private boolean isLiked;
     private Integer likeCount;
 
     public static PetBoardDetailResponseDto fromEntity(PetBoard petBoard, boolean isLiked) {
-        PetInfoDto petInfoDto = null;
+        PetInfoResponseDto petInfoResponseDto = null;
         if (petBoard.getPetInfo() != null) {
-            petInfoDto = new PetInfoDto(
-                    petBoard.getPetInfo().getId(),
-                    petBoard.getPetInfo().getDesertionNo(),
-                    petBoard.getPetInfo().getFilename(),
-                    petBoard.getPetInfo().getPopfile(),
-                    petBoard.getPetInfo().getProcessState(),
-                    petBoard.getPetInfo().getAge(),
-                    petBoard.getPetInfo().getWeight(),
-                    petBoard.getPetInfo().getSexCd(),
-                    petBoard.getPetInfo().getKindCd(),
-                    petBoard.getPetInfo().getPetType(),
-                    petBoard.getPetInfo().isPublicApi()
-            );
+            petInfoResponseDto = PetInfoResponseDto.fromEntity(petBoard.getPetInfo());
         }
 
         return new PetBoardDetailResponseDto(
                 petBoard.getPetBoardId(),
                 petBoard.getTitle(),
                 petBoard.getDescription(),
-                petInfoDto,
+                petInfoResponseDto,
                 petBoard.getStatus() != null ? petBoard.getStatus().toString() : "N/A",
                 isLiked,
                 petBoard.getLikeCount()
