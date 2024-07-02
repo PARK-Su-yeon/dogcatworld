@@ -99,6 +99,7 @@ public class PetBoardService {
                     .petType(petInfo.getPetType())
                     .status(Status.fromProcessState(petInfo.getProcessState()))
 
+
                     .build();
 
             newPetBoard.setUsers(user);
@@ -119,7 +120,7 @@ public class PetBoardService {
     }
 
     @Transactional
-    public PetBoardResponseDto updatePetBoard(Long petBoardId, PetBoardRequestDto requestDto) {
+    public PetBoardResponseDto updatePetBoard(Long petBoardId, PetBoardRequestDto requestDto, MultipartFile mainImage, List<MultipartFile> images) {
         PetBoard petBoard = petBoardRepository.findById(petBoardId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 게시글을 찾을 수 없습니다. id=" + petBoardId));
 
@@ -127,6 +128,24 @@ public class PetBoardService {
         PetInfo petInfo = petBoard.getPetInfo();
         petInfo.update(requestDto.getPetInfo());
 
+        //추후  생성코드과 합쳐서 함수로 묶기
+
+        if (mainImage != null && !mainImage.isEmpty()) {
+            String mainImageUrl = s3Service.saveFile(mainImage);
+            petInfo.setPopfile(mainImageUrl);
+        }
+
+        // 추가 이미지 처리
+        List<Image> imageUrls = new ArrayList<>();
+        for (MultipartFile image : images) {
+            if (image != null && !image.isEmpty()) {
+                String imageUrl = s3Service.saveFile(image);
+                imageUrls.add(new Image(imageUrl));
+            }
+        }
+        petInfo.updateImages(imageUrls); // 이미지 업데이트 로직 추가 필요
+
+        petInfoRepository.save(petInfo);
 
         return PetBoardResponseDto.fromEntity(petBoard);
     }

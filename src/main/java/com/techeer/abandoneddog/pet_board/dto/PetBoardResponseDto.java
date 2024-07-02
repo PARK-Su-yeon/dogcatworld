@@ -1,6 +1,7 @@
 package com.techeer.abandoneddog.pet_board.dto;
 
 import com.techeer.abandoneddog.animal.PetInfoDto.PetInfoDto;
+import com.techeer.abandoneddog.image.entity.Image;
 import com.techeer.abandoneddog.pet_board.entity.PetBoard;
 
 import jakarta.validation.constraints.Null;
@@ -8,6 +9,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.lang.Nullable;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 @AllArgsConstructor
@@ -21,6 +25,8 @@ public class PetBoardResponseDto {
     private PetInfoDto petInfo;
     @Nullable
     private String status;
+
+    private List<String> imageUrls;
 
     public static PetBoardResponseDto fromEntity(PetBoard petBoard) {
         PetInfoDto petInfoDto = null;
@@ -37,16 +43,38 @@ public class PetBoardResponseDto {
                     petBoard.getPetInfo().getKindCd(),
                     petBoard.getPetInfo().getPetType(),
                     petBoard.getPetInfo().isPublicApi(),
-                    petBoard.getPetInfo().getImages()
+                    petBoard.getPetInfo().getImages().stream()
+                            .map(Image::getUrl)
+                            .collect(Collectors.toList())
             );
         }
+
+        List<String> imageUrls = petBoard.getPetInfo() != null && petBoard.getPetInfo().getImages() != null
+                ? petBoard.getPetInfo().getImages().stream()
+                .map(Image::getUrl)
+                .collect(Collectors.toList())
+                : List.of();
 
         return new PetBoardResponseDto(
                 petBoard.getPetBoardId(),
                 petBoard.getTitle(),
                 petBoard.getDescription(),
                 petInfoDto,
-                petBoard.getStatus() != null ? petBoard.getStatus().toString() : "N/A"
-        );
+                petBoard.getStatus() != null ? petBoard.getStatus().toString() : "N/A",
+                imageUrls
+        ); 
+//                    petBoard.getPetInfo().getImages().getUrl()
+//            );
+//        }
+//
+//        return new PetBoardResponseDto(
+//                petBoard.getPetBoardId(),
+//                petBoard.getTitle(),
+//                petBoard.getDescription(),
+//                petInfoDto,
+//                petBoard.getStatus() != null ? petBoard.getStatus().toString() : "N/A",
+//                petBoard.getPetInfo().getImages().getUrl()
+//
+//        );
     }
 }

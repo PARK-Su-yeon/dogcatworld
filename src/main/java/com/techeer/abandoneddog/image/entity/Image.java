@@ -2,14 +2,12 @@ package com.techeer.abandoneddog.image.entity;
 
 import com.techeer.abandoneddog.animal.entity.PetInfo;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Builder
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Image {
@@ -23,4 +21,7 @@ public class Image {
     @JoinColumn(name = "pet_info_id")
     private PetInfo petInfo;
 
+    public Image(String imageUrl) {
+        url=imageUrl;
+    }
 }

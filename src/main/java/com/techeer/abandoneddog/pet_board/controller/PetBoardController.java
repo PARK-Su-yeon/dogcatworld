@@ -58,10 +58,18 @@ public class PetBoardController {
     }
 
 
-    @PutMapping("/{petBoardId}")
-    public ResponseEntity<?> updatePetBoard(@PathVariable("petBoardId") Long petBoardId, @RequestBody PetBoardRequestDto requestDto) {
+    @PutMapping(value ="/{petBoardId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "게시물 수정", description = "게시물을 수정합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "게시물 수정 성공"),
+            @ApiResponse(responseCode = "400", description = "게시물 수정 실패")
+    })
+    public ResponseEntity<?> updatePetBoard(@PathVariable("petBoardId") Long petBoardId,
+                                            @RequestPart(name = "petBoardRequestDto") @Parameter(description = "게시물 정보", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)) PetBoardRequestDto petBoardRequestDto,
+                                            @RequestPart(name = "mainImage", required = true) @Parameter(description = "메인 이미지", content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE)) MultipartFile mainImage,
+                                            @RequestPart(name = "images", required = true) @Parameter(description = "추가 이미지 목록", content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE)) List<MultipartFile> images) {
         try {
-            PetBoardResponseDto responseDto = petBoardService.updatePetBoard(petBoardId, requestDto);
+            PetBoardResponseDto responseDto = petBoardService.updatePetBoard(petBoardId, petBoardRequestDto,mainImage,images);
             return ResponseEntity.ok().body(responseDto);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());

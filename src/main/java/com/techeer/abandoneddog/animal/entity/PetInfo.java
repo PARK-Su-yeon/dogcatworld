@@ -129,8 +129,12 @@ public class PetInfo extends BaseEntity {
         this.officetel = petInfo.getOfficetel();
         this.noticeComment = petInfo.getNoticeComment();
         this.petBoardStored=true;
+
     }
 
+    public void updateImages(List<Image> newImageUrls) {
+        this.images = newImageUrls;
+    }
 
 
 
