@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 
 @Tag(name = "User Api", description = "회원가입 및 로그인")
@@ -23,7 +24,7 @@ public interface UserControllerDocs {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "회원가입 성공")
     })
-    public ResponseEntity<?> register(RegisterRequestDto registerRequestDto);
+    public ResponseEntity<?> register(@Valid RegisterRequestDto registerRequestDto);
 
     @Parameters(value = {
             @Parameter(name = "email", description = "이메일"),
