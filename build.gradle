@@ -50,9 +50,13 @@ dependencies {
 	implementation 'io.jsonwebtoken:jjwt-jackson:0.12.3'
 	implementation 'org.springframework.boot:spring-boot-starter-websocket'
 
+	// xls file read
 	implementation 'org.apache.poi:poi:5.2.2'
 	implementation 'org.apache.poi:poi-ooxml:5.2.2'
 
+	// monitoring
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	runtimeOnly ("io.micrometer:micrometer-registry-prometheus")
 }
 
 tasks.named('test') {

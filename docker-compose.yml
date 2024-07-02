@@ -6,6 +6,7 @@ services:
     restart: always
     env_file:
       - ../frontend/abandonedpets/.env
+      - ../frontend/abandonedpets/.env.development
     build:
       context: ../frontend/abandonedpets/
       dockerfile: Dockerfile
@@ -58,6 +59,26 @@ services:
     depends_on:
       - database
       - redis
+    networks:
+      - team_network
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    volumes:
+      - ./src/main/resources/prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    ports:
+      - "9090:9090"
+    networks:
+      - team_network
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
     networks:
       - team_network
 
