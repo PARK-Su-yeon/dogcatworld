@@ -98,8 +98,10 @@ public class PetBoardService {
                     .petInfo(petInfo)
                     .petType(petInfo.getPetType())
                     .status(Status.fromProcessState(petInfo.getProcessState()))
+
                     .build();
 
+            newPetBoard.setUsers(user);
             PetBoard savedPetBoard = petBoardRepository.save(newPetBoard);
 
             // Update PetInfo to indicate it has a PetBoard
