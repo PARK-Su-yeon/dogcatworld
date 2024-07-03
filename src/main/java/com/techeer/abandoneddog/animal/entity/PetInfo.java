@@ -1,6 +1,7 @@
 package com.techeer.abandoneddog.animal.entity;
 
 import com.techeer.abandoneddog.global.entity.BaseEntity;
+import com.techeer.abandoneddog.image.entity.Image;
 import com.techeer.abandoneddog.pet_board.entity.PetBoard;
 import com.techeer.abandoneddog.shelter.entity.Shelter;
 import jakarta.annotation.Nullable;
@@ -10,6 +11,7 @@ import lombok.*;
 import java.math.BigInteger;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
+import java.util.List;
 
 @Entity
 @Builder
@@ -104,6 +106,10 @@ public class PetInfo extends BaseEntity {
     @Column(name = "pet_board_stored")
     private boolean petBoardStored=false;
 
+    @OneToMany(mappedBy = "petInfo", cascade = CascadeType.ALL)
+    private List<Image> images;
+
+
     public void update(PetInfo petInfo) {
         this.desertionNo = petInfo.getDesertionNo();
         this.isPublicApi=false;
@@ -129,8 +135,12 @@ public class PetInfo extends BaseEntity {
         this.officetel = petInfo.getOfficetel();
         this.noticeComment = petInfo.getNoticeComment();
         this.petBoardStored=true;
+
     }
 
+    public void updateImages(List<Image> newImageUrls) {
+        this.images = newImageUrls;
+    }
 
 
 

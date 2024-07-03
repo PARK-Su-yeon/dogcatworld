@@ -1,9 +1,13 @@
 package com.techeer.abandoneddog.animal.PetInfoDto;
 
 import com.techeer.abandoneddog.animal.entity.PetInfo;
+import com.techeer.abandoneddog.image.entity.Image;
 import com.techeer.abandoneddog.shelter.Dto.ShelterInfo;
 import lombok.Builder;
 import lombok.Getter;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 @Builder
@@ -29,6 +33,7 @@ public class PetInfoResponseDto {
     private boolean isPublicApi;
     private ShelterInfo shelter;
     private boolean isYoung;
+    private List<Image> images;
 
     public static PetInfoResponseDto fromEntity(PetInfo petInfo) {
         ShelterInfo shelterInfo = new ShelterInfo(
@@ -38,6 +43,8 @@ public class PetInfoResponseDto {
                 petInfo.getShelter().getCareTel(),
                 petInfo.getShelter().getCareAddr()
         );
+
+
 
         return PetInfoResponseDto.builder()
                 .id(petInfo.getId())
@@ -61,6 +68,7 @@ public class PetInfoResponseDto {
                 .isPublicApi(petInfo.isPublicApi())
                 .shelter(shelterInfo)
                 .isYoung(petInfo.isYoung())
+                .images(petInfo.getImages())
                 .build();
     }
 }

@@ -10,8 +10,8 @@ public class PetBoardFilterRequest {
     private String categories;
     private boolean isYoung;
     private Status status;
-    private int minYear;
-    private int maxYear;
+    private Integer minYear;
+    private Integer maxYear;
     private String title;
 
     // Getters and Setters

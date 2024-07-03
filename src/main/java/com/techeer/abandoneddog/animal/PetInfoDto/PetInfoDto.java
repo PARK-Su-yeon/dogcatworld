@@ -1,6 +1,9 @@
 package com.techeer.abandoneddog.animal.PetInfoDto;
 
+import com.techeer.abandoneddog.image.entity.Image;
 import lombok.Getter;
+
+import java.util.List;
 
 @Getter
 public class PetInfoDto {
@@ -15,9 +18,10 @@ public class PetInfoDto {
     private String kindCd;
     private String petType;
     private boolean isPublicApi;
+    private List<String> images;
 
 
-    public PetInfoDto(Long id, Long desertionNo, String filename, String popfile, String processState, int age, String weight, String sexCd, String kindCd, String petType, boolean isPublicApi) {
+    public PetInfoDto(Long id, Long desertionNo, String filename, String popfile, String processState, int age, String weight, String sexCd, String kindCd, String petType, boolean isPublicApi, List<String> images) {
 
         this.id = id;
         this.desertionNo = desertionNo;
@@ -30,5 +34,6 @@ public class PetInfoDto {
         this.kindCd = kindCd;
         this.petType = petType;
         this.isPublicApi = isPublicApi;
+        this.images=images;
     }
 }

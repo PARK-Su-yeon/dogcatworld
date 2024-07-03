@@ -31,7 +31,7 @@ public class PetBoard extends BaseEntity {
     @Column(name = "pet_type")
     private String petType;
 
-    @OneToOne(cascade = CascadeType.REMOVE)
+    @OneToOne
     @JoinColumn(name = "pet_info_id")
     private PetInfo petInfo;
 

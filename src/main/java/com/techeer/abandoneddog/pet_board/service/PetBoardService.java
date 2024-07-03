@@ -4,11 +4,15 @@ import com.techeer.abandoneddog.animal.entity.PetInfo;
 import com.techeer.abandoneddog.animal.repository.PetInfoRepository;
 import com.techeer.abandoneddog.bookmark.repository.BookmarkRepository;
 import com.techeer.abandoneddog.pet_board.dto.PetBoardDetailResponseDto;
+import com.techeer.abandoneddog.image.entity.Image;
+import com.techeer.abandoneddog.image.repository.ImageRepository;
+import com.techeer.abandoneddog.pet_board.dto.PetBoardFilterRequest;
 import com.techeer.abandoneddog.pet_board.dto.PetBoardRequestDto;
 import com.techeer.abandoneddog.pet_board.dto.PetBoardResponseDto;
 import com.techeer.abandoneddog.pet_board.entity.PetBoard;
 import com.techeer.abandoneddog.pet_board.entity.Status;
 import com.techeer.abandoneddog.pet_board.repository.PetBoardRepository;
+import com.techeer.abandoneddog.s3.S3Service;
 import com.techeer.abandoneddog.shelter.entity.Shelter;
 import com.techeer.abandoneddog.shelter.repository.ShelterRepository;
 import com.techeer.abandoneddog.users.entity.Users;
@@ -23,7 +27,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -35,9 +41,11 @@ public class PetBoardService {
     private final ShelterRepository shelterRepository;
     private final UserRepository userRepository;
     private final BookmarkRepository bookmarkRepository;
+    private final S3Service s3Service;
+    private final ImageRepository imageRepository;
 
     @Transactional
-    public Long createPetBoard(PetBoardRequestDto petBoardRequestDto) {
+    public Long createPetBoard(PetBoardRequestDto petBoardRequestDto, MultipartFile mainImage, List<MultipartFile> images) {
         try {
             PetInfo petInfo = petBoardRequestDto.getPetInfo();
             petInfo.setPublicApi(false);
@@ -47,45 +55,65 @@ public class PetBoardService {
             if (shelter != null) {
                 shelter = shelterRepository.save(shelter);
             }
-
             petInfo.setShelter(shelter);
 
-            PetInfo savedPetInfo = petInfoRepository.save(petInfo);
+            //PetInfo savedPetInfo = petInfoRepository.save(petInfo);
 
-            Status status = Status.fromProcessState(savedPetInfo.getProcessState());
+            Status status = Status.fromProcessState(petInfo.getProcessState());
 
             Users user = userRepository.findById(petBoardRequestDto.getUserId())
                     .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + petBoardRequestDto.getUserId()));
 
-            PetBoard newPetBoard = PetBoard.builder()
+            // Save main image to S3 and set as popfile
+            String mainImageUrl = null;
+            if (mainImage != null && !mainImage.isEmpty()) {
+                mainImageUrl = s3Service.saveFile(mainImage);
+                petInfo.setPopfile(mainImageUrl);
+                petInfoRepository.save(petInfo);
+            }
+            log.info(String.valueOf(petInfo.getWeight()));
 
-                    .title("[" + savedPetInfo.getKindCd() + "]" + String.valueOf(petBoardRequestDto.getTitle()))
-                    .description(savedPetInfo.getSpecialMark())
-                    .petInfo(savedPetInfo)
-                    .petType(savedPetInfo.getPetType())
+            // Save other images to S3 and Image repository
+            List<Image> imageEntities = new ArrayList<>();
+            for (MultipartFile file : images) {
+                String fileUrl = s3Service.saveFile(file);
+                Image image = Image.builder()
+                        .url(fileUrl)
+                        .petInfo(petInfo)
+                        .build();
+                imageEntities.add(image);
+            }
+            imageRepository.saveAll(imageEntities);
+
+
+            PetBoard newPetBoard = PetBoard.builder()
+                    .title("[" + petInfo.getKindCd() + "]" + String.valueOf(petBoardRequestDto.getTitle()))
+                    .description(petInfo.getSpecialMark())
+                    .petInfo(petInfo)
+                    .petType(petInfo.getPetType())
                     .status(status)
                     .users(user) // user 설정
                     .build();
+
+            newPetBoard.setUsers(user);
             PetBoard savedPetBoard = petBoardRepository.save(newPetBoard);
 
-            savedPetInfo.setPetBoardStored(true);
-            petInfoRepository.save(savedPetInfo);
+            // Update PetInfo to indicate it has a PetBoard
+            petInfo.setPetBoardStored(true);
+            petInfoRepository.save(petInfo);
 
             return savedPetBoard.getPetBoardId();
         } catch (DataIntegrityViolationException e) {
-            // 데이터 무결성 위반 예외 처리
             throw new RuntimeException("Data integrity violation occurred while creating PetBoard", e);
         } catch (EntityNotFoundException e) {
-            // 엔티티를 찾을 수 없는 예외 처리
             throw new RuntimeException("Entity not found while creating PetBoard", e);
         } catch (Exception e) {
-            // 일반 예외 처리
             throw new RuntimeException("An unexpected error occurred while creating PetBoard", e);
         }
     }
 
     @Transactional
-    public PetBoardResponseDto updatePetBoard(Long petBoardId, PetBoardRequestDto requestDto) {
+    public PetBoardResponseDto updatePetBoard(Long petBoardId, PetBoardRequestDto requestDto, MultipartFile mainImage, List<MultipartFile> images) {
         PetBoard petBoard = petBoardRepository.findById(petBoardId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 게시글을 찾을 수 없습니다. id=" + petBoardId));
 
@@ -93,6 +121,24 @@ public class PetBoardService {
         PetInfo petInfo = petBoard.getPetInfo();
         petInfo.update(requestDto.getPetInfo());
 
+        //추후  생성코드과 합쳐서 함수로 묶기
+
+        if (mainImage != null && !mainImage.isEmpty()) {
+            String mainImageUrl = s3Service.saveFile(mainImage);
+            petInfo.setPopfile(mainImageUrl);
+        }
+
+        // 추가 이미지 처리
+        List<Image> imageUrls = new ArrayList<>();
+        for (MultipartFile image : images) {
+            if (image != null && !image.isEmpty()) {
+                String imageUrl = s3Service.saveFile(image);
+                imageUrls.add(new Image(imageUrl));
+            }
+        }
+        petInfo.updateImages(imageUrls); // 이미지 업데이트 로직 추가 필요
+
+        petInfoRepository.save(petInfo);
 
         return PetBoardResponseDto.fromEntity(petBoard);
     }

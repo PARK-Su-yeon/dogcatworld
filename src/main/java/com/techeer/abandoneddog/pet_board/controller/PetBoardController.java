@@ -5,6 +5,19 @@ import com.techeer.abandoneddog.pet_board.dto.PetBoardRequestDto;
 import com.techeer.abandoneddog.pet_board.dto.PetBoardResponseDto;
 import com.techeer.abandoneddog.pet_board.entity.Status;
 import com.techeer.abandoneddog.pet_board.service.PetBoardService;
+
+
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.techeer.abandoneddog.s3.S3Service;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -12,8 +25,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -26,23 +41,38 @@ import java.util.Map;
 public class PetBoardController {
     private final PetBoardService petBoardService;
 
-    @PostMapping
-    public ResponseEntity<?> createPetBoard(@RequestBody PetBoardRequestDto petBoardRequestDto) {
-        try {
-            Long petBoardId = petBoardService.createPetBoard(petBoardRequestDto);
 
+    @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "게시물 생성", description = "게시물을 생성합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "게시물 작성 성공"),
+            @ApiResponse(responseCode = "400", description = "게시물 작성 실패")
+    })
+    public ResponseEntity<String> createPetBoard(
+            @RequestPart(name = "petBoardRequestDto") @Parameter(description = "게시물 정보", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)) PetBoardRequestDto petBoardRequestDto,
+            @RequestPart(name = "mainImage", required = true) @Parameter(description = "메인 이미지", content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE)) MultipartFile mainImage,
+            @RequestPart(name = "images", required = true) @Parameter(description = "추가 이미지 목록", content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE)) List<MultipartFile> images) {
+        try {
+            long petBoardId = petBoardService.createPetBoard(petBoardRequestDto, mainImage, images);
             return ResponseEntity.ok().body("게시물 작성에 성공하였습니다.");
-//            return ResponseEntity.ok().body("게시물 작성에 성공. ID: " + petBoardId);
         } catch (Exception e) {
-            log.info(e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("게시물 작성에 실패하였습니다.");
         }
     }
 
-    @PutMapping("/{petBoardId}")
-    public ResponseEntity<?> updatePetBoard(@PathVariable("petBoardId") Long petBoardId, @RequestBody PetBoardRequestDto requestDto) {
+
+    @PutMapping(value ="/{petBoardId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "게시물 수정", description = "게시물을 수정합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "게시물 수정 성공"),
+            @ApiResponse(responseCode = "400", description = "게시물 수정 실패")
+    })
+    public ResponseEntity<?> updatePetBoard(@PathVariable("petBoardId") Long petBoardId,
+                                            @RequestPart(name = "petBoardRequestDto") @Parameter(description = "게시물 정보", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)) PetBoardRequestDto petBoardRequestDto,
+                                            @RequestPart(name = "mainImage", required = true) @Parameter(description = "메인 이미지", content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE)) MultipartFile mainImage,
+                                            @RequestPart(name = "images", required = true) @Parameter(description = "추가 이미지 목록", content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE)) List<MultipartFile> images) {
         try {
-            PetBoardResponseDto responseDto = petBoardService.updatePetBoard(petBoardId, requestDto);
+            PetBoardResponseDto responseDto = petBoardService.updatePetBoard(petBoardId, petBoardRequestDto,mainImage,images);
             return ResponseEntity.ok().body(responseDto);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
@@ -114,12 +144,12 @@ public class PetBoardController {
     public ResponseEntity<Page<PetBoardResponseDto>> searchPetBoards(
             @RequestParam(value = "categories", required = false) String categories,
             @RequestParam(value = "status", required = false) Status status,
-            @RequestParam(value = "minAge", required = false) int minAge,
-            @RequestParam(value = "maxAge", required = false) int maxAge,
+            @RequestParam(value = "minAge", required = false) Integer minAge,
+            @RequestParam(value = "maxAge", required = false) Integer maxAge,
             @RequestParam(value = "title", required = false) String title,
             @RequestParam(value = "isYoung", required = false) boolean isYoung,
-            @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "10") int size) {
+            @RequestParam(value = "page", defaultValue = "0") Integer page,
+            @RequestParam(value = "size", defaultValue = "10") Integer size) {
 
         Page<PetBoardResponseDto> result = petBoardService.searchPetBoards(categories, status, minAge, maxAge, title, isYoung, page, size);
         return ResponseEntity.ok(result);
