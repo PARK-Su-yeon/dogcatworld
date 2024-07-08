@@ -14,13 +14,20 @@ import com.techeer.abandoneddog.users.entity.Users;
 import com.techeer.abandoneddog.users.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.java.Log;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class BookmarkService {
 
     @Autowired
@@ -57,6 +64,18 @@ public class BookmarkService {
         Page<Bookmark> bookmarkPage = bookmarkRepository.findBookmarksByUserIdAndIsDeletedFalse(pageable, userId);
         return bookmarkPage.map(BookmarkResponseDto::fromEntity);
     }
+
+//    @Transactional
+//    public List<BookmarkResponseDto> getUserBookmarks(Long userId) {
+//        Users user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+//
+//        List<Bookmark> bookmarkList = bookmarkRepository.findAllByUserAndIsDeletedFalse(user);
+//
+//        return bookmarkList.stream()
+//                .map(BookmarkResponseDto::fromEntity)
+//                .collect(Collectors.toList());
+//    }
+
 
     @Transactional
     public void cancelBookmark(BookmarkRequestDto requestDto) {
