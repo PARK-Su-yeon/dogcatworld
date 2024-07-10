@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -27,15 +28,15 @@ public class S3Service {
     @Transactional
     public String saveFile(MultipartFile multipartFile) {
 
-        String originalFilename = multipartFile.getOriginalFilename();
+        String uniqueFilename = UUID.randomUUID().toString();
         try {
 
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentLength(multipartFile.getSize());
             metadata.setContentType(multipartFile.getContentType());
 
-            amazonS3Client.putObject(new PutObjectRequest(bucket, originalFilename, multipartFile.getInputStream(), metadata));
-            return amazonS3Client.getUrl(bucket, originalFilename).toString();
+            amazonS3Client.putObject(new PutObjectRequest(bucket, uniqueFilename, multipartFile.getInputStream(), metadata));
+            return amazonS3Client.getUrl(bucket, uniqueFilename).toString();
         } catch (IOException e) {
             // 파일 입출력 예외 처리
             e.printStackTrace();
