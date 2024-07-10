@@ -178,4 +178,14 @@ public class PetBoardController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("게시글 조회에 실패하였습니다.");
         }
     }
+
+    @PostMapping("/update-image")
+    public ResponseEntity<?> updateResizingImg(String imgUrl) {
+        try {
+            petBoardService.updateResizingImg(imgUrl);
+            return ResponseEntity.ok().body("이미지 리사이징 저장 성공");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("이미지 리사이징 저장에 실패하였습니다.");
+        }
+    }
 }

@@ -142,7 +142,9 @@ public class PetInfo extends BaseEntity {
         this.images = newImageUrls;
     }
 
-
+    public void updatefilename(String filename) {
+        this.filename = filename;
+    }
 
 }
 

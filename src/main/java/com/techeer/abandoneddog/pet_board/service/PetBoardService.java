@@ -31,6 +31,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
@@ -230,4 +231,19 @@ public class PetBoardService {
         return petBoardPage.map(PetBoardResponseDto::fromEntity);
     }
 
+    @Transactional
+    public void updateResizingImg(String imgUrl) {
+        Optional<PetInfo> petInfo = petInfoRepository.findPetInfoByPopfile(imgUrl);
+        Optional<Image> image = imageRepository.findByUrl(imgUrl);
+        log.info(imgUrl);
+
+        if (petInfo.isPresent()) {
+            petInfo.get().updatefilename(imgUrl);
+            petInfoRepository.save(petInfo.get());
+        }
+        if (image.isPresent()) {
+            image.get().updateImg(imgUrl);
+            imageRepository.save(image.get());
+        }
+    }
 }
