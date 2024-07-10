@@ -3,10 +3,10 @@ package com.techeer.abandoneddog.pet_board.service;
 import com.techeer.abandoneddog.animal.entity.PetInfo;
 import com.techeer.abandoneddog.animal.repository.PetInfoRepository;
 import com.techeer.abandoneddog.bookmark.repository.BookmarkRepository;
-import com.techeer.abandoneddog.pet_board.dto.PetBoardDetailResponseDto;
+import com.techeer.abandoneddog.image.dto.ImageResizingDto;
 import com.techeer.abandoneddog.image.entity.Image;
 import com.techeer.abandoneddog.image.repository.ImageRepository;
-import com.techeer.abandoneddog.pet_board.dto.PetBoardFilterRequest;
+import com.techeer.abandoneddog.pet_board.dto.PetBoardDetailResponseDto;
 import com.techeer.abandoneddog.pet_board.dto.PetBoardRequestDto;
 import com.techeer.abandoneddog.pet_board.dto.PetBoardResponseDto;
 import com.techeer.abandoneddog.pet_board.entity.PetBoard;
@@ -232,17 +232,16 @@ public class PetBoardService {
     }
 
     @Transactional
-    public void updateResizingImg(String imgUrl) {
-        Optional<PetInfo> petInfo = petInfoRepository.findPetInfoByPopfile(imgUrl);
-        Optional<Image> image = imageRepository.findByUrl(imgUrl);
-        log.info(imgUrl);
+    public void updateResizingImg(ImageResizingDto dto) {
+        Optional<PetInfo> petInfo = petInfoRepository.findPetInfoByPopfile(dto.getOriginalUrl());
+        Optional<Image> image = imageRepository.findByUrl(dto.getOriginalUrl());
 
         if (petInfo.isPresent()) {
-            petInfo.get().updatefilename(imgUrl);
+            petInfo.get().updatePopfile(dto.getResizedUrl());
             petInfoRepository.save(petInfo.get());
         }
         if (image.isPresent()) {
-            image.get().updateImg(imgUrl);
+            image.get().updateImg(dto.getResizedUrl());
             imageRepository.save(image.get());
         }
     }
