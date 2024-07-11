@@ -32,6 +32,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 
 @RestController
@@ -49,13 +50,32 @@ public class PetBoardController {
             @ApiResponse(responseCode = "400", description = "게시물 작성 실패")
     })
     public ResponseEntity<String> createPetBoard(
-            @RequestPart(name = "petBoardRequestDto") @Parameter(description = "게시물 정보", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)) PetBoardRequestDto petBoardRequestDto,
-            @RequestPart(name = "mainImage", required = true) @Parameter(description = "메인 이미지", content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE)) MultipartFile mainImage,
-            @RequestPart(name = "images", required = true) @Parameter(description = "추가 이미지 목록", content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE)) List<MultipartFile> images) {
+            @RequestPart(name ="petBoardRequestDto") PetBoardRequestDto petBoardRequestDto,
+            @RequestPart(name ="mainImage") MultipartFile mainImage,
+            @RequestPart(name ="images") List<MultipartFile> images) {
         try {
+            log.info("Received DTO: {}", petBoardRequestDto);
+            log.info("Received main image: {}", mainImage.getOriginalFilename());
+            log.info("Received additional images: {}", images.stream().map(MultipartFile::getOriginalFilename).collect(Collectors.joining(", ")));
+
+            // 요청 파라미터 검증
+            if (petBoardRequestDto == null) {
+                throw new IllegalArgumentException("게시물 정보가 누락되었습니다.");
+            }
+            if (mainImage == null || mainImage.isEmpty()) {
+                throw new IllegalArgumentException("메인 이미지가 누락되었습니다.");
+            }
+            if (images == null || images.isEmpty()) {
+                throw new IllegalArgumentException("이미지 리스트가 누락되었습니다.");
+            }
+
             long petBoardId = petBoardService.createPetBoard(petBoardRequestDto, mainImage, images);
             return ResponseEntity.ok().body("게시물 작성에 성공하였습니다.");
+        } catch (IllegalArgumentException e) {
+            log.error("입력 값 검증 실패: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("입력 값이 잘못되었습니다: " + e.getMessage());
         } catch (Exception e) {
+            log.error("게시물 작성 중 예외 발생: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("게시물 작성에 실패하였습니다.");
         }
     }
@@ -82,7 +102,8 @@ public class PetBoardController {
     }
 
     @GetMapping("/{petBoardId}")
-    public ResponseEntity<?> getPetBoard(@PathVariable("petBoardId") Long petBoardId, @RequestParam(defaultValue = "-1") Long userId) {
+    public ResponseEntity<?> getPetBoard(@PathVariable("petBoardId") Long petBoardId, @RequestParam(name="userId",defaultValue = "-1") Long userId) {
+
         try {
             PetBoardDetailResponseDto responseDto = petBoardService.getPetBoard(petBoardId, userId);
             return ResponseEntity.ok(responseDto);
@@ -95,9 +116,9 @@ public class PetBoardController {
 
     @GetMapping("/list")
     public ResponseEntity<?> getPetBoards(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "12") int size,
-            @RequestParam(defaultValue = "asc") String direction) {
+            @RequestParam(value="page",defaultValue = "0") int page,
+            @RequestParam(value="size",defaultValue = "12") int size,
+            @RequestParam(value="direction",defaultValue = "asc") String direction) {
         try {
             Sort sort = direction.equalsIgnoreCase("desc") ? Sort.by("petBoardId").descending() : Sort.by("petBoardId").ascending();
             Pageable pageable = PageRequest.of(page, size, sort);
@@ -116,12 +137,13 @@ public class PetBoardController {
         }
     }
 
+
     @GetMapping("/list/type/{petType}")
     public ResponseEntity<?> getPetBoardsByPetType(
-            @PathVariable String petType,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "12") int size,
-            @RequestParam(defaultValue = "asc") String direction) {
+            @PathVariable("petType") String petType,
+            @RequestParam(value="page",defaultValue = "0") int page,
+            @RequestParam(value="size",defaultValue = "12") int size,
+            @RequestParam(value="direction",defaultValue = "asc") String direction) {
         try {
             Sort sort = direction.equalsIgnoreCase("desc") ? Sort.by("petBoardId").descending() : Sort.by("petBoardId").ascending();
             Pageable pageable = PageRequest.of(page, size, sort);
