@@ -95,9 +95,10 @@ public class PetBoardController {
     public ResponseEntity<?> getPetBoards(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "12") int size,
-            @RequestParam(defaultValue = "asc") String direction) {
+            @RequestParam(defaultValue = "desc") String direction) {
         try {
-            Sort sort = direction.equalsIgnoreCase("desc") ? Sort.by("petBoardId").descending() : Sort.by("petBoardId").ascending();
+//            Sort sort = direction.equalsIgnoreCase("desc") ? Sort.by("petBoardId").descending() : Sort.by("petBoardId").ascending();
+            Sort sort = direction.equalsIgnoreCase("desc") ? Sort.by("createdAt").descending() : Sort.by("createdAt").ascending();
             Pageable pageable = PageRequest.of(page, size, sort);
             Page<PetBoardResponseDto> petBoardPage = petBoardService.getPetBoards(pageable);
             Map<String, Object> response = new LinkedHashMap<>();
@@ -119,9 +120,10 @@ public class PetBoardController {
             @PathVariable String petType,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "12") int size,
-            @RequestParam(defaultValue = "asc") String direction) {
+            @RequestParam(defaultValue = "desc") String direction) {
         try {
             Sort sort = direction.equalsIgnoreCase("desc") ? Sort.by("petBoardId").descending() : Sort.by("petBoardId").ascending();
+//            Sort sort = direction.equalsIgnoreCase("desc") ? Sort.by("createdAt").descending() : Sort.by("createdAt").ascending();
             Pageable pageable = PageRequest.of(page, size, sort);
             Page<PetBoardResponseDto> petBoardPage = petBoardService.getPetBoardsByPetType(petType, pageable);
             Map<String, Object> response = new LinkedHashMap<>();
