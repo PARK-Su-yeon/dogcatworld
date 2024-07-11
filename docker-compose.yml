@@ -6,7 +6,7 @@ services:
     restart: always
     env_file:
       - ../frontend/abandonedpets/.env
-      - ../frontend/abandonedpets/.env.development
+      - ../frontend/abandonedpets/.env.production
     build:
       context: ../frontend/abandonedpets/
       dockerfile: Dockerfile
@@ -14,24 +14,6 @@ services:
       - "5173:5173"
     networks:
       - team_network
-
-#  database:
-#    container_name: mysql_db
-#    image: mysql:latest
-#    restart: always
-#    env_file:
-#      - .env
-#    ports:
-#      - "3306:3306"
-#    volumes:
-#      - ./mysql/conf.d:/etc/mysql/conf.d # MySQL 설정 파일 위치
-#      - ./mysql/initdb.d:/docker-entrypoint-initdb.d
-#    command:
-#      - "mysqld"
-#      - "--character-set-server=utf8mb4"
-#      - "--collation-server=utf8mb4_unicode_ci"
-#    networks:
-#      - team_network
 
   redis:
     container_name: redis
@@ -44,6 +26,7 @@ services:
 
   application:
     container_name: backend
+    image: zmflspa123/abandonedpets
     restart: always
     build:
       context: ./
