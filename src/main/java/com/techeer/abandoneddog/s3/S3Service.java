@@ -6,8 +6,8 @@ import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -17,13 +17,17 @@ import java.util.UUID;
 
 @Service
 @Slf4j
-@RequiredArgsConstructor
 public class S3Service {
 
     private final AmazonS3 amazonS3Client;
 
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
+
+    @Autowired
+    public S3Service(AmazonS3 amazonS3Client) {
+        this.amazonS3Client = amazonS3Client;
+    }
 
     @Transactional
     public String saveFile(MultipartFile multipartFile) {
@@ -55,6 +59,7 @@ public class S3Service {
             return "File upload failed due to an unexpected error: " + e.getMessage();
         }
     }
+
     @Transactional
     public String getFile(String fileName) {
         return amazonS3Client.getUrl(bucket, fileName).toString();

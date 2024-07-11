@@ -11,8 +11,8 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -29,11 +29,15 @@ import java.util.Map;
 
 
 @RestController
-@RequiredArgsConstructor
 @Slf4j
 @RequestMapping("/api/v1/pet_board")
 public class PetBoardController {
     private final PetBoardService petBoardService;
+
+    @Autowired
+    public PetBoardController(PetBoardService petBoardService) {
+        this.petBoardService = petBoardService;
+    }
 
 
     @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
