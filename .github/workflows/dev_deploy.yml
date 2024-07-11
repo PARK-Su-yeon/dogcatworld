@@ -69,5 +69,5 @@ jobs:
             echo test1234 > test.txt
             sudo docker rm -f $(docker ps -qa) || true
             sudo docker pull ${{ secrets.DOCKER_REPO }}
-            docker-compose up -d
+            docker-compose up --build -d
             docker image prune -f
