@@ -12,7 +12,7 @@ import org.springframework.context.annotation.PropertySource;
 
 @Slf4j
 @Configuration
-@PropertySource("classpath:application-secret.properties")
+@PropertySource("classpath:application-secret.yml")
 public class S3Config {
 
     @Value("${cloud.aws.credentials.access-key}")
