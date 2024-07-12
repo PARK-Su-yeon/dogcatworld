@@ -40,10 +40,15 @@ jobs:
         run: ./gradlew build -x test
         shell: bash
 
-      - name: Build With Gradle
-        if: contains(github.ref, 'dev')
-        run: ./gradlew build -x test
+      - name: Decode application secret key
+        run: echo "${{ secrets.APPLICATION_SECRET_KEY }}" | base64 --decode > ./src/main/resources/application-secret.yml
 
+      - name: Create .env file
+        run: |
+          touch .env
+          echo API_KEY=${{ secrets.ENV_KEY }} >> .env
+          cat .env
+          
       ## docker build & push to production
       - name: Docker build & push to prod
         if: contains(github.ref, 'dev')
