@@ -70,6 +70,7 @@ jobs:
           port: 22
           envs: GITHUB_SHA
           script: |
+            cd ./backend
             echo test1234 > test.txt
             sudo docker rm -f $(docker ps -qa) || true
             sudo docker pull ${{ secrets.DOCKER_REPO }}
