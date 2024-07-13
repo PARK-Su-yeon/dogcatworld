@@ -33,7 +33,7 @@ public class PetInfoResponseDto {
     private boolean isPublicApi;
     private ShelterInfo shelter;
     private boolean isYoung;
-    private List<Image> images;
+    private List<String> images;
 
     public static PetInfoResponseDto fromEntity(PetInfo petInfo) {
         ShelterInfo shelterInfo = new ShelterInfo(
@@ -43,6 +43,7 @@ public class PetInfoResponseDto {
                 petInfo.getShelter().getCareTel(),
                 petInfo.getShelter().getCareAddr()
         );
+
 
 
 
@@ -68,7 +69,9 @@ public class PetInfoResponseDto {
                 .isPublicApi(petInfo.isPublicApi())
                 .shelter(shelterInfo)
                 .isYoung(petInfo.isYoung())
-                .images(petInfo.getImages())
+                .images(petInfo.getImages().stream()
+                        .map(Image::getUrl)
+                        .collect(Collectors.toList()))
                 .build();
     }
 }

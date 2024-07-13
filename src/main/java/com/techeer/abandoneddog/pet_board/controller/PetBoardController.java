@@ -1,25 +1,18 @@
 package com.techeer.abandoneddog.pet_board.controller;
 
+import com.techeer.abandoneddog.image.dto.ImageResizingDto;
 import com.techeer.abandoneddog.pet_board.dto.PetBoardDetailResponseDto;
 import com.techeer.abandoneddog.pet_board.dto.PetBoardRequestDto;
 import com.techeer.abandoneddog.pet_board.dto.PetBoardResponseDto;
 import com.techeer.abandoneddog.pet_board.entity.Status;
 import com.techeer.abandoneddog.pet_board.service.PetBoardService;
-
-
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
-import com.techeer.abandoneddog.s3.S3Service;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -31,15 +24,20 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 
 @RestController
-@RequiredArgsConstructor
 @Slf4j
 @RequestMapping("/api/v1/pet_board")
 public class PetBoardController {
     private final PetBoardService petBoardService;
+
+    @Autowired
+    public PetBoardController(PetBoardService petBoardService) {
+        this.petBoardService = petBoardService;
+    }
 
 
     @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -61,7 +59,7 @@ public class PetBoardController {
     }
 
 
-    @PutMapping(value ="/{petBoardId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PutMapping(value = "/{petBoardId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "게시물 수정", description = "게시물을 수정합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "게시물 수정 성공"),
@@ -72,7 +70,7 @@ public class PetBoardController {
                                             @RequestPart(name = "mainImage", required = true) @Parameter(description = "메인 이미지", content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE)) MultipartFile mainImage,
                                             @RequestPart(name = "images", required = true) @Parameter(description = "추가 이미지 목록", content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE)) List<MultipartFile> images) {
         try {
-            PetBoardResponseDto responseDto = petBoardService.updatePetBoard(petBoardId, petBoardRequestDto,mainImage,images);
+            PetBoardResponseDto responseDto = petBoardService.updatePetBoard(petBoardId, petBoardRequestDto, mainImage, images);
             return ResponseEntity.ok().body(responseDto);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
@@ -97,9 +95,10 @@ public class PetBoardController {
     public ResponseEntity<?> getPetBoards(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "12") int size,
-            @RequestParam(defaultValue = "asc") String direction) {
+            @RequestParam(defaultValue = "desc") String direction) {
         try {
-            Sort sort = direction.equalsIgnoreCase("desc") ? Sort.by("petBoardId").descending() : Sort.by("petBoardId").ascending();
+//            Sort sort = direction.equalsIgnoreCase("desc") ? Sort.by("petBoardId").descending() : Sort.by("petBoardId").ascending();
+            Sort sort = direction.equalsIgnoreCase("desc") ? Sort.by("createdAt").descending() : Sort.by("createdAt").ascending();
             Pageable pageable = PageRequest.of(page, size, sort);
             Page<PetBoardResponseDto> petBoardPage = petBoardService.getPetBoards(pageable);
             Map<String, Object> response = new LinkedHashMap<>();
@@ -121,9 +120,10 @@ public class PetBoardController {
             @PathVariable String petType,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "12") int size,
-            @RequestParam(defaultValue = "asc") String direction) {
+            @RequestParam(defaultValue = "desc") String direction) {
         try {
             Sort sort = direction.equalsIgnoreCase("desc") ? Sort.by("petBoardId").descending() : Sort.by("petBoardId").ascending();
+//            Sort sort = direction.equalsIgnoreCase("desc") ? Sort.by("createdAt").descending() : Sort.by("createdAt").ascending();
             Pageable pageable = PageRequest.of(page, size, sort);
             Page<PetBoardResponseDto> petBoardPage = petBoardService.getPetBoardsByPetType(petType, pageable);
             Map<String, Object> response = new LinkedHashMap<>();
@@ -176,6 +176,17 @@ public class PetBoardController {
             return ResponseEntity.ok().body(petBoardPage.getContent());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("게시글 조회에 실패하였습니다.");
+        }
+    }
+
+    @PostMapping("/update-image")
+    public ResponseEntity<?> updateResizingImg(@RequestBody ImageResizingDto dto) {
+        try {
+            petBoardService.updateResizingImg(dto);
+            return ResponseEntity.ok().body("이미지 리사이징 저장 성공");
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("이미지 리사이징 저장에 실패하였습니다.");
         }
     }
 }

@@ -24,4 +24,8 @@ public class Image {
     public Image(String imageUrl) {
         url=imageUrl;
     }
+
+    public void updateImg(String imageUrl) {
+        this.url=imageUrl;
+    }
 }

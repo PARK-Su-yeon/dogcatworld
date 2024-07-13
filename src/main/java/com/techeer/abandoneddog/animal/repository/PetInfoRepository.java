@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 
 @Repository
@@ -24,7 +25,7 @@ public interface PetInfoRepository extends JpaRepository<PetInfo, Long> {
 
   Page<PetInfo> findByShelter(Shelter shelter, Pageable pageable);
 
-
+  Optional<PetInfo> findPetInfoByPopfile(String popfile);
   //   void deleteByCreatedDateBefore(LocalDateTime oneWeekAgo);
 }
 
