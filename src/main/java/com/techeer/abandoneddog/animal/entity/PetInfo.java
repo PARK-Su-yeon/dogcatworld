@@ -7,10 +7,9 @@ import com.techeer.abandoneddog.shelter.entity.Shelter;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.*;
-
-import java.math.BigInteger;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
+
 import java.util.List;
 
 @Entity
@@ -80,7 +79,7 @@ public class PetInfo extends BaseEntity {
     @Nullable
     private String specialMark;
 
-    private boolean isPublicApi= false;
+    private boolean isPublicApi = false;
 
     @ManyToOne
     @JoinColumn(name = "shelter_id", nullable = true)
@@ -101,10 +100,10 @@ public class PetInfo extends BaseEntity {
     @Nullable
     private String noticeComment;
 
-    private boolean isYoung=false;
+    private boolean isYoung = false;
 
     @Column(name = "pet_board_stored")
-    private boolean petBoardStored=false;
+    private boolean petBoardStored = false;
 
     @OneToMany(mappedBy = "petInfo", cascade = CascadeType.ALL)
     private List<Image> images;
@@ -112,7 +111,7 @@ public class PetInfo extends BaseEntity {
 
     public void update(PetInfo petInfo) {
         this.desertionNo = petInfo.getDesertionNo();
-        this.isPublicApi=false;
+        this.isPublicApi = false;
         this.filename = petInfo.getFilename();
         this.happenDt = petInfo.getHappenDt();
         this.happenPlace = petInfo.getHappenPlace();
@@ -134,7 +133,7 @@ public class PetInfo extends BaseEntity {
         this.chargeNm = petInfo.getChargeNm();
         this.officetel = petInfo.getOfficetel();
         this.noticeComment = petInfo.getNoticeComment();
-        this.petBoardStored=true;
+        this.petBoardStored = true;
 
     }
 
@@ -142,7 +141,9 @@ public class PetInfo extends BaseEntity {
         this.images = newImageUrls;
     }
 
-
+    public void updatePopfile(String popfile) {
+        this.popfile = popfile;
+    }
 
 }
 
