@@ -1,13 +1,29 @@
 package com.techeer.abandoneddog.pet_board.entity;
 
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
+
 import com.techeer.abandoneddog.animal.entity.PetInfo;
 import com.techeer.abandoneddog.global.entity.BaseEntity;
 import com.techeer.abandoneddog.pet_board.dto.PetBoardRequestDto;
 import com.techeer.abandoneddog.users.entity.Users;
-import jakarta.persistence.*;
-import lombok.*;
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Getter
@@ -17,64 +33,64 @@ import org.hibernate.annotations.Where;
 @Where(clause = "deleted = false")
 @Table(name = "pet_board")
 public class PetBoard extends BaseEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "pet_board_id", updatable = false)
-    private Long petBoardId;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "pet_board_id", updatable = false)
+	private Long petBoardId;
 
-    @Column(name = "title")
-    private String title;
+	@Column(name = "title")
+	private String title;
 
-    @Column(name = "description")
-    private String description;
+	@Column(name = "description")
+	private String description;
 
-    @Column(name = "pet_type")
-    private String petType;
+	@Column(name = "pet_type")
+	private String petType;
 
-    @OneToOne
-    @JoinColumn(name = "pet_info_id")
-    private PetInfo petInfo;
+	@OneToOne
+	@JoinColumn(name = "pet_info_id")
+	private PetInfo petInfo;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private Users users;
+	@ManyToOne
+	@JoinColumn(name = "user_id")
+	private Users users;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status")
-    private Status status;
+	@Enumerated(EnumType.STRING)
+	@Column(name = "status")
+	private Status status;
 
-    @Column(name = "like_count", nullable = false, columnDefinition = "int default 0")
-    private Integer likeCount = 0;
+	@Column(name = "like_count", nullable = false, columnDefinition = "int default 0")
+	private Integer likeCount = 0;
 
+	@Builder
+	public PetBoard(Long petBoardId, String title, String description, String petType, PetInfo petInfo, Status status,
+		Users users) {
+		this.petBoardId = petBoardId;
+		this.title = title;
+		this.description = description;
+		this.petType = petType;
+		this.petInfo = petInfo;
+		this.status = status;
+		this.users = users;
+	}
 
-    @Builder
-    public PetBoard(Long petBoardId, String title, String description, String petType, PetInfo petInfo, Status status, Users users) {
-        this.petBoardId = petBoardId;
-        this.title = title;
-        this.description = description;
-        this.petType = petType;
-        this.petInfo = petInfo;
-        this.status = status;
-        this.users = users;
-    }
+	public void update(PetBoardRequestDto requestDto) {
+		this.title = requestDto.getTitle();
+		this.description = requestDto.getDescription();
+		this.petInfo = requestDto.getPetInfo();
+		this.petType = requestDto.getPetInfo().getPetType();
+		this.status = Status.fromProcessState(requestDto.getPetInfo().getProcessState());
+	}
 
-    public void update(PetBoardRequestDto requestDto) {
-        this.title = requestDto.getTitle();
-        this.description = requestDto.getDescription();
-        this.petInfo = requestDto.getPetInfo();
-        this.petType = requestDto.getPetInfo().getPetType();
-        this.status = Status.fromProcessState(requestDto.getPetInfo().getProcessState());
-    }
+	public void incleaseLikeCount() {
+		this.likeCount++;
+	}
 
-    public void incleaseLikeCount() {
-        this.likeCount++;
-    }
-
-    public void decreaseLikeCount() {
-        if (this.likeCount > 0) {
-            this.likeCount--;
-        } else {
-            this.likeCount = 0;
-        }
-    }
+	public void decreaseLikeCount() {
+		if (this.likeCount > 0) {
+			this.likeCount--;
+		} else {
+			this.likeCount = 0;
+		}
+	}
 }
