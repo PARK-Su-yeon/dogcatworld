@@ -1,20 +1,19 @@
 package com.techeer.abandoneddog.shelter.repository;
 
-import com.techeer.abandoneddog.shelter.entity.Shelter;
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
-
+import com.techeer.abandoneddog.shelter.entity.Shelter;
 
 @Repository
-public interface ShelterRepository extends JpaRepository<Shelter,Long> {
-    boolean existsByCareNm(String careNm);
+public interface ShelterRepository extends JpaRepository<Shelter, Long> {
 
-    Optional<Shelter> findByCareNm(String careNm);
+	boolean existsByCareNm(String careNm);
 
-    Optional<Shelter> findById(Long shelter_id);
+	Optional<Shelter> findByCareNm(String careNm);
 
-
+	Optional<Shelter> findById(Long shelter_id);
 
 }
