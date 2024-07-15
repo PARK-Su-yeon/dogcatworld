@@ -168,8 +168,14 @@ public class PetBoardService {
 
 
     //필터링으로 검색
-    public Page<PetBoardResponseDto> searchPetBoards(String categories, Status status, int minYear, int maxYear, String title, boolean isYoung, int page, int size) {
+    public Page<PetBoardResponseDto> searchPetBoards(String categories, Status status, Integer minYear, Integer maxYear, String title, Boolean isYoung, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
+        if (minYear == null) {
+            minYear = 0; // 혹은 0과 같이 적절한 기본값
+        }
+        if (maxYear == null) {
+            maxYear = 50; // 혹은 적절한 기본값
+        }
         Page<PetBoard> petBoards = petBoardRepository.searchPetBoards(categories, status, minYear, maxYear, title, isYoung, pageable);
 
         return petBoards.map(PetBoardResponseDto::fromEntity);
