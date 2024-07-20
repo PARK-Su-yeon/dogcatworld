@@ -13,6 +13,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/bookmark")
@@ -37,6 +39,7 @@ public class BookmarkController implements BookmarkControllerDocs {
     public ResponseEntity<?> getUserBookmark(@PathVariable("userId")  Long userId, Pageable pageable) {
         try {
             Page<BookmarkResponseDto> bookmarkPage = bookmarkService.getUserBookmarks(pageable, userId);
+//            List<BookmarkResponseDto> bookmarkPage = bookmarkService.getUserBookmarks(userId);
             return ResponseEntity.ok(ResultDto.res(HttpStatus.OK, "유저 북마크 리스트 조회 성공", bookmarkPage.getContent()));
         } catch (Exception e) {
             log.error(e.getMessage());
