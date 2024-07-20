@@ -1,19 +1,6 @@
 version: '3'
 
 services:
-  frontend:
-    container_name: frontend
-    restart: always
-    env_file:
-      - ../frontend/abandonedpets/.env
-      - ../frontend/abandonedpets/.env.production
-    build:
-      context: ../frontend/abandonedpets/
-      dockerfile: Dockerfile
-    ports:
-      - "5173:5173"
-    networks:
-      - team_network
 
   redis:
     container_name: redis
