@@ -20,9 +20,11 @@ import com.techeer.abandoneddog.users.repository.UserRepository;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class BookmarkService {
 
 	@Autowired
@@ -60,6 +62,17 @@ public class BookmarkService {
 		Page<Bookmark> bookmarkPage = bookmarkRepository.findBookmarksByUserIdAndIsDeletedFalse(pageable, userId);
 		return bookmarkPage.map(BookmarkResponseDto::fromEntity);
 	}
+
+	//    @Transactional
+	//    public List<BookmarkResponseDto> getUserBookmarks(Long userId) {
+	//        Users user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+	//
+	//        List<Bookmark> bookmarkList = bookmarkRepository.findAllByUserAndIsDeletedFalse(user);
+	//
+	//        return bookmarkList.stream()
+	//                .map(BookmarkResponseDto::fromEntity)
+	//                .collect(Collectors.toList());
+	//    }
 
 	@Transactional
 	public void cancelBookmark(BookmarkRequestDto requestDto) {
