@@ -1,6 +1,7 @@
 package com.techeer.abandoneddog.users.dto;
 
 import com.techeer.abandoneddog.users.entity.Users;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,13 +13,13 @@ import lombok.NoArgsConstructor;
 @Getter
 public class LoginRequestDto {
 
-    private String email;
-    private String password;
+	private String email;
+	private String password;
 
-    public Users toEntity() {
-        return Users.builder()
-                .email(email)
-                .password(password)
-                .build();
-    }
+	public Users toEntity() {
+		return Users.builder()
+			.email(email)
+			.password(password)
+			.build();
+	}
 }

@@ -18,34 +18,34 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
-    private static final Logger logger = LoggerFactory.getLogger(WebSocketConfig.class);
+	private static final Logger logger = LoggerFactory.getLogger(WebSocketConfig.class);
 
-    @Override
-    public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/ws").setAllowedOrigins("*");
-//        .withSockJS();
-    }
+	@Override
+	public void registerStompEndpoints(StompEndpointRegistry registry) {
+		registry.addEndpoint("/ws").setAllowedOrigins("*");
+		//        .withSockJS();
+	}
 
-    @Override
-    public void configureMessageBroker(MessageBrokerRegistry registry) {
-        registry.setApplicationDestinationPrefixes("/app");
-        registry.enableSimpleBroker("/topic", "/queue");
-    }
+	@Override
+	public void configureMessageBroker(MessageBrokerRegistry registry) {
+		registry.setApplicationDestinationPrefixes("/app");
+		registry.enableSimpleBroker("/topic", "/queue");
+	}
 
-    @Override
-    public void configureClientInboundChannel(ChannelRegistration registration) {
-        registration.interceptors(new ChannelInterceptor() {
-            @Override
-            public Message<?> preSend(Message<?> message, MessageChannel channel) {
-                StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
-                if (accessor.getCommand() == StompCommand.CONNECT) {
-                    logger.info("STOMP Connect [WebSocket connected]");
-                } else if (accessor.getCommand() == StompCommand.DISCONNECT) {
-                    logger.info("STOMP Disconnect [WebSocket disconnected]");
-                }
-                return message;
-            }
-        });
-    }
+	@Override
+	public void configureClientInboundChannel(ChannelRegistration registration) {
+		registration.interceptors(new ChannelInterceptor() {
+			@Override
+			public Message<?> preSend(Message<?> message, MessageChannel channel) {
+				StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
+				if (accessor.getCommand() == StompCommand.CONNECT) {
+					logger.info("STOMP Connect [WebSocket connected]");
+				} else if (accessor.getCommand() == StompCommand.DISCONNECT) {
+					logger.info("STOMP Disconnect [WebSocket disconnected]");
+				}
+				return message;
+			}
+		});
+	}
 }
 

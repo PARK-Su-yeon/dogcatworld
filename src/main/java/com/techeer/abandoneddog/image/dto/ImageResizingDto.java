@@ -4,6 +4,6 @@ import lombok.Getter;
 
 @Getter
 public class ImageResizingDto {
-    private String originalUrl;
-    private String resizedUrl;
+	private String originalUrl;
+	private String resizedUrl;
 }

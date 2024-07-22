@@ -1,6 +1,10 @@
 package com.techeer.abandoneddog.bookmark.dto;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Setter
@@ -8,6 +12,6 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 public class BookmarkRequestDto {
-    private Long userId;
-    private Long petBoardId;
+	private Long userId;
+	private Long petBoardId;
 }

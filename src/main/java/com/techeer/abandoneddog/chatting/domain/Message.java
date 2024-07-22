@@ -1,7 +1,11 @@
 package com.techeer.abandoneddog.chatting.domain;
 
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
+
 import com.techeer.abandoneddog.global.entity.BaseEntity;
 import com.techeer.abandoneddog.users.entity.Users;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -17,8 +21,6 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
 
 @Entity
 @Getter
@@ -27,30 +29,30 @@ import org.hibernate.annotations.Where;
 @Where(clause = "deleted = false")
 @Table(name = "message")
 public class Message extends BaseEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "message_id", updatable = false)
-    private Long messageId;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "message_id", updatable = false)
+	private Long messageId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "sender_id")
-    private Users sender;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "sender_id")
+	private Users sender;
 
-    private String message;
+	private String message;
 
-    @Enumerated(EnumType.STRING)
-    private MessageType type;
+	@Enumerated(EnumType.STRING)
+	private MessageType type;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "chat_room_id")
-    private ChatRoom chatRoom;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "chat_room_id")
+	private ChatRoom chatRoom;
 
-    @Builder
-    public Message(Long messageId, Users sender, String message, MessageType type, ChatRoom chatRoom) {
-        this.messageId = messageId;
-        this.sender = sender;
-        this.message = message;
-        this.type = type;
-        this.chatRoom = chatRoom;
-    }
+	@Builder
+	public Message(Long messageId, Users sender, String message, MessageType type, ChatRoom chatRoom) {
+		this.messageId = messageId;
+		this.sender = sender;
+		this.message = message;
+		this.type = type;
+		this.chatRoom = chatRoom;
+	}
 }

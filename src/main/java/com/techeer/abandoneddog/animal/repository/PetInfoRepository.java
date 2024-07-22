@@ -1,31 +1,30 @@
 package com.techeer.abandoneddog.animal.repository;
 
-import com.techeer.abandoneddog.animal.entity.PetInfo;
-import com.techeer.abandoneddog.shelter.entity.Shelter;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.math.BigInteger;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-
+import com.techeer.abandoneddog.animal.entity.PetInfo;
+import com.techeer.abandoneddog.shelter.entity.Shelter;
 
 @Repository
 public interface PetInfoRepository extends JpaRepository<PetInfo, Long> {
-  //  PetInfo findByDesertionNo(Long desertionNo);
-    Page<PetInfo> findAll(Pageable pageable);
-  @Query("SELECT b.desertionNo FROM PetInfo b")
-  List<Long> findAllDesertionNos();
+	//  PetInfo findByDesertionNo(Long desertionNo);
+	Page<PetInfo> findAll(Pageable pageable);
 
-  List<PetInfo> findByPetBoardStoredFalse();
+	@Query("SELECT b.desertionNo FROM PetInfo b")
+	List<Long> findAllDesertionNos();
 
-  Page<PetInfo> findByShelter(Shelter shelter, Pageable pageable);
+	List<PetInfo> findByPetBoardStoredFalse();
 
-  Optional<PetInfo> findPetInfoByPopfile(String popfile);
-  //   void deleteByCreatedDateBefore(LocalDateTime oneWeekAgo);
+	Page<PetInfo> findByShelter(Shelter shelter, Pageable pageable);
+
+	Optional<PetInfo> findPetInfoByPopfile(String popfile);
+	//   void deleteByCreatedDateBefore(LocalDateTime oneWeekAgo);
 }
 

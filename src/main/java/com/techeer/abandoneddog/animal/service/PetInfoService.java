@@ -1,22 +1,5 @@
 package com.techeer.abandoneddog.animal.service;
 
-import com.techeer.abandoneddog.animal.PetInfoDto.PetInfoDto;
-import com.techeer.abandoneddog.animal.PetInfoDto.PetInfoResponseDto;
-import com.techeer.abandoneddog.animal.repository.PetInfoRepository;
-import com.techeer.abandoneddog.shelter.entity.Shelter;
-import com.techeer.abandoneddog.shelter.repository.ShelterRepository;
-import jakarta.persistence.EntityNotFoundException;
-import lombok.extern.slf4j.Slf4j;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Service;
-import com.techeer.abandoneddog.animal.entity.PetInfo;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -26,7 +9,29 @@ import java.net.URLEncoder;
 import java.time.LocalDate;
 import java.time.Year;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
+
+import com.techeer.abandoneddog.animal.PetInfoDto.PetInfoResponseDto;
+import com.techeer.abandoneddog.animal.entity.PetInfo;
+import com.techeer.abandoneddog.animal.repository.PetInfoRepository;
+import com.techeer.abandoneddog.shelter.entity.Shelter;
+import com.techeer.abandoneddog.shelter.repository.ShelterRepository;
+
+import jakarta.persistence.EntityNotFoundException;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
