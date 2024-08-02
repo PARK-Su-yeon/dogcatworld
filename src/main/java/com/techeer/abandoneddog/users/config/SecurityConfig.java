@@ -67,7 +67,7 @@ public class SecurityConfig {
         .authorizeHttpRequests((auth) -> auth
             .requestMatchers("/api/v1/users/login", "/api/v1/users/register", "/login", "/reissue",
                 "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/api/v1/pet-funeral",
-                "/api/v1/shelter/*", "/api/v1/shelter_address",  "/api/v1/pet_board/list/*").permitAll()
+                "/api/v1/shelter/*", "/api/v1/shelter_address",  "/api/v1/pet_board/list/**").permitAll()
             .anyRequest().authenticated());
     // .anyRequest().permitAll());
 
