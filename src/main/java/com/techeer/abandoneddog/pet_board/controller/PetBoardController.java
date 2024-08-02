@@ -157,8 +157,8 @@ public class PetBoardController {
 		@RequestParam(value = "direction", defaultValue = "asc") String direction) {
 
 		try {
-			Sort sort = direction.equalsIgnoreCase("desc") ? Sort.by("petBoardId").descending() :
-				Sort.by("petBoardId").ascending();
+			Sort sort = direction.equalsIgnoreCase("desc") ? Sort.by("createdAt").descending() :
+				Sort.by("createdAt").ascending();
 			//            Sort sort = direction.equalsIgnoreCase("desc") ? Sort.by("createdAt").descending() : Sort.by("createdAt").ascending();
 			Pageable pageable = PageRequest.of(page, size, sort);
 			Page<PetBoardResponseDto> petBoardPage = petBoardService.getPetBoardsByPetType(petType, pageable);
