@@ -127,7 +127,7 @@ public class PetBoardController {
 	public ResponseEntity<?> getPetBoards(
 		@RequestParam(value = "page", defaultValue = "0") int page,
 		@RequestParam(value = "size", defaultValue = "12") int size,
-		@RequestParam(value = "direction", defaultValue = "asc") String direction) {
+		@RequestParam(value = "direction", defaultValue = "desc") String direction) {
 
 		try {
 			//            Sort sort = direction.equalsIgnoreCase("desc") ? Sort.by("petBoardId").descending() : Sort.by("petBoardId").ascending();
@@ -154,11 +154,11 @@ public class PetBoardController {
 		@PathVariable("petType") String petType,
 		@RequestParam(value = "page", defaultValue = "0") int page,
 		@RequestParam(value = "size", defaultValue = "12") int size,
-		@RequestParam(value = "direction", defaultValue = "asc") String direction) {
+		@RequestParam(value = "direction", defaultValue = "desc") String direction) {
 
 		try {
-			Sort sort = direction.equalsIgnoreCase("desc") ? Sort.by("petBoardId").descending() :
-				Sort.by("petBoardId").ascending();
+			Sort sort = direction.equalsIgnoreCase("desc") ? Sort.by("createdAt").descending() :
+				Sort.by("createdAt").ascending();
 			//            Sort sort = direction.equalsIgnoreCase("desc") ? Sort.by("createdAt").descending() : Sort.by("createdAt").ascending();
 			Pageable pageable = PageRequest.of(page, size, sort);
 			Page<PetBoardResponseDto> petBoardPage = petBoardService.getPetBoardsByPetType(petType, pageable);
