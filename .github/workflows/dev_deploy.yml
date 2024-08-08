@@ -4,7 +4,7 @@ name: CI/CD
 # event trigger
 on:
   push:
-    branches: [ "develop" ]
+    branches: [ "main" ]
 
 
 permissions:
