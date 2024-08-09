@@ -52,3 +52,9 @@ logging:
       max-history: 7
   file:
     name: ./log/server.log
+
+  management:
+    endpoints:
+      web:
+        exposure:
+          include: "prometheus"
