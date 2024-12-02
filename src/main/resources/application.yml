@@ -1,6 +1,5 @@
 spring:
 
-
   servlet:
     multipart:
       enabled: true
@@ -33,6 +32,10 @@ spring:
     redis:
       host: localhost
       port: 6379
+
+  batch:
+    jdbc:
+      initialize-schema: always
 
 management:
   endpoints:

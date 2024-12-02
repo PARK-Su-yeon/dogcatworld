@@ -102,8 +102,10 @@ public class ShelterService {
 			jsonCoordinate.put("latitude", coordinate.getLatitude());
 			jsonCoordinate.put("longitude", coordinate.getLongitude());
 
+
+
 			redisTemplate.opsForValue().set(cacheKey, jsonCoordinate.toJSONString());
-			redisTemplate.expire(cacheKey, 24, TimeUnit.HOURS); // 캐시 만료 시간 설정 (24시간)
+			redisTemplate.expire(cacheKey, 10, TimeUnit.DAYS); // 캐시 만료 시간 설정 (24시간)
 		} catch (Exception e) {
 			log.error("Error occurred while caching coordinate: {}", e.getMessage());
 			// 예외 처리

@@ -63,7 +63,7 @@ public class PetInfoService {
 
         while (true) {
             StringBuilder urlBuilder = new StringBuilder("http://apis.data.go.kr/1543061/abandonmentPublicSrvc/abandonmentPublic");
-            urlBuilder.append("?" + URLEncoder.encode("serviceKey", "UTF-8") + secretKey);
+            urlBuilder.append("?" + URLEncoder.encode("serviceKey", "UTF-8") +"="+ secretKey);
             urlBuilder.append("&" + URLEncoder.encode("numOfRows", "UTF-8") + "=" + URLEncoder.encode(String.valueOf(numOfRows), "UTF-8"));
             urlBuilder.append("&" + URLEncoder.encode("pageNo", "UTF-8") + "=" + URLEncoder.encode(String.valueOf(pageNo), "UTF-8"));
             urlBuilder.append("&" + URLEncoder.encode("upkind", "UTF-8") + "=" + URLEncoder.encode(upkind, "UTF-8"));
