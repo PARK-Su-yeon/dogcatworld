@@ -1,4 +1,4 @@
-package com.techeer.abandoneddog.batch.querydsl;
+package com.techeer.abandoneddog.batch;
 
 import com.querydsl.jpa.impl.JPAQuery;
 import com.techeer.abandoneddog.animal.entity.PetInfo;
