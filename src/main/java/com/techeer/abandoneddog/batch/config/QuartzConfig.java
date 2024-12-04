@@ -22,7 +22,7 @@ public class QuartzConfig {
                 .forJob(deleteOldRecordsJobDetail())
                 .withIdentity("deleteOldRecordsTrigger")
                 .withSchedule(SimpleScheduleBuilder.simpleSchedule()
-                        .withIntervalInMinutes(1) // 3분 간격
+                        .withIntervalInMinutes(2) // 3분 간격
                         .repeatForever())
                // .withSchedule(CronScheduleBuilder.cronSchedule("0 0 0 ? * MON#2")) // 매달 둘째 월요일 자정 실행
                 .build();

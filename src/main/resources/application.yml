@@ -1,3 +1,4 @@
+
 spring:
   sql:
     init:
@@ -42,9 +43,12 @@ spring:
       ddl-auto: update
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
-    show-sql: true
+    show-sql: false
     properties:
       hibernate.dialect: org.hibernate.dialect.MySQLDialect
+
+
+
 
   jwt:
     secret: vmfhaltmskdlstkfkdgodyroqkfwkdbalroqkfwkdbalaaaaaaaaaaaaaaaabbbbb
@@ -69,12 +73,18 @@ slack:
   webhook:
     url: ${WEBHOOK_SLACK_URL}
 
+
+
 logging:
   pattern:
     console: "[%d{HH:mm:ss.SSS}][%-5level][%logger.%method:line%line] - %msg%n"
     file: "[%d{yyyy-MM-dd HH:mm:ss.SSS}][%-5level][%logger.%method:line%line] - %msg%n"
   level:
-    com.example.log: debug
+    org.springframework.batch.core: INFO
+    org.hibernate: INFO
+    org.springframework: INFO
+    com.example.log: INFO
+
   logback:
     rollingpolicy:
       max-file-size: 10MB

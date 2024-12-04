@@ -1,4 +1,5 @@
 
+
 ALTER TABLE batch_job_execution_context DROP FOREIGN KEY JOB_EXEC_CTX_FK;
 ALTER TABLE batch_step_execution_context DROP FOREIGN KEY STEP_EXEC_CTX_FK;
 ALTER TABLE batch_step_execution DROP FOREIGN KEY JOB_EXEC_STEP_FK;
