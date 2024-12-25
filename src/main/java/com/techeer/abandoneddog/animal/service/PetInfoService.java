@@ -63,7 +63,7 @@ public class PetInfoService {
 
         while (true) {
             StringBuilder urlBuilder = new StringBuilder("http://apis.data.go.kr/1543061/abandonmentPublicSrvc/abandonmentPublic");
-            urlBuilder.append("?" + URLEncoder.encode("serviceKey", "UTF-8") + secretKey);
+            urlBuilder.append("?" + URLEncoder.encode("serviceKey", "UTF-8")  + "=" + secretKey);
             urlBuilder.append("&" + URLEncoder.encode("numOfRows", "UTF-8") + "=" + URLEncoder.encode(String.valueOf(numOfRows), "UTF-8"));
             urlBuilder.append("&" + URLEncoder.encode("pageNo", "UTF-8") + "=" + URLEncoder.encode(String.valueOf(pageNo), "UTF-8"));
             urlBuilder.append("&" + URLEncoder.encode("upkind", "UTF-8") + "=" + URLEncoder.encode(upkind, "UTF-8"));
@@ -114,8 +114,14 @@ public class PetInfoService {
         return body.getInt("totalCount");
     }
 
-    private void savePetInfoFromApiResponse(String apiResponse, String upkind) {
+
+    public void savePetInfoFromApiResponse(String apiResponse, String upkind) {
         try {
+
+            if (apiResponse == null || apiResponse.isEmpty() || !apiResponse.trim().startsWith("{")) {
+                log.error("Invalid API response: " + apiResponse);
+                return; // 메서드 종료
+            }
             JSONObject jsonObject = new JSONObject(apiResponse);
             JSONObject body = jsonObject.getJSONObject("response").getJSONObject("body");
             JSONArray itemArray = body.getJSONObject("items").getJSONArray("item");
@@ -190,16 +196,26 @@ public class PetInfoService {
                     petInfoList.add(petInfo);
                     existingDesertionNos.add(desertionNo);
 
-                } catch (JSONException e) {
-                    log.error("Error creating PetInfo object: " + e.getMessage());
+                }catch (JSONException e) {
+                    log.error("Error creating PetInfo object: " + e.getMessage() + " Item: " + itemArray.getJSONObject(i));
+                    continue; // 현재 루프 건너뛰기
+
+
                 }
+
             }
+
             petInfoRepository.saveAll(petInfoList);
             log.info("Saved " + petInfoList.size() + " new pet information to the database.");
+
         } catch (JSONException e) {
+
             log.error("Error parsing JSON response: " + e.getMessage());
+
         } catch (Exception e) {
+            //log.error("apiresoponse: " + apiResponse);
             log.error("General error: " + e.getMessage());
+
         }
     }
     @Scheduled(cron = "0 0 0 1 1 ?") // 매년 1월 1일 자정에 실행
@@ -233,7 +249,8 @@ public class PetInfoService {
         return kindCd;
     }
 
-    // @Scheduled(cron = "0 0 0 * * ?") // 매일 자정에 실행
+
+    // @Scheduled(fixedRate = 600000) // 매일 자정에 실행
     public void updatePetInfoDaily() {
         try {
             if (!isInitialized) {
@@ -257,9 +274,69 @@ public class PetInfoService {
         }
     }
 
-//    public PetInfo getPetInfo(Long id) {
-//        return petInfoRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("not found"));
+    public void update10To300DaysData() {
+        try {
+            if (!isInitialized) {
+                initializeExistingDesertionNos();
+                log.info("Initialized existing desertion numbers");
+            }
+
+            LocalDate today = LocalDate.now().minusDays(10);
+            LocalDate tenDaysAgo = today.minusDays(20);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+
+            String bgnde = tenDaysAgo.format(formatter);
+            String endde = today.format(formatter);
+
+            getAllAndSaveInfo("417000", bgnde, endde); // 강아지
+            getAllAndSaveInfo("422400", bgnde, endde); // 고양이
+
+            log.info("Saved update scheduler");
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
+    }
+
+
+
+//    public void updatePetInfoDaily() {
+//        try {
+//            if (!isInitialized) {
+//                initializeExistingDesertionNos();
+//                log.info("Initialized existing desertion numbers");
+//            }
+//
+//            LocalDate today = LocalDate.now();
+//            LocalDate startDate = today.minusDays(300); // 300일 전부터 데이터 가져오기
+//            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+//
+//            while (!startDate.isAfter(today)) { // startDate가 오늘을 넘지 않을 때까지 반복
+//                LocalDate endDate = startDate.plusDays(29); // 30일 단위로 분할
+//                if (endDate.isAfter(today)) {
+//                    endDate = today; // 마지막 구간 조정
+//                }
+//
+//                String bgnde = startDate.format(formatter);
+//                String endde = endDate.format(formatter);
+//
+//                log.info("Fetching data from {} to {}", bgnde, endde);
+//                getAllAndSaveInfo("417000", bgnde, endde); // 강아지
+//                getAllAndSaveInfo("422400", bgnde, endde); // 고양이
+//
+//                startDate = endDate.plusDays(1); // 다음 기간으로 이동
+//            }
+//
+//            log.info("Finished fetching and saving pet info");
+//
+//        } catch (Exception e) {
+//            log.error("Error during pet info update: {}", e.getMessage(), e);
+//        }
 //    }
+
+
+    public PetInfo getPetInfo(Long id) {
+        return petInfoRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("not found"));
+    }
 
     public PetInfoResponseDto getPetInfoById(Long id) {
         PetInfo petInfo = petInfoRepository.findById(id)
